@@ -1,0 +1,9 @@
+{
+  "name": "MyFood",
+  "short_name": "MyFood",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#66508f",
+  "icons": [{"src":"/favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

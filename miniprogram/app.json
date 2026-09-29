@@ -1,0 +1,40 @@
+{
+  "lazyCodeLoading": "requiredComponents",
+  "pages": [
+    "pages/records/records",
+    "pages/index/index",
+    "pages/ingredients/ingredients",
+    "pages/categories/categories"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#66508f",
+    "navigationBarTitleText": "MyFood",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#756e7d",
+    "selectedColor": "#66508f",
+    "list": [
+      {
+        "pagePath": "pages/categories/categories",
+        "text": "产品类别",
+        "iconPath": "images/category.png",
+        "selectedIconPath": "images/category-active.png"
+      },
+      {
+        "pagePath": "pages/records/records",
+        "text": "记录",
+        "iconPath": "images/record.png",
+        "selectedIconPath": "images/record-active.png"
+      },
+      {
+        "pagePath": "pages/ingredients/ingredients",
+        "text": "原料",
+        "iconPath": "images/ingredient.png",
+        "selectedIconPath": "images/ingredient-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

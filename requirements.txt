@@ -1,0 +1,4 @@
+psycopg[binary]==3.2.9
+cos-python-sdk-v5==1.9.35
+Pillow==11.3.0
+pillow-heif==0.21.0

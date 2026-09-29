@@ -1,0 +1,14 @@
+*.env
+__pycache__/
+*.dump
+_restore_tmp/
+*.dir.tar.gz
+
+# wechat miniprogram (gitignore these)
+miniprogram/project.private.config.json
+miniprogram/node_modules/
+miniprogram/miniprogram_npm/
+
+# any node_modules anywhere
+node_modules/
+miniprogram_npm/

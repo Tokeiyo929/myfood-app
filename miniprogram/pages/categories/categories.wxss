@@ -1,0 +1,15 @@
+.page { padding: 8px; }
+.group { background: #fff; margin-bottom: 8px; border-radius: 12px; overflow: hidden; }
+.group-grid { display: flex; flex-wrap: wrap; border-top: 1px solid #f0f0f0; }
+.group-item { width: 25%; box-sizing: border-box; padding: 8px 4px; text-align: center; border-bottom: 1px solid #f5f5f5; }
+.group-item.has-img { background: linear-gradient(135deg, #f3eefc, #e8f5e9); }
+.group-item-img { width: 48px; height: 48px; border-radius: 8px; display: block; margin: 0 auto 4px; }
+.group-item-name { font-size: 11px; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.empty { padding: 40px 0; }
+.modal-panel { padding: 16px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.modal-title { font-size: 17px; font-weight: 700; }
+.modal-grid { display: flex; flex-wrap: wrap; max-height: 60vh; overflow-y: auto; }
+.modal-item { width: 25%; box-sizing: border-box; padding: 8px; text-align: center; }
+.modal-item-img { width: 60px; height: 60px; border-radius: 8px; display: block; margin: 0 auto 4px; }
+.modal-item-name { font-size: 11px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

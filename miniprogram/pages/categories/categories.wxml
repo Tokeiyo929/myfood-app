@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="group" wx:for="{{groups}}" wx:key="parent" wx:for-item="group">
+    <van-cell title="{{group.parent}}" is-link
+      value="{{expandedParent === group.parent ? '收起' : '展开'}}" bindtap="toggleGroup" data-parent="{{group.parent}}" />
+    <view wx:if="{{expandedParent === group.parent}}" class="group-grid">
+      <view class="group-item {{item.hasFood ? 'has-img' : ''}}" wx:for="{{group.items}}" wx:for-item="item" wx:key="id"
+        bindtap="openCategory" data-name="{{item.name}}" data-parent="{{group.parent}}">
+        <image wx:if="{{item.img}}" src="{{item.img}}" class="group-item-img" mode="aspectFill" />
+        <text class="group-item-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{!groups.length && !loading}}" class="empty"><van-empty description="暂无类别" /></view>
+</view>
+
+<van-popup show="{{modal}}" position="bottom" round bind:close="closeModal">
+  <view class="modal-panel">
+    <view class="modal-header">
+      <text class="modal-title">{{modal.name}}</text>
+      <van-icon name="cross" bindtap="closeModal" size="22" />
+    </view>
+    <view class="modal-grid">
+      <view class="modal-item" wx:for="{{modal.foods}}" wx:key="id">
+        <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="modal-item-img" mode="aspectFill" />
+        <text class="modal-item-name">{{item.name}}</text>
+      </view>
+      <view wx:if="{{!modal.foods.length}}" class="empty"><van-empty description="暂无对应食品" /></view>
+    </view>
+  </view>
+</van-popup>

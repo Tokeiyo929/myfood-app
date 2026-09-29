@@ -1,0 +1,27 @@
+{
+  "pagination": {
+    "page_size": 5,
+    "ingredient_page_size": 200,
+    "max_page_size": 50,
+    "scroll_threshold": 160
+  },
+  "image": {
+    "max_dimension": 320,
+    "quality": 0.35,
+    "signed_url_expiry": 900
+  },
+  "flavor_scale": {
+    "default_level": 50,
+    "min_level": 0,
+    "max_level": 100,
+    "low_threshold": 25,
+    "mid_threshold": 50,
+    "high_threshold": 75
+  },
+  "preferences": {
+    "excellent": {"value": "推荐吃", "label": "推荐吃", "level": 100, "face": "😄"},
+    "good": {"value": "偏好吃", "label": "偏好吃", "level": 50, "face": "🙂"},
+    "bad": {"value": "偏难吃", "label": "偏难吃", "level": 0, "face": "😞"}
+  },
+  "flavors": ["酸", "甜", "苦", "辣", "咸"]
+}

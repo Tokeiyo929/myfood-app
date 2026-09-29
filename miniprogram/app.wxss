@@ -1,0 +1,6 @@
+page {
+  background: #fff8f0;
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 15px;
+  color: #332d3d;
+}
