@@ -345,8 +345,8 @@ Page({
 
   // 打开详情面板（编辑记录）
   toggleDetail(e) {
-    const id = e.currentTarget.dataset.id;
-    const rec = this.data.records.find(r => r.id === id);
+    const id = Number(e.currentTarget.dataset.id);
+    const rec = this.data.records.find(r => Number(r.id) === id);
     if (!rec || !this.data.settings) return;
     // 填充编辑字段
     const scale = this.data.settings.flavor_scale;
