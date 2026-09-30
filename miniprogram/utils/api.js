@@ -1,4 +1,4 @@
-const BASE_URL = "https://myfood-api.keiyokaze.workers.dev";
+const BASE_URL = "https://myfood-worker.keiyokaze.workers.dev";
 
 function request(path, method = "GET", data = null) {
   return new Promise((resolve, reject) => {
@@ -53,3 +53,4 @@ function addIngredient(name) { return request("/api/ingredients", "POST", { name
 function getCategories() { return request("/api/categories"); }
 
 module.exports = { BASE_URL, getConfig, getFoods, getFoodsByCategory, submitFood, updateFoodPreference, searchIngredients, addIngredient, getCategories, uploadImage };
+
