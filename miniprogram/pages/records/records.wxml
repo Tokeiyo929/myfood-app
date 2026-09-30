@@ -33,11 +33,10 @@
   <view wx:if="{{hasMore && records.length}}" class="loading-hint">上拉加载更多</view>
 </view>
 
-<!-- 详情面板：普通view，panel层级最高 -->
+<!-- 详情面板 -->
 <view wx:if="{{panelVisible}}" class="fix-mask" bindtap="closeDetail" catchtouchmove="preventTouch"></view>
-<view wx:if="{{panelVisible}}" class="fix-panel">
+<view wx:if="{{panelVisible}}" class="fix-panel" catchtouchmove="preventTouch">
   <view class="fix-title">编辑记录<text class="fix-close" bindtap="closeDetail">×</text></view>
-  <scroll-view scroll-y class="fix-scroll">
 
   <view class="detail-section">
     <view class="section-label">基本信息</view>
@@ -58,7 +57,7 @@
       <view class="flavor-box">
         <view class="wheel-wrap">
           <view class="reset-btn" bindtap="resetFlavors">↻</view>
-          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
+          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="140" height="140" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
         </view>
       </view>
       <view class="pref-box">
@@ -78,7 +77,7 @@
   <view class="detail-section">
     <view class="section-label">原料</view>
     <view class="ing-row">
-      <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="原料" style="flex:1" />
+      <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="原料" class="ing-main" />
       <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" placeholder="%" class="amount-field" />
     </view>
     <view class="suggestions" wx:if="{{ingredientSuggestions.length}}">
@@ -90,5 +89,4 @@
   </view>
 
   <view style="margin-top:12px"><van-button type="primary" block bindtap="saveDetail">保存</van-button></view>
-  </scroll-view>
 </view>
