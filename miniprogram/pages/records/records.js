@@ -39,6 +39,7 @@ Page({
     imagePath: '',
     fileList: [],
     panelVisible: false,
+    draggingAxis: -1,
     prefLevel: 0,
     prefStep: 1,
   },
@@ -207,7 +208,7 @@ Page({
     const touch = e.touches[0] || e.changedTouches[0];
     if (!touch) return;
     const axis = this.data.draggingAxis;
-    if (axis < 0) return;
+    if (!Number.isInteger(axis) || axis < 0) return;
     const that = this;
     wx.createSelectorQuery().select('#flavorWheel').boundingClientRect(function(rect) {
       if (!rect) return;
@@ -309,6 +310,8 @@ Page({
     this.setData({ ingredients });
   },
 
+  preventTouch() {},
+
   // 外层：保存记录（只上传图片，创建，其他字段留空）
   async submit() {
     if (!this.data.settings) {
@@ -321,9 +324,9 @@ Page({
     }
     wx.showLoading({ title: '保存中' });
     try {
-      const upload = await api.compressAndUpload(this.data.imagePath);
+      const upload = await api.compressAndUpload(this.data.imagePath, this.data.settings.image);
       const record = {
-        name: '',
+        name: this.data.dishName.trim(),
         brand_name: '',
         price: null,
         categories: [],

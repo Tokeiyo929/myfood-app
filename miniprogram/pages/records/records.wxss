@@ -35,6 +35,7 @@
 /* 详情面板：panel层级最高（view），遮罩第二 */
 .fix-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; }
 .fix-panel { position: fixed; left: 8px; right: 8px; top: 50%; transform: translateY(-50%); background: #fff; border-radius: 14px; padding: 10px; z-index: 101; max-height: 88vh; overflow: hidden; }
+.fix-scroll { max-height: 78vh; }
 .fix-title { font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .fix-close { color: #888; font-size: 26px; padding: 0 4px; }
 .section-label { font-size: 12px; font-weight: 600; color: #66508f; margin: 6px 0 2px; }

@@ -35,8 +35,9 @@
 
 <!-- 详情面板：普通view，panel层级最高 -->
 <view wx:if="{{panelVisible}}" class="fix-mask" bindtap="closeDetail" catchtouchmove="preventTouch"></view>
-<view wx:if="{{panelVisible}}" class="fix-panel" catchtouchmove="preventTouch">
+<view wx:if="{{panelVisible}}" class="fix-panel">
   <view class="fix-title">编辑记录<text class="fix-close" bindtap="closeDetail">×</text></view>
+  <scroll-view scroll-y class="fix-scroll">
 
   <view class="detail-section">
     <view class="section-label">基本信息</view>
@@ -89,4 +90,5 @@
   </view>
 
   <view style="margin-top:12px"><van-button type="primary" block bindtap="saveDetail">保存</van-button></view>
+  </scroll-view>
 </view>
