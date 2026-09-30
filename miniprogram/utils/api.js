@@ -36,14 +36,30 @@ function uploadImage(filePath) {
   });
 }
 
-// 压缩图片后再上传（减小体积，避免超时）
+// 限制到320尺寸（缩略图）并压缩后再上传，避免大图超时
 function compressAndUpload(filePath) {
   return new Promise((resolve, reject) => {
-    wx.compressImage({
+    wx.getImageInfo({
       src: filePath,
-      quality: 70,
-      success: (res) => {
-        uploadImage(res.tempFilePath).then(resolve).catch(reject);
+      success: (info) => {
+        const MAX = 320;
+        let w = info.width;
+        let h = info.height;
+        if (w > MAX || h > MAX) {
+          const ratio = MAX / Math.max(w, h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+        wx.compressImage({
+          src: filePath,
+          quality: 70,
+          compressedWidth: w,
+          compressedHeight: h,
+          success: (res) => {
+            uploadImage(res.tempFilePath).then(resolve).catch(reject);
+          },
+          fail: () => uploadImage(filePath).then(resolve).catch(reject),
+        });
       },
       fail: () => uploadImage(filePath).then(resolve).catch(reject),
     });
