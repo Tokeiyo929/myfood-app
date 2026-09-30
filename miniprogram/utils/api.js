@@ -45,6 +45,8 @@ function getFoods(page, limit, search) {
 function getFoodsByCategory(parentName, limit) { return request(`/api/foods?category=${encodeURIComponent(parentName)}&limit=${limit}`); }
 function submitFood(record) { return request("/api/foods", "POST", record); }
 function updateFoodPreference(id, preference, reason) { return request(`/api/foods/${id}`, "PATCH", { preference, reason }); }
+// 更新完整详情字段（产品名/品牌/价格/类别/原料/味道/偏好/理由）
+function updateFoodDetails(id, fields) { return request(`/api/foods/${id}`, "PATCH", { fields }); }
 function searchIngredients(search, limit) {
   let qs = search ? `?search=${encodeURIComponent(search)}&limit=${limit}` : ``;
   return request(`/api/ingredients${qs}`);
@@ -52,5 +54,4 @@ function searchIngredients(search, limit) {
 function addIngredient(name) { return request("/api/ingredients", "POST", { name }); }
 function getCategories() { return request("/api/categories"); }
 
-module.exports = { BASE_URL, getConfig, getFoods, getFoodsByCategory, submitFood, updateFoodPreference, searchIngredients, addIngredient, getCategories, uploadImage };
-
+module.exports = { BASE_URL, getConfig, getFoods, getFoodsByCategory, submitFood, updateFoodPreference, updateFoodDetails, searchIngredients, addIngredient, getCategories, uploadImage };

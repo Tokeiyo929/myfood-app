@@ -1,14 +1,47 @@
 <view class="page">
+  <!-- 外层：上传图片 + 保存记录 -->
   <view class="card">
-    <view class="top-row">
-      <view class="img-box">
-        <van-uploader file-list="{{fileList}}" max-count="1" bind:after-read="chooseImage" bind:delete="removeImage" />
-      </view>
-      <view class="name-brand">
-        <van-field label="产品" value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
-        <van-field label="生产者" value="{{brandName}}" bindinput="onBrandName" placeholder="生产者" />
+    <view class="img-box">
+      <van-uploader file-list="{{fileList}}" max-count="1" bind:after-read="chooseImage" bind:delete="removeImage" />
+    </view>
+    <view style="margin-top:12px;padding:0 16px"><van-button type="primary" block bindtap="submit">保存记录</van-button></view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="records">
+    <view class="record" wx:for="{{records}}" wx:key="id">
+      <view class="record-card {{item.prefClass}}">
+        <view class="record-main" bindtap="toggleDetail" data-id="{{item.id}}">
+          <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="record-img" mode="aspectFill" />
+          <view class="record-info">
+            <view class="line1"><text class="record-name">{{item.name || '未命名'}}</text><text class="record-brand" wx:if="{{item.brand_name}}"> - {{item.brand_name}}</text></view>
+            <view class="line2" wx:if="{{item.flavorLabels && item.flavorLabels.length}}">
+              <text class="item-label">味道：</text>
+              <van-tag wx:for="{{item.flavorLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
+            </view>
+            <view class="line2" wx:if="{{item.ingredientLabels && item.ingredientLabels.length}}">
+              <text class="item-label">材料：</text>
+              <van-tag wx:for="{{item.ingredientLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
+            </view>
+            <text class="repurchase-count" wx:if="{{item.repurchase_count}}">复购{{item.repurchase_count}}次</text>
+          </view>
+        </view>
       </view>
     </view>
+    <view wx:if="{{!records.length && !loading}}"><van-empty description="暂无记录" /></view>
+    <view wx:if="{{loading}}"><van-loading /></view>
+  </view>
+  <view wx:if="{{hasMore && records.length}}" class="loading-hint">上拉加载更多</view>
+</view>
+
+<!-- 详情面板：可编辑完整字段 -->
+<view wx:if="{{panelVisible}}" class="fix-mask" bindtap="closeDetail"></view>
+<view wx:if="{{panelVisible}}" class="fix-panel">
+  <scroll-view scroll-y class="fix-scroll">
+    <view class="fix-title">编辑记录<text class="fix-close" bindtap="closeDetail">×</text></view>
+
+    <van-field label="产品" value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
+    <van-field label="生产者" value="{{brandName}}" bindinput="onBrandName" placeholder="生产者" />
     <van-field label="价格" value="{{price}}" type="number" bindinput="onPrice" placeholder="价格" />
     <van-field label="产品类别" value="{{categorySearch}}" bindinput="onCategorySearch" placeholder="搜索产品类别" />
     <view class="suggestions" wx:if="{{categorySuggestions.length}}">
@@ -48,50 +81,7 @@
     <view class="chips">
       <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount ? '(' + item.amount + '%)' : ''}}</van-tag>
     </view>
-    <view style="margin-top:16px;padding:0 16px"><van-button type="primary" block bindtap="submit">保存记录</van-button></view>
-  </view>
 
-  <view class="records">
-    <view class="record" wx:for="{{records}}" wx:key="id">
-      <view class="record-card {{item.prefClass}}">
-        <view class="record-main" bindtap="toggleDetail" data-id="{{item.id}}">
-          <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="record-img" mode="aspectFill" />
-          <view class="record-info">
-            <view class="line1"><text class="record-name">{{item.name}}</text><text class="record-brand" wx:if="{{item.brand_name}}"> - {{item.brand_name}}</text></view>
-            <view class="line2" wx:if="{{item.flavorLabels && item.flavorLabels.length}}">
-              <text class="item-label">味道：</text>
-              <van-tag wx:for="{{item.flavorLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
-            </view>
-            <view class="line2" wx:if="{{item.ingredientLabels && item.ingredientLabels.length}}">
-              <text class="item-label">材料：</text>
-              <van-tag wx:for="{{item.ingredientLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
-            </view>
-            <text class="repurchase-count" wx:if="{{item.repurchase_count}}">复购{{item.repurchase_count}}次</text>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view wx:if="{{!records.length && !loading}}"><van-empty description="暂无记录" /></view>
-    <view wx:if="{{loading}}"><van-loading /></view>
-  </view>
-  <view wx:if="{{hasMore && records.length}}" class="loading-hint">上拉加载更多</view>
-</view>
-
-<!-- 覆盖式详情浮层 -->
-<view wx:if="{{detailRecord}}" class="fix-mask" bindtap="closeDetail"></view>
-<view wx:if="{{detailRecord}}" class="fix-panel">
-  <scroll-view scroll-y class="fix-scroll">
-    <view class="fix-title">{{detailRecord.name}}<text class="fix-close" bindtap="closeDetail">×</text></view>
-    <view wx:if="{{detailRecord.reason}}" class="{{detailRecord.preference === prefBad ? 'bad-reason' : detailRecord.preference === prefExcellent ? 'good-reason' : ''}}">{{detailRecord.preference === prefBad ? '难吃理由' : detailRecord.preference === prefExcellent ? '推荐理由' : '理由'}}：{{detailRecord.reason}}</view>
-    <view wx:if="{{detailRecord.price}}">价格：{{detailRecord.price}}</view>
-    <view wx:if="{{detailRecord.categories.length}}">类别：{{detailRecord.categories}}</view>
-    <view wx:if="{{detailRecord.ingredientLabels && detailRecord.ingredientLabels.length}}" class="line2">
-      <text class="item-label">材料：</text>
-      <van-tag wx:for="{{detailRecord.ingredientLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
-    </view>
-    <view class="repurchase-actions" wx:if="{{detailRecord.pickable}}">
-      <van-button size="mini" type="primary" data-id="{{detailRecord.id}}" data-value="{{prefGood}}" bindtap="repurchase">偏好吃</van-button>
-      <van-button size="mini" type="danger" data-id="{{detailRecord.id}}" data-value="{{prefBad}}" bindtap="repurchase">偏难吃</van-button>
-    </view>
+    <view style="margin-top:16px;padding:0 16px"><van-button type="primary" block bindtap="saveDetail">保存</van-button></view>
   </scroll-view>
 </view>
