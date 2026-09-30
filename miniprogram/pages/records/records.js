@@ -317,7 +317,7 @@ Page({
     }
     wx.showLoading({ title: '保存中' });
     try {
-      const upload = await api.uploadImage(this.data.imagePath);
+      const upload = await api.compressAndUpload(this.data.imagePath);
       const record = {
         name: '',
         brand_name: '',
