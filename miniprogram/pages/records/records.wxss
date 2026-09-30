@@ -20,21 +20,22 @@
 .suggestions { display: flex; flex-wrap: wrap; padding: 2px 0; }
 .chips { display: flex; flex-wrap: wrap; margin: 2px 0; }
 .flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.flavor-box { flex: 0 0 160px; display: flex; justify-content: center; }
-.wheel-wrap { position: relative; width: 160px; height: 160px; }
-.flavor-canvas { width: 160px; height: 160px; }
+.flavor-box { flex: 0 0 170px; display: flex; justify-content: center; }
+.wheel-wrap { position: relative; width: 170px; height: 170px; }
+.flavor-canvas { width: 170px; height: 170px; }
 .reset-btn { position: absolute; top: -2px; left: -2px; z-index: 5; color: #66508f; font-size: 18px; padding: 2px 6px; }
 .pref-box { flex: 1; display: flex; justify-content: center; align-items: center; }
 .preference-panel { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; }
 .pref-slider { height: 150px; width: 46px; }
+.pref-slider .van-slider { width: 8px; height: 150px; }
 .pref-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
 .pref-label { font-size: 12px; }
 .pref-face { font-size: 24px; line-height: 1; }
-.ing-row { display: flex; gap: 4px; align-items: center; }
-.ing-main { flex: 0 0 62px; }
-.amount-field { flex: 1; width: 120px; min-width: 0; }
+.ing-row { display: flex; gap: 8px; align-items: center; }
+.ing-main { flex: 1; min-width: 0; }
+.amount-field { flex: 0 0 50%; }
 .reason-area { margin: 4px 0; }
-.reason-textarea { width: 100%; min-height: 70px; box-sizing: border-box; padding: 8px 12px; font-size: 14px; background: #f7f7f9; border-radius: 8px; }
+.reason-textarea { width: 80%; min-height: 70px; box-sizing: border-box; padding: 8px 12px; font-size: 14px; background: #f7f7f9; border-radius: 8px; }
 
 /* 详情面板 */
 .fix-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; }

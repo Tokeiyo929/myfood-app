@@ -58,12 +58,12 @@
       <view class="flavor-box">
         <view class="wheel-wrap">
           <view class="reset-btn" bindtap="resetFlavors">↻</view>
-          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="160" height="160" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
+          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="170" height="170" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
         </view>
       </view>
       <view class="pref-box">
         <view class="preference-panel">
-          <slider value="{{prefLevel}}" min="{{preferenceOptions[0].level}}" max="{{preferenceOptions[preferenceOptions.length-1].level}}" step="{{prefStep}}" bindchange="onPreferenceChange" activeColor="#66508f" vertical="true" block-size="16" class="pref-slider" />
+          <slider value="{{prefLevel}}" min="{{preferenceOptions[0].level}}" max="{{preferenceOptions[preferenceOptions.length-1].level}}" step="{{prefStep}}" bindchange="onPreferenceChange" activeColor="#66508f" vertical="{{true}}" block-size="16" class="pref-slider" />
           <view class="pref-side">
             <text class="pref-face">{{preferenceFace}}</text>
             <text class="pref-label">{{preferenceLabel}}</text>

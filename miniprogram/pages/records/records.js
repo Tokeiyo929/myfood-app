@@ -3,7 +3,7 @@ let recordsRequest = 0;
 let ingredientRequest = 0;
 
 // 雷达图常量（与 web 端一致）
-const WHEEL = { size: 160, center: 80, radius: 58, labelRadius: 74, handleRadius: 5 };
+const WHEEL = { size: 170, center: 85, radius: 60, labelRadius: 80, handleRadius: 5 };
 
 Page({
   data: {
