@@ -9,8 +9,6 @@ Page({
   data: {
     settings: null,
     flavors: [],
-    // 详情面板编辑状态
-    editMode: false,
     editId: null,
     flavorLevels: {},
     preferenceOptions: [],
@@ -40,14 +38,9 @@ Page({
     // 外层：图片（必填）
     imagePath: '',
     fileList: [],
-    // 详情浮层
-    detailRecord: null,
     panelVisible: false,
-    prefGood: '',
-    prefBad: '',
-    prefExcellent: '',
-    prefLevel: 50,
-    prefStep: 50,
+    prefLevel: 0,
+    prefStep: 1,
   },
 
   onLoad() {
@@ -69,23 +62,19 @@ Page({
   async loadConfig() {
     try {
       const config = await api.getConfig();
-      const flavorLevels = {};
-      config.flavors.forEach(f => flavorLevels[f] = config.flavor_scale.default_level);
       const prefs = Object.values(config.preferences).sort((a, b) => a.level - b.level);
-      const good = config.preferences.good;
+      const prefStep = prefs.length > 1 ? Math.max(1, Math.min(...prefs.slice(1).map((item, i) => item.level - prefs[i].level))) : 1;
       this.setData({
         settings: config,
         flavors: config.flavors,
         preferenceOptions: prefs,
-        prefGood: config.preferences.good.value,
-        prefBad: config.preferences.bad.value,
-        prefExcellent: config.preferences.excellent.value,
         prefLevel: config.preferences.good.level,
+        prefStep,
       }, () => {
         this.loadRecords(true);
       });
     } catch (e) {
-      this.loadRecords(true);
+      wx.showToast({ title: '配置加载失败', icon: 'none' });
     }
   },
 
@@ -93,7 +82,9 @@ Page({
     try {
       const result = await api.getCategories();
       this.setData({ categories: result.items });
-    } catch (e) {}
+    } catch (e) {
+      wx.showToast({ title: '类别加载失败', icon: 'none' });
+    }
   },
 
   async loadRecords(reset) {
@@ -102,21 +93,24 @@ Page({
     this.setData({ loading: true });
     const page = reset ? 1 : this.data.page + 1;
     try {
-      const limit = this.data.settings ? this.data.settings.pagination.page_size : 20;
+      if (!this.data.settings) return;
+      const limit = this.data.settings.pagination.page_size;
       const result = await api.getFoods(page, limit, this.data.recordSearch);
       if (requestId !== recordsRequest) return;
       let records = reset ? result.items : this.data.records.concat(result.items);
-      const bad = this.data.prefBad, good = this.data.prefGood, excellent = this.data.prefExcellent;
-      const scale = this.data.settings ? this.data.settings.flavor_scale : {default_level:50, low_threshold:25, mid_threshold:50, high_threshold:75};
+      const { bad, excellent } = this.data.settings.preferences;
+      const scale = this.data.settings.flavor_scale;
       const flavorLabel = (name, level) => { const lv = level || scale.default_level; if (lv < scale.low_threshold) return "不"+name; if (lv < scale.mid_threshold) return "微"+name; if (lv < scale.high_threshold) return name; return "太"+name; };
       records = records.map(record => ({
         ...record,
-        prefClass: record.preference === excellent ? 'preference-excellent' : record.preference === bad ? 'preference-bad' : 'preference-good',
+        prefClass: record.preference === excellent.value ? 'preference-excellent' : record.preference === bad.value ? 'preference-bad' : 'preference-good',
         flavorLabels: (record.flavors || []).filter(f => f.level && f.level !== (scale.default_level)).map(f => flavorLabel(f.name, f.level)),
         ingredientLabels: (record.ingredients || []).map(it => it.amount ? it.name + '(' + it.amount + '%)' : it.name),
       }));
       this.setData({ records, page, hasMore: records.length < result.total });
-    } catch (e) {} finally {
+    } catch (e) {
+      if (requestId === recordsRequest) wx.showToast({ title: e.message || '记录加载失败', icon: 'none' });
+    } finally {
       if (requestId === recordsRequest) this.setData({ loading: false });
     }
   },
@@ -289,7 +283,8 @@ Page({
     const requestId = ++ingredientRequest;
     this.setData({ ingredientSearch: q });
     if (!q) { this.setData({ ingredientSuggestions: [] }); return; }
-    const limit = this.data.settings ? this.data.settings.pagination.ingredient_page_size : 50;
+    if (!this.data.settings) return;
+    const limit = this.data.settings.pagination.ingredient_page_size;
     api.searchIngredients(q, limit).then(result => {
       if (requestId === ingredientRequest) this.setData({ ingredientSuggestions: result.items || [] });
     }).catch(() => {
@@ -312,6 +307,10 @@ Page({
 
   // 外层：保存记录（只上传图片，创建，其他字段留空）
   async submit() {
+    if (!this.data.settings) {
+      wx.showToast({ title: '配置加载中', icon: 'none' });
+      return;
+    }
     if (!this.data.imagePath) {
       wx.showToast({ title: '请上传图片', icon: 'none' });
       return;
@@ -326,13 +325,13 @@ Page({
         categories: [],
         ingredients: [],
         flavors: [],
-        preference: '',
+        preference: this.data.settings.preferences.good.value,
         reason: '',
         image_path: upload.path,
         image_metadata: upload.metadata || {},
         client_key: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10),
       };
-      const res = await api.submitFood(record);
+      await api.submitFood(record);
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });
       this.setData({ imagePath: '', fileList: [] });
@@ -353,19 +352,17 @@ Page({
     const flavorLevels = {};
     this.data.flavors.forEach(f => flavorLevels[f] = scale.default_level);
     (rec.flavors || []).forEach(f => { if (f && f.name) flavorLevels[f.name] = f.level; });
-    const prefs = this.data.preferenceOptions;
-    const sorted = prefs.sort((a, b) => a.level - b.level);
+    const sorted = [...this.data.preferenceOptions].sort((a, b) => a.level - b.level);
     let pref = sorted.find(p => p.value === rec.preference) || this.data.settings.preferences.good;
     const bad = this.data.settings.preferences.bad.value;
     const good = this.data.settings.preferences.excellent.value;
     const reasonField = pref.value === bad ? 'bad' : pref.value === good ? 'good' : 'none';
     this.setData({
       panelVisible: true,
-      editMode: true,
       editId: rec.id,
       dishName: rec.name || '',
       brandName: rec.brand_name || '',
-      price: rec.price ? String(rec.price) : '',
+      price: rec.price == null ? '' : String(rec.price),
       selectedCategory: (rec.categories && rec.categories[0]) || '',
       categorySearch: '',
       categorySuggestions: [],
@@ -380,19 +377,18 @@ Page({
       reasonField,
       badlyReason: rec.preference === bad ? (rec.reason || '') : '',
       goodReason: rec.preference === good ? (rec.reason || '') : '',
-      detailRecord: rec,
     }, () => {
       this.drawWheel();
     });
   },
 
   closeDetail() {
-    this.setData({ panelVisible: false, detailRecord: null, editMode: false, editId: null });
+    this.setData({ panelVisible: false, editId: null });
   },
 
   // 保存详情面板（更新完整字段）
   async saveDetail() {
-    if (!this.data.editId) return;
+    if (this.data.editId == null || !this.data.settings) return;
     const bad = this.data.settings.preferences.bad.value;
     const excellent = this.data.settings.preferences.excellent.value;
     const reason = this.data.preference === bad ? this.data.badlyReason : this.data.preference === excellent ? this.data.goodReason : '';
@@ -400,10 +396,15 @@ Page({
     const flavors = Object.keys(this.data.flavorLevels)
       .filter(f => this.data.flavorLevels[f] > config.flavor_scale.min_level)
       .map(f => ({ name: f, level: this.data.flavorLevels[f] }));
+    const price = this.data.price === '' ? null : Number(this.data.price);
+    if (price !== null && (!Number.isFinite(price) || price < 0)) {
+      wx.showToast({ title: '价格无效', icon: 'none' });
+      return;
+    }
     const fields = {
       name: this.data.dishName,
       brand_name: this.data.brandName,
-      price: this.data.price === '' ? null : Number(this.data.price) || null,
+      price,
       categories: this.data.selectedCategory ? [this.data.selectedCategory] : [],
       ingredients: this.data.ingredients,
       flavors,
