@@ -40,17 +40,25 @@
   <scroll-view scroll-y class="fix-scroll">
     <view class="fix-title">编辑记录<text class="fix-close" bindtap="closeDetail">×</text></view>
 
-    <van-field label="产品" value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
-    <van-field label="生产者" value="{{brandName}}" bindinput="onBrandName" placeholder="生产者" />
-    <van-field label="价格" value="{{price}}" type="number" bindinput="onPrice" placeholder="价格" />
-    <van-field label="产品类别" value="{{categorySearch}}" bindinput="onCategorySearch" placeholder="搜索产品类别" />
-    <view class="suggestions" wx:if="{{categorySuggestions.length}}">
-      <van-tag wx:for="{{categorySuggestions}}" wx:key="*this" data-name="{{item}}" bindtap="pickCategory" style="margin:4px">{{item}}</van-tag>
-    </view>
-    <view class="chips" wx:if="{{selectedCategory}}">
-      <van-tag closeable type="warning" bindtap="removeCategory">{{selectedCategory}}</van-tag>
+    <!-- 基本信息 -->
+    <view class="detail-section">
+      <view class="detail-group">
+        <view class="detail-row">
+          <van-field label="产品" value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" class="field-flex" />
+          <van-field label="价格" value="{{price}}" type="number" bindinput="onPrice" placeholder="价格" class="field-small" />
+        </view>
+        <van-field label="品牌" value="{{brandName}}" bindinput="onBrandName" placeholder="品牌" />
+        <van-field label="类别" value="{{categorySearch}}" bindinput="onCategorySearch" placeholder="搜索产品类别" />
+        <view class="suggestions" wx:if="{{categorySuggestions.length}}">
+          <van-tag wx:for="{{categorySuggestions}}" wx:key="*this" data-name="{{item}}" bindtap="pickCategory" style="margin:4px">{{item}}</van-tag>
+        </view>
+        <view class="chips" wx:if="{{selectedCategory}}">
+          <van-tag closeable type="warning" bindtap="removeCategory">{{selectedCategory}}</van-tag>
+        </view>
+      </view>
     </view>
 
+    <!-- 味道 + 偏好 -->
     <view class="flavor-pref-row" wx:if="{{flavors.length && preferenceOptions.length}}">
       <view class="flavor-box">
         <view class="wheel-wrap">
@@ -71,15 +79,18 @@
     <van-field wx:if="{{reasonField === 'bad'}}" label="难吃理由" value="{{badlyReason}}" bindinput="onBadlyReason" placeholder="请输入难吃理由" />
     <van-field wx:if="{{reasonField === 'good'}}" label="推荐理由" value="{{goodReason}}" bindinput="onGoodReason" placeholder="请输入推荐理由" />
 
-    <view class="ing-row">
-      <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="搜索原料" style="flex:1" />
-      <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" placeholder="含量" style="width:120px" />
-    </view>
-    <view class="suggestions" wx:if="{{ingredientSuggestions.length}}">
-      <van-tag wx:for="{{ingredientSuggestions}}" wx:key="index" data-idx="{{index}}" bindtap="pickIngredient" style="margin:4px">{{item.name}}</van-tag>
-    </view>
-    <view class="chips">
-      <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount ? '(' + item.amount + '%)' : ''}}</van-tag>
+    <!-- 原料 -->
+    <view class="detail-section">
+      <view class="ing-row">
+        <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="搜索原料" style="flex:1" />
+        <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" placeholder="含量" style="width:110px" />
+      </view>
+      <view class="suggestions" wx:if="{{ingredientSuggestions.length}}">
+        <van-tag wx:for="{{ingredientSuggestions}}" wx:key="index" data-idx="{{index}}" bindtap="pickIngredient" style="margin:4px">{{item.name}}</van-tag>
+      </view>
+      <view class="chips">
+        <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount ? '(' + item.amount + '%)' : ''}}</van-tag>
+      </view>
     </view>
 
     <view style="margin-top:16px;padding:0 16px"><van-button type="primary" block bindtap="saveDetail">保存</van-button></view>
