@@ -19,25 +19,25 @@
 .loading-hint { text-align: center; color: #999; padding: 14px 0; }
 .suggestions { display: flex; flex-wrap: wrap; padding: 2px 0; }
 .chips { display: flex; flex-wrap: wrap; margin: 2px 0; }
-.flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 4px 0; }
-.flavor-box { flex: 0 0 140px; }
-.wheel-wrap { position: relative; width: 140px; height: 140px; }
-.flavor-canvas { width: 140px; height: 140px; }
+.flavor-pref-row { display: flex; align-items: center; gap: 12px; }
+.flavor-box { flex: 0 0 120px; }
+.wheel-wrap { position: relative; width: 120px; height: 120px; }
+.flavor-canvas { width: 120px; height: 120px; }
 .reset-btn { position: absolute; top: -2px; left: -2px; z-index: 5; color: #66508f; font-size: 18px; padding: 2px 6px; }
 .pref-box { flex: 1; display: flex; justify-content: center; align-items: center; }
-.preference-panel { display: flex; flex-direction: row; align-items: center; gap: 12px; }
-.pref-slider { height: 130px; width: 48px; }
-.pref-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
-.pref-label { font-size: 13px; }
-.pref-face { font-size: 30px; line-height: 1; }
+.preference-panel { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+.pref-slider { height: 120px; width: 46px; }
+.pref-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.pref-label { font-size: 12px; }
+.pref-face { font-size: 28px; line-height: 1; }
 .ing-row { display: flex; gap: 6px; align-items: center; }
 
-/* 详情面板 */
-.fix-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 9999; }
-.fix-panel { position: fixed; left: 8px; right: 8px; top: 50%; transform: translateY(-50%); background: #fff; border-radius: 14px; padding: 12px; z-index: 9998; max-height: 92vh; overflow: hidden; }
-.fix-title { font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+/* 详情面板：panel层级最高（view），遮罩第二 */
+.fix-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; }
+.fix-panel { position: fixed; left: 8px; right: 8px; top: 50%; transform: translateY(-50%); background: #fff; border-radius: 14px; padding: 10px; z-index: 101; max-height: 88vh; overflow: hidden; }
+.fix-title { font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .fix-close { color: #888; font-size: 26px; padding: 0 4px; }
-.section-label { font-size: 12px; font-weight: 600; color: #66508f; margin: 8px 0 4px; }
+.section-label { font-size: 12px; font-weight: 600; color: #66508f; margin: 6px 0 2px; }
 .detail-section { margin-bottom: 2px; }
 .cat-field { width: 100%; }
 .amount-field { width: 90px; flex-shrink: 0; }
