@@ -19,20 +19,20 @@
 .loading-hint { text-align: center; color: #999; padding: 14px 0; }
 .suggestions { display: flex; flex-wrap: wrap; padding: 2px 0; }
 .chips { display: flex; flex-wrap: wrap; margin: 2px 0; }
-.flavor-pref-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.flavor-box { flex: 0 0 140px; display: flex; justify-content: center; }
-.wheel-wrap { position: relative; width: 140px; height: 140px; }
-.flavor-canvas { width: 140px; height: 140px; }
+.flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.flavor-box { flex: 0 0 130px; display: flex; justify-content: center; }
+.wheel-wrap { position: relative; width: 130px; height: 130px; }
+.flavor-canvas { width: 130px; height: 130px; }
 .reset-btn { position: absolute; top: -2px; left: -2px; z-index: 5; color: #66508f; font-size: 18px; padding: 2px 6px; }
 .pref-box { flex: 1; display: flex; justify-content: center; align-items: center; }
-.preference-panel { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; }
-.pref-slider { height: 130px; width: 46px; }
+.preference-panel { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; }
+.pref-slider { height: 120px; width: 44px; }
 .pref-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
 .pref-label { font-size: 12px; }
-.pref-face { font-size: 26px; line-height: 1; }
-.ing-row { display: flex; gap: 6px; align-items: center; }
+.pref-face { font-size: 24px; line-height: 1; }
+.ing-row { display: flex; gap: 4px; align-items: center; }
 .ing-main { flex: 1; }
-.amount-field { width: 88px; flex-shrink: 0; }
+.amount-field { width: 84px; flex-shrink: 0; }
 
 /* 详情面板 */
 .fix-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; }

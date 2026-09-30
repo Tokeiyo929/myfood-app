@@ -42,6 +42,7 @@
     <view class="section-label">基本信息</view>
     <van-field label="产品" value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
     <van-field label="品牌" value="{{brandName}}" bindinput="onBrandName" placeholder="品牌" />
+    <van-field label="价格" value="{{price}}" type="number" bindinput="onPrice" placeholder="价格" />
     <van-field label="类别" value="{{categorySearch}}" bindinput="onCategorySearch" placeholder="搜索产品类别" class="cat-field" />
     <view class="suggestions" wx:if="{{categorySuggestions.length}}">
       <van-tag wx:for="{{categorySuggestions}}" wx:key="*this" data-name="{{item}}" bindtap="pickCategory" style="margin:4px">{{item}}</van-tag>
