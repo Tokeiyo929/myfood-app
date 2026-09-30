@@ -19,25 +19,23 @@
 .loading-hint { text-align: center; color: #999; padding: 14px 0; }
 .suggestions { display: flex; flex-wrap: wrap; padding: 2px 0; }
 .chips { display: flex; flex-wrap: wrap; margin: 2px 0; }
-.flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .flavor-box { flex: 0 0 180px; display: flex; justify-content: center; }
 .wheel-wrap { position: relative; width: 180px; height: 180px; }
 .flavor-canvas { width: 180px; height: 180px; }
 .reset-btn { position: absolute; top: -2px; left: -2px; z-index: 5; color: #66508f; font-size: 18px; padding: 2px 6px; }
 .pref-box { flex: 1; display: flex; justify-content: center; align-items: center; }
-.preference-panel { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; }
-.pref-slider { height: 150px; width: 46px; }
-.pref-slider .van-slider { width: 8px; height: 150px; }
-.pref-slider .van-slider__bar { width: 8px; }
-.pref-slider .van-slider__button { top: auto; }
-.pref-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
-.pref-label { font-size: 12px; }
+.pref-custom { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .pref-face { font-size: 24px; line-height: 1; }
+.pref-track { position: relative; width: 24px; height: 140px; background: #e5dff0; border-radius: 12px; }
+.pref-fill { position: absolute; left: 0; bottom: 0; width: 100%; background: #66508f; border-radius: 12px; }
+.pref-thumb { position: absolute; left: -6px; width: 36px; height: 36px; background: #66508f; border-radius: 50%; transform: translateX(-25%); }
+.pref-label { font-size: 12px; }
 .ing-row { display: flex; gap: 8px; align-items: center; }
 .ing-main { flex: 1; min-width: 0; }
 .amount-field { flex: 0 0 50%; }
 .reason-area { margin: 4px 0; }
-.reason-textarea { width: 100%; min-height: 60px; box-sizing: border-box; padding: 8px 12px; font-size: 14px; background: #f7f7f9; border-radius: 8px; }
+.reason-textarea { width: 100%; min-height: 50px; box-sizing: border-box; padding: 6px 10px; font-size: 13px; background: #f7f7f9; border-radius: 8px; }
 
 /* 详情面板 */
 .fix-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; }

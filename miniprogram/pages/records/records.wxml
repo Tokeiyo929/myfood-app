@@ -62,12 +62,13 @@
         </view>
       </view>
       <view class="pref-box">
-        <view class="preference-panel">
-          <slider value="{{prefLevel}}" min="{{preferenceOptions[0].level}}" max="{{preferenceOptions[preferenceOptions.length-1].level}}" step="{{prefStep}}" bindchange="onPreferenceChange" activeColor="#66508f" vertical="{{true}}" block-size="16" class="pref-slider" />
-          <view class="pref-side">
-            <text class="pref-face">{{preferenceFace}}</text>
-            <text class="pref-label">{{preferenceLabel}}</text>
+        <view class="pref-custom">
+          <text class="pref-face">{{preferenceFace}}</text>
+          <view class="pref-track" bindtouchstart="onPrefTouch" bindtouchmove="onPrefMove">
+            <view class="pref-fill" style="height: {{prefPercent}}%"></view>
+            <view class="pref-thumb" style="bottom: {{prefPercent}}%"></view>
           </view>
+          <text class="pref-label">{{preferenceLabel}}</text>
         </view>
       </view>
     </view>

@@ -229,6 +229,33 @@ Page({
     this.setData({ flavorLevels }, () => this.drawWheel());
   },
 
+  // 自定义垂直滑块触摸
+  onPrefTouch(e) { this.updatePrefFromTouch(e); },
+  onPrefMove(e) { this.updatePrefFromTouch(e); },
+  updatePrefFromTouch(e) {
+    const touch = e.touches[0] || e.changedTouches[0];
+    if (!touch) return;
+    const that = this;
+    wx.createSelectorQuery().select('.pref-track').boundingClientRect(function(rect) {
+      if (!rect) return;
+      const prefs = that.data.preferenceOptions;
+      const min = prefs[0].level, max = prefs[prefs.length-1].level;
+      let ratio = (rect.height - (touch.clientY - rect.top)) / rect.height;
+      ratio = Math.max(0, Math.min(1, ratio));
+      const level = Math.round(min + ratio * (max - min));
+      that.setPrefLevel(level);
+    }).exec();
+  },
+  setPrefLevel(level) {
+    const prefs = this.data.preferenceOptions;
+    const pref = prefs.reduce((best, pp) => Math.abs(pp.level - level) < Math.abs(best.level - level) ? pp : best, prefs[0]);
+    const bad = this.data.settings.preferences.bad.value;
+    const good = this.data.settings.preferences.excellent.value;
+    const reasonField = pref.value === bad ? 'bad' : pref.value === good ? 'good' : 'none';
+    const min = prefs[0].level, max = prefs[prefs.length-1].level;
+    const percent = Math.round(((pref.level - min) / (max - min)) * 100);
+    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, reasonField, prefLevel: pref.level, prefPercent: percent });
+  },
   resetFlavors() {
     if (!this.data.settings) return;
     const flavorLevels = {};
@@ -245,7 +272,9 @@ Page({
     const bad = this.data.settings.preferences.bad.value;
     const good = this.data.settings.preferences.excellent.value;
     const reasonField = pref.value === bad ? 'bad' : pref.value === good ? 'good' : 'none';
-    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, reasonField, prefLevel: pref.level });
+    const pmin = prefs[0].level, pmax = prefs[prefs.length-1].level;
+    const pct = Math.round(((pref.level - pmin) / (pmax - pmin)) * 100);
+    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, reasonField, prefLevel: pref.level, prefPercent: pct });
   },
 
   onBadlyReason(e) { this.setData({ badlyReason: e.detail }); },
