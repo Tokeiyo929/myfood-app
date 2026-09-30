@@ -185,14 +185,18 @@ Page({
     wx.createSelectorQuery().select('#flavorWheel').boundingClientRect(function(rect) {
       if (!rect) return;
       const scale = WHEEL.size / rect.width;
-      const x = (touch.clientX - rect.left) * scale - WHEEL.center;
-      const y = (touch.clientY - rect.top) * scale - WHEEL.center;
+      const cx = rect.left, cy = rect.top;
+      const x = (touch.clientX - cx) * scale - WHEEL.center;
+      const y = (touch.clientY - cy) * scale - WHEEL.center;
       const flavors = that.data.flavors;
-      let best = 0, bestDot = -Infinity;
+      let best = 0, bestAngle = Infinity;
       flavors.forEach(function(v, i) {
         const a = -Math.PI / 2 + i * Math.PI * 2 / flavors.length;
-        const dot = x * Math.cos(a) + y * Math.sin(a);
-        if (dot > bestDot) { bestDot = dot; best = i; }
+        let diff = Math.atan2(y, x) - a;
+        while (diff > Math.PI) diff -= 2 * Math.PI;
+        while (diff < -Math.PI) diff += 2 * Math.PI;
+        const ad = Math.abs(diff);
+        if (ad < bestAngle) { bestAngle = ad; best = i; }
       });
       that.setData({ draggingAxis: best });
       that.updateWheelAxis(best, x, y);
