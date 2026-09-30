@@ -19,24 +19,26 @@
 .loading-hint { text-align: center; color: #999; padding: 14px 0; }
 .suggestions { display: flex; flex-wrap: wrap; padding: 2px 0; }
 .chips { display: flex; flex-wrap: wrap; margin: 2px 0; }
-.flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.flavor-box { flex: 0 0 130px; display: flex; justify-content: center; }
-.wheel-wrap { position: relative; width: 130px; height: 130px; }
-.flavor-canvas { width: 130px; height: 130px; }
+.flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.flavor-box { flex: 0 0 160px; display: flex; justify-content: center; }
+.wheel-wrap { position: relative; width: 160px; height: 160px; }
+.flavor-canvas { width: 160px; height: 160px; }
 .reset-btn { position: absolute; top: -2px; left: -2px; z-index: 5; color: #66508f; font-size: 18px; padding: 2px 6px; }
 .pref-box { flex: 1; display: flex; justify-content: center; align-items: center; }
 .preference-panel { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; }
-.pref-slider { height: 120px; width: 44px; }
+.pref-slider { height: 150px; width: 46px; }
 .pref-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
 .pref-label { font-size: 12px; }
 .pref-face { font-size: 24px; line-height: 1; }
 .ing-row { display: flex; gap: 4px; align-items: center; }
-.ing-main { flex: 1; }
-.amount-field { width: 84px; flex-shrink: 0; }
+.ing-main { flex: 0 0 62px; }
+.amount-field { flex: 1; width: 120px; min-width: 0; }
+.reason-area { margin: 4px 0; }
+.reason-textarea { width: 100%; min-height: 70px; box-sizing: border-box; padding: 8px 12px; font-size: 14px; background: #f7f7f9; border-radius: 8px; }
 
 /* 详情面板 */
 .fix-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; }
-.fix-panel { position: fixed; left: 8px; right: 8px; top: 50%; transform: translateY(-50%); background: #fff; border-radius: 14px; padding: 10px; z-index: 101; max-height: 88vh; overflow: hidden; }
+.fix-panel { position: fixed; left: 8px; right: 8px; top: 50%; transform: translateY(-50%); background: #fff; border-radius: 14px; padding: 10px; z-index: 101; max-height: 90vh; overflow: hidden; }
 .fix-title { font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .fix-close { color: #888; font-size: 26px; padding: 0 4px; }
 .section-label { font-size: 12px; font-weight: 600; color: #66508f; margin: 6px 0 2px; }

@@ -58,12 +58,12 @@
       <view class="flavor-box">
         <view class="wheel-wrap">
           <view class="reset-btn" bindtap="resetFlavors">↻</view>
-          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="140" height="140" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
+          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="160" height="160" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
         </view>
       </view>
       <view class="pref-box">
         <view class="preference-panel">
-          <slider value="{{prefLevel}}" min="{{preferenceOptions[0].level}}" max="{{preferenceOptions[preferenceOptions.length-1].level}}" step="{{prefStep}}" bindchange="onPreferenceChange" activeColor="#66508f" vertical block-size="16" class="pref-slider" />
+          <slider value="{{prefLevel}}" min="{{preferenceOptions[0].level}}" max="{{preferenceOptions[preferenceOptions.length-1].level}}" step="{{prefStep}}" bindchange="onPreferenceChange" activeColor="#66508f" vertical="true" block-size="16" class="pref-slider" />
           <view class="pref-side">
             <text class="pref-face">{{preferenceFace}}</text>
             <text class="pref-label">{{preferenceLabel}}</text>
@@ -72,8 +72,9 @@
       </view>
     </view>
   </view>
-  <van-field wx:if="{{reasonField === 'bad'}}" label="难吃理由" value="{{badlyReason}}" bindinput="onBadlyReason" placeholder="请输入难吃理由" />
-  <van-field wx:if="{{reasonField === 'good'}}" label="推荐理由" value="{{goodReason}}" bindinput="onGoodReason" placeholder="请输入推荐理由" />
+  <view class="reason-area" wx:if="{{reasonField !== 'none'}}">
+    <textarea value="{{reasonField === 'bad' ? badlyReason : goodReason}}" bindinput="{{reasonField === 'bad' ? 'onBadlyReason' : 'onGoodReason'}}" maxlength="500" class="reason-textarea" placeholder="{{reasonField === 'bad' ? '请输入难吃理由' : '请输入推荐理由'}}" />
+  </view>
 
   <view class="detail-section">
     <view class="section-label">原料</view>
