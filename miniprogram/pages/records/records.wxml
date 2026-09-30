@@ -58,7 +58,7 @@
       <view class="flavor-box">
         <view class="wheel-wrap">
           <view class="reset-btn" bindtap="resetFlavors">↻</view>
-          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="170" height="170" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
+          <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="180" height="180" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
         </view>
       </view>
       <view class="pref-box">
