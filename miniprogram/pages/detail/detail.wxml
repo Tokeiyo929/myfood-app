@@ -1,6 +1,6 @@
 <view class="page">
-  <scroll-view class="img-strip" scroll-x="{{true}}">
-    <view class="img-item {{selectedId === item.id ? 'selected' : ''}}" wx:for="{{records}}" wx:key="id" bindtap="selectImage" data-id="{{item.id}}">
+  <scroll-view class="img-strip" scroll-x="{{true}}" scroll-into-view="{{scrollIntoId}}" scroll-with-animation>
+    <view class="img-item {{selectedId === item.id ? 'selected' : ''}}" wx:for="{{records}}" wx:key="id" id="img-{{item.id}}" bindtap="selectImage" data-id="{{item.id}}">
       <image wx:if="{{item.image_path}}" src="{{item.image_path}}" mode="aspectFill" class="strip-img" />
       <view class="strip-name">{{item.name || '未命名'}}</view>
     </view>
@@ -33,7 +33,7 @@
         <view class="pref-box">
           <view class="pref-custom">
             <text class="pref-face">{{preferenceFace}}</text>
-            <view class="pref-track" bindtouchstart="onPrefTouch" bindtouchmove="onPrefMove">
+            <view class="pref-track" bindtouchstart="onPrefTouch" catchtouchmove="onPrefMove">
               <view class="pref-fill" style="height: {{prefPercent}}%"></view>
               <view class="pref-thumb" style="bottom: {{prefPercent}}%"></view>
             </view>

@@ -28,6 +28,7 @@ Page({
     categorySuggestions: [],
     records: [],
     selectedId: null,
+    scrollIntoId: '',
     draggingAxis: -1,
     prefLevel: 0,
     prefPercent: 0,
@@ -122,6 +123,7 @@ Page({
       comments: rec.comment || [],
       commentInput: '',
     }, () => {
+      this.setData({ scrollIntoId: 'img-' + this.data.editId });
       this.drawWheel();
     });
   },
@@ -129,7 +131,7 @@ Page({
   selectImage(e) {
     const id = Number(e.currentTarget.dataset.id);
     getApp().globalData.selectedRecordId = id;
-    this.setData({ selectedId: id });
+    this.setData({ selectedId: id, scrollIntoId: 'img-' + id });
     this.syncSelected();
   },
 
