@@ -33,7 +33,7 @@
   </scroll-view>
   <view class="comment-input-row">
     <input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="输入评论" confirm-type="send" bindconfirm="saveComment" />
-    <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord">🎤</view>
+    <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord" bindtouchcancel="stopRecord">🎤</view>
     <van-button type="primary" size="small" bindtap="saveComment">保存</van-button>
   </view>
 </view>

@@ -64,7 +64,9 @@ Page({
         this.loadRecords();
       });
       // 加载类别供搜索
-      api.getCategories().then(r => this.setData({ categories: r.items || [] })).catch(() => {});
+      api.getCategories().then(r => this.setData({ categories: r.items || [] })).catch(() => {
+        wx.showToast({ title: '类别加载失败', icon: 'none' });
+      });
     } catch (e) {
       wx.showToast({ title: '配置加载失败', icon: 'none' });
     }
@@ -73,7 +75,7 @@ Page({
   async loadRecords() {
     try {
       if (!this.data.settings) return;
-      const limit = 100;
+      const limit = this.data.settings.pagination.max_page_size;
       const result = await api.getFoods(1, limit, '');
       this.setData({ records: result.items || [], selectedId: getApp().globalData.selectedRecordId || null });
       this.syncSelected();
