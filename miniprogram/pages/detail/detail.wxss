@@ -23,8 +23,10 @@
 .pref-fill { position: absolute; left: 0; bottom: 0; width: 100%; background: #66508f; border-radius: 12px; }
 .pref-thumb { position: absolute; left: -6px; width: 36px; height: 36px; background: #66508f; border-radius: 50%; transform: translateX(-25%); }
 .pref-label { font-size: 12px; }
-.reason-area { margin: 4px 0; }
-.reason-textarea { width: 100%; min-height: 50px; box-sizing: border-box; padding: 6px 10px; font-size: 13px; background: #f7f7f9; border-radius: 8px; }
+.comment-list { margin-bottom: 6px; }
+.comment-item { font-size: 13px; color: #555; padding: 3px 0; }
+.comment-input-row { display: flex; gap: 8px; }
+.comment-input { flex: 1; border: 1px solid #e5dff0; border-radius: 8px; padding: 8px 10px; font-size: 14px; }
 .ing-row { display: flex; gap: 8px; align-items: center; }
 .ing-main { flex: 1; min-width: 0; }
 .amount-field { flex: 0 0 50%; }

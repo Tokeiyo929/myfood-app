@@ -13,9 +13,8 @@ Page({
     preference: '',
     preferenceFace: '',
     preferenceLabel: '',
-    reasonField: 'none',
-    badlyReason: '',
-    goodReason: '',
+    comments: [],
+    commentInput: '',
     dishName: '',
     brandName: '',
     price: '',
@@ -95,9 +94,6 @@ Page({
     (rec.flavors || []).forEach(f => { if (f && f.name) flavorLevels[f.name] = f.level; });
     const sorted = [...this.data.preferenceOptions].sort((a, b) => a.level - b.level);
     let pref = sorted.find(p => p.value === rec.preference) || this.data.settings.preferences.good;
-    const bad = this.data.settings.preferences.bad.value;
-    const good = this.data.settings.preferences.excellent.value;
-    const reasonField = pref.value === bad ? 'bad' : pref.value === good ? 'good' : 'none';
     this.setData({
       editId: rec.id,
       dishName: rec.name || '',
@@ -116,9 +112,8 @@ Page({
       preferenceLabel: pref.label,
       prefLevel: pref.level,
       prefPercent: this.preferencePercent(pref.level),
-      reasonField,
-      badlyReason: rec.preference === bad ? (rec.reason || '') : '',
-      goodReason: rec.preference === good ? (rec.reason || '') : '',
+      comments: rec.comment || [],
+      commentInput: '',
     }, () => {
       this.drawWheel();
     });
@@ -267,8 +262,7 @@ Page({
     const pref = prefs.reduce((best, pp) => Math.abs(pp.level - level) < Math.abs(best.level - level) ? pp : best, prefs[0]);
     const bad = this.data.settings.preferences.bad.value;
     const good = this.data.settings.preferences.excellent.value;
-    const reasonField = pref.value === bad ? 'bad' : pref.value === good ? 'good' : 'none';
-    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, reasonField, prefLevel: pref.level, prefPercent: this.preferencePercent(pref.level) });
+    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, prefLevel: pref.level, prefPercent: this.preferencePercent(pref.level) });
   },
   resetFlavors() {
     if (!this.data.settings) return;
@@ -278,8 +272,7 @@ Page({
     this.setData({ flavorLevels }, () => this.drawWheel());
   },
 
-  onBadlyReason(e) { this.setData({ badlyReason: e.detail }); },
-  onGoodReason(e) { this.setData({ goodReason: e.detail }); },
+  onCommentInput(e) { this.setData({ commentInput: e.detail.value !== undefined ? e.detail.value : e.detail }); },
 
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
@@ -331,10 +324,10 @@ Page({
 
   async saveDetail() {
     if (this.data.editId == null || !this.data.settings) return;
+    const config = this.data.settings;
     const bad = this.data.settings.preferences.bad.value;
     const excellent = this.data.settings.preferences.excellent.value;
-    const reason = this.data.preference === bad ? this.data.badlyReason : this.data.preference === excellent ? this.data.goodReason : '';
-    const config = this.data.settings;
+    const comment = this.data.commentInput ? this.data.comments.concat([this.data.commentInput]) : this.data.comments;
     const flavors = Object.keys(this.data.flavorLevels)
       .filter(f => this.data.flavorLevels[f] > config.flavor_scale.min_level)
       .map(f => ({ name: f, level: this.data.flavorLevels[f] }));
@@ -351,7 +344,7 @@ Page({
       ingredients: this.data.ingredients,
       flavors,
       preference: this.data.preference,
-      reason,
+      comment,
     };
     wx.showLoading({ title: '保存中' });
     try {

@@ -1,5 +1,4 @@
 <view class="page">
-  <!-- 上方：图片列表可滑动选择 -->
   <scroll-view class="img-strip" scroll-x="{{true}}">
     <view class="img-item {{selectedId === item.id ? 'selected' : ''}}" wx:for="{{records}}" wx:key="id" bindtap="selectImage" data-id="{{item.id}}">
       <image wx:if="{{item.image_path}}" src="{{item.image_path}}" mode="aspectFill" class="strip-img" />
@@ -7,7 +6,6 @@
     </view>
   </scroll-view>
 
-  <!-- 下方：所选记录的详情编辑 -->
   <view class="detail-body" wx:if="{{editId != null}}">
     <view class="detail-section">
       <view class="section-label">基本信息</view>
@@ -44,8 +42,15 @@
         </view>
       </view>
     </view>
-    <view class="reason-area" wx:if="{{reasonField !== 'none'}}">
-      <textarea value="{{reasonField === 'bad' ? badlyReason : goodReason}}" bindinput="{{reasonField === 'bad' ? 'onBadlyReason' : 'onGoodReason'}}" maxlength="500" class="reason-textarea" placeholder="{{reasonField === 'bad' ? '请输入难吃理由' : '请输入推荐理由'}}" />
+
+    <view class="detail-section">
+      <view class="section-label">评论</view>
+      <view class="comment-list" wx:if="{{comments.length}}">
+        <view class="comment-item" wx:for="{{comments}}" wx:key="index">· {{item}}</view>
+      </view>
+      <view class="comment-input-row">
+        <input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="添加评论" confirm-type="send" bindconfirm="saveDetail" />
+      </view>
     </view>
 
     <view class="detail-section">

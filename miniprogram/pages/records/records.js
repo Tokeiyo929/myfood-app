@@ -5,13 +5,13 @@ let plugin = null;
 try {
   plugin = requirePlugin('WechatSI');
 } catch (e) {
-  // 插件未添加时降级，仅文字输入
   console.warn('WechatSI plugin not available', e);
 }
 
 Page({
   data: {
     settings: null,
+    imagePath: '',
     fileList: [],
     uploading: false,
     todayRecords: [],
@@ -34,18 +34,15 @@ Page({
     if (recorder) { try { recorder.stop(); } catch (e) {} }
   },
 
-  // 初始化语音识别
   initRecorder() {
     if (!plugin) return;
     try {
       recorder = plugin.getRecordRecognitionManager();
       const that = this;
       recorder.onStop = function(res) {
-        if (!that.data.recording) return;
         const text = res.result || '';
         that.setData({ recording: false });
         if (text) {
-          // 追加到输入框
           const cur = that.data.commentInput;
           that.setData({ commentInput: cur ? cur + text : text });
         }
@@ -59,7 +56,6 @@ Page({
     }
   },
 
-  // 开始录音
   startRecord() {
     if (!recorder) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
     this.setData({ recording: true });
@@ -68,7 +64,6 @@ Page({
     } catch (e) { this.setData({ recording: false }); }
   },
 
-  // 结束录音
   stopRecord() {
     if (!recorder) return;
     try { recorder.stop(); } catch (e) { this.setData({ recording: false }); }
@@ -87,7 +82,7 @@ Page({
   async loadToday() {
     try {
       if (!this.data.settings) return;
-      const result = await api.getFoods(1, this.data.settings.pagination.max_page_size, '', true);
+      const result = await api.getFoods(1, 100, '', true);
       const records = (result.items || []).map(r => ({
         ...r,
         comments: r.comment || [],
@@ -102,11 +97,8 @@ Page({
     const file = e.detail && e.detail.file;
     const path = file && (file.path || file.url);
     if (!path) return;
-    this.setData({ fileList: [{ url: path }] });
     this.saveQuick(path);
   },
-
-  removeImage() { this.setData({ fileList: [] }); },
 
   async saveQuick(path) {
     if (this.data.uploading) { wx.showToast({ title: '上传中', icon: 'none' }); return; }
@@ -123,7 +115,6 @@ Page({
         ingredients: [],
         flavors: [],
         preference: this.data.settings.preferences.good.value,
-        reason: '',
         comment: [],
         image_path: upload.path,
         image_metadata: upload.metadata || {},
@@ -132,7 +123,7 @@ Page({
       await api.submitFood(record);
       wx.hideLoading();
       wx.showToast({ title: '已保存', icon: 'success' });
-      this.setData({ fileList: [], uploading: false });
+      this.setData({ imagePath: '', fileList: [], uploading: false });
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
@@ -154,7 +145,7 @@ Page({
   },
 
   onCommentInput(e) {
-    this.setData({ commentInput: e.detail.value });
+    this.setData({ commentInput: e.detail.value !== undefined ? e.detail.value : e.detail });
   },
 
   async saveComment() {
