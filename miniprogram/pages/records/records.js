@@ -1,4 +1,13 @@
 const api = require('../../utils/api');
+let recorder = null;
+let plugin = null;
+
+try {
+  plugin = requirePlugin('WechatSI');
+} catch (e) {
+  // 插件未添加时降级，仅文字输入
+  console.warn('WechatSI plugin not available', e);
+}
 
 Page({
   data: {
@@ -7,18 +16,62 @@ Page({
     fileList: [],
     uploading: false,
     todayRecords: [],
-    // comment 弹层
     commentingId: null,
     commentInput: '',
     comments: [],
+    recording: false,
   },
 
   onLoad() {
     this.loadConfig();
+    this.initRecorder();
   },
 
   onShow() {
     this.loadToday();
+  },
+
+  onUnload() {
+    if (recorder) { try { recorder.stop(); } catch (e) {} }
+  },
+
+  // 初始化语音识别
+  initRecorder() {
+    if (!plugin) return;
+    try {
+      recorder = plugin.getRecordRecognitionManager();
+      const that = this;
+      recorder.onStop = function(res) {
+        const text = res.result || '';
+        that.setData({ recording: false });
+        if (text) {
+          // 追加到输入框
+          const cur = that.data.commentInput;
+          that.setData({ commentInput: cur ? cur + text : text });
+        }
+      };
+      recorder.onError = function(res) {
+        that.setData({ recording: false });
+        wx.showToast({ title: res.msg || '语音识别失败', icon: 'none' });
+      };
+    } catch (e) {
+      console.warn('init recorder failed', e);
+    }
+  },
+
+  // 开始录音
+  startRecord() {
+    if (!recorder) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
+    this.setData({ recording: true });
+    try {
+      recorder.start({ duration: 30000, lang: 'zh_CN' });
+    } catch (e) { this.setData({ recording: false }); }
+  },
+
+  // 结束录音
+  stopRecord() {
+    if (!recorder) return;
+    try { recorder.stop(); } catch (e) { this.setData({ recording: false }); }
   },
 
   async loadConfig() {
@@ -31,11 +84,9 @@ Page({
     }
   },
 
-  // 加载今日记录
   async loadToday() {
     try {
       if (!this.data.settings) return;
-      const limit = this.data.settings.pagination.page_size;
       const result = await api.getFoods(1, 100, '', true);
       const records = (result.items || []).map(r => ({
         ...r,
@@ -47,7 +98,6 @@ Page({
     }
   },
 
-  // 选图后自动保存
   chooseImage(e) {
     const file = e.detail && e.detail.file;
     const path = file && (file.path || file.url);
@@ -88,7 +138,6 @@ Page({
     }
   },
 
-  // 点击今日记录 -> 打开 comment 弹层
   openComment(e) {
     const id = Number(e.currentTarget.dataset.id);
     const rec = this.data.todayRecords.find(r => Number(r.id) === id);
@@ -97,14 +146,14 @@ Page({
   },
 
   closeComment() {
-    this.setData({ commentingId: null, commentInput: '' });
+    this.stopRecord();
+    this.setData({ commentingId: null, commentInput: '', recording: false });
   },
 
   onCommentInput(e) {
     this.setData({ commentInput: e.detail.value !== undefined ? e.detail.value : e.detail });
   },
 
-  // 保存一条 comment（追加到列表）
   async saveComment() {
     const text = (this.data.commentInput || '').trim();
     if (!text || this.data.commentingId == null) {
