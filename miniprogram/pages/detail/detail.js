@@ -38,8 +38,15 @@ Page({
   },
 
   onShow() {
-    this.syncSelected();
     const app = getApp();
+    const gid = app.globalData.selectedRecordId;
+    if (gid && gid !== this.data.selectedId) {
+      // 选中项变了，重新加载记录并选中
+      this.setData({ selectedId: gid });
+      this.loadRecords();
+    } else {
+      this.syncSelected();
+    }
     if (app.globalData.refreshDetail) {
       app.globalData.refreshDetail = false;
       this.loadRecords();
@@ -84,7 +91,7 @@ Page({
   },
 
   syncSelected() {
-    const id = this.data.selectedId || getApp().globalData.selectedRecordId;
+    const id = getApp().globalData.selectedRecordId || this.data.selectedId;
     if (!id) return;
     const rec = this.data.records.find(r => Number(r.id) === Number(id));
     if (!rec || !this.data.settings) return;
