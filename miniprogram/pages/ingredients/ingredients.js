@@ -11,8 +11,14 @@ Page({
     loading: false,
   },
 
+
+  setTab() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 4 });
+    }
+  },
   onShow() {
-    this.loadIngredients();
+    this.setTab();    this.loadIngredients();
   },
 
   async loadIngredients() {
