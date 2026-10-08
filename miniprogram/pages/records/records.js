@@ -2,7 +2,7 @@ const api = require('../../utils/api');
 let recordsRequest = 0;
 let ingredientRequest = 0;
 
-// 雷达图常量（与 web 端一致）
+// 雷达图绘制坐标
 const WHEEL = { size: 180, center: 90, radius: 62, labelRadius: 84, handleRadius: 5 };
 
 Page({
@@ -41,7 +41,7 @@ Page({
     panelVisible: false,
     draggingAxis: -1,
     prefLevel: 0,
-    prefStep: 1,
+    prefPercent: 0,
   },
 
   onLoad() {
@@ -64,13 +64,11 @@ Page({
     try {
       const config = await api.getConfig();
       const prefs = Object.values(config.preferences).sort((a, b) => a.level - b.level);
-      const prefStep = prefs.length > 1 ? Math.max(1, Math.min(...prefs.slice(1).map((item, i) => item.level - prefs[i].level))) : 1;
       this.setData({
         settings: config,
         flavors: config.flavors,
         preferenceOptions: prefs,
         prefLevel: config.preferences.good.level,
-        prefStep,
       }, () => {
         this.loadRecords(true);
       });
@@ -246,15 +244,18 @@ Page({
       that.setPrefLevel(level);
     }).exec();
   },
+  preferencePercent(level) {
+    const prefs = this.data.preferenceOptions;
+    const min = prefs[0].level, max = prefs[prefs.length - 1].level;
+    return Math.round((level - min) / (max - min) * 100);
+  },
   setPrefLevel(level) {
     const prefs = this.data.preferenceOptions;
     const pref = prefs.reduce((best, pp) => Math.abs(pp.level - level) < Math.abs(best.level - level) ? pp : best, prefs[0]);
     const bad = this.data.settings.preferences.bad.value;
     const good = this.data.settings.preferences.excellent.value;
     const reasonField = pref.value === bad ? 'bad' : pref.value === good ? 'good' : 'none';
-    const min = prefs[0].level, max = prefs[prefs.length-1].level;
-    const percent = Math.round(((pref.level - min) / (max - min)) * 100);
-    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, reasonField, prefLevel: pref.level, prefPercent: percent });
+    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, reasonField, prefLevel: pref.level, prefPercent: this.preferencePercent(pref.level) });
   },
   resetFlavors() {
     if (!this.data.settings) return;
@@ -262,19 +263,6 @@ Page({
     const config = this.data.settings;
     config.flavors.forEach(f => flavorLevels[f] = config.flavor_scale.default_level);
     this.setData({ flavorLevels }, () => this.drawWheel());
-  },
-
-  // ---------- 偏好滑块 ----------
-  onPreferenceChange(e) {
-    const level = Number(e.detail.value);
-    const prefs = this.data.preferenceOptions;
-    const pref = prefs.reduce((best, p) => Math.abs(p.level - level) < Math.abs(best.level - level) ? p : best, prefs[0]);
-    const bad = this.data.settings.preferences.bad.value;
-    const good = this.data.settings.preferences.excellent.value;
-    const reasonField = pref.value === bad ? 'bad' : pref.value === good ? 'good' : 'none';
-    const pmin = prefs[0].level, pmax = prefs[prefs.length-1].level;
-    const pct = Math.round(((pref.level - pmin) / (pmax - pmin)) * 100);
-    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, reasonField, prefLevel: pref.level, prefPercent: pct });
   },
 
   onBadlyReason(e) { this.setData({ badlyReason: e.detail }); },
@@ -410,6 +398,8 @@ Page({
       preference: pref.value,
       preferenceFace: pref.face,
       preferenceLabel: pref.label,
+      prefLevel: pref.level,
+      prefPercent: this.preferencePercent(pref.level),
       reasonField,
       badlyReason: rec.preference === bad ? (rec.reason || '') : '',
       goodReason: rec.preference === good ? (rec.reason || '') : '',
