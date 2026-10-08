@@ -1,4 +1,24 @@
-.page { padding: 12px; }
-.card { background: #fff; padding: 12px; border-radius: 12px; }
-.img-box { padding: 0 0 12px; }
-.hint { text-align: center; color: #999; font-size: 12px; margin-top: 14px; }
+.page { padding: 12px; padding-bottom: 20px; height: 100vh; box-sizing: border-box; }
+.quick-card { background: #fff; padding: 12px; border-radius: 12px; }
+.img-box { padding: 0 0 8px; }
+.quick-hint { text-align: center; color: #999; font-size: 12px; }
+.today-title { font-size: 14px; font-weight: 600; color: #66508f; margin: 14px 0 8px; }
+.today-scroll { height: calc(100vh - 220px); }
+.today-item { display: flex; gap: 12px; padding: 10px; background: #fff; border-radius: 12px; margin-bottom: 10px; }
+.today-img { width: 70px; height: 70px; border-radius: 10px; flex-shrink: 0; }
+.today-info { flex: 1; min-width: 0; }
+.today-name { font-weight: 600; font-size: 14px; }
+.today-time { color: #999; font-size: 11px; margin-left: 6px; }
+.today-comments { margin-top: 6px; }
+.comment-line { font-size: 12px; color: #555; margin-top: 3px; }
+.today-add { color: #66508f; font-size: 12px; margin-top: 6px; }
+.today-empty { text-align: center; color: #999; font-size: 13px; padding: 40px 0; }
+
+/* comment 弹层 */
+.comment-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; }
+.comment-panel { position: fixed; left: 12px; right: 12px; top: 50%; transform: translateY(-50%); background: #fff; border-radius: 14px; padding: 14px; z-index: 101; }
+.comment-title { font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.comment-close { color: #888; font-size: 24px; padding: 0 4px; }
+.comment-list { max-height: 200px; margin-bottom: 10px; }
+.comment-input-row { display: flex; gap: 8px; align-items: center; }
+.comment-input { flex: 1; border: 1px solid #e5dff0; border-radius: 8px; padding: 8px 10px; font-size: 14px; }

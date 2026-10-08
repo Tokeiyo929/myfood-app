@@ -1,10 +1,38 @@
 <view class="page">
-  <view class="card">
+  <!-- 快速记录：上传图片即自动保存 -->
+  <view class="quick-card">
     <view class="img-box">
-      <van-uploader file-list="{{fileList}}" max-count="1" bind:after-read="chooseImage" bind:delete="removeImage" />
+      <van-uploader file-list="{{fileList}}" max-count="1" bind:after-read="chooseImage" bind:delete="removeImage" disabled="{{uploading}}" />
     </view>
-    <van-field label="名称" value="{{dishName}}" bindinput="onDishName" placeholder="名称（选填）" />
-    <view style="margin-top:12px"><van-button type="primary" block bindtap="submit">保存记录</van-button></view>
+    <view class="quick-hint">{{uploading ? '上传保存中...' : '点击上传图片，自动保存记录'}}</view>
   </view>
-  <view class="hint">保存后可到「历史记录」查看并补充详情</view>
+
+  <!-- 今日上传记录 -->
+  <view class="today-title">今日上传</view>
+  <scroll-view scroll-y class="today-scroll">
+    <view class="today-item" wx:for="{{todayRecords}}" wx:key="id" bindtap="openComment" data-id="{{item.id}}">
+      <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="today-img" mode="aspectFill" />
+      <view class="today-info">
+        <view class="today-name">{{item.name || '未命名'}} <text class="today-time">{{item.created_at ? item.created_at.substring(11,16) : ''}}</text></view>
+        <view class="today-comments" wx:if="{{item.comments && item.comments.length}}">
+          <view class="comment-line" wx:for="{{item.comments}}" wx:for-item="cm" wx:key="index">· {{cm}}</view>
+        </view>
+        <view class="today-add" wx:else>点击添加评论</view>
+      </view>
+    </view>
+    <view wx:if="{{!todayRecords.length}}" class="today-empty">今天还没有记录</view>
+  </scroll-view>
+</view>
+
+<!-- comment 弹层 -->
+<view wx:if="{{commentingId != null}}" class="comment-mask" bindtap="closeComment"></view>
+<view wx:if="{{commentingId != null}}" class="comment-panel">
+  <view class="comment-title">添加评论<text class="comment-close" bindtap="closeComment">×</text></view>
+  <scroll-view scroll-y class="comment-list">
+    <view class="comment-line" wx:for="{{comments}}" wx:key="index">· {{item}}</view>
+  </scroll-view>
+  <view class="comment-input-row">
+    <input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="输入评论" confirm-type="send" bindconfirm="saveComment" />
+    <van-button type="primary" size="small" bindtap="saveComment">保存</van-button>
+  </view>
 </view>

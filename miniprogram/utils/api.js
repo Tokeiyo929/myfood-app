@@ -40,7 +40,6 @@ function uploadImage(filePath) {
   });
 }
 
-// 按服务端配置压缩后上传，避免大图超时
 function compressAndUpload(filePath, imageConfig) {
   return new Promise((resolve, reject) => {
     wx.getImageInfo({
@@ -72,19 +71,21 @@ function compressAndUpload(filePath, imageConfig) {
 }
 
 function getConfig() { return request("/api/config"); }
-function getFoods(page, limit, search) {
+function getFoods(page, limit, search, today) {
   let qs = `page=${page}&limit=${limit}`;
   if (search) qs += `&search=${encodeURIComponent(search)}`;
+  if (today) qs += `&today=1`;
   return request(`/api/foods?${qs}`);
 }
 function getFoodsByCategory(parentName, limit) { return request(`/api/foods?category=${encodeURIComponent(parentName)}&limit=${limit}`); }
 function submitFood(record) { return request("/api/foods", "POST", record); }
 function updateFoodDetails(id, fields) { return request(`/api/foods/${id}`, "PATCH", { fields }); }
-function searchIngredients(search, limit) {
-  let qs = search ? `?search=${encodeURIComponent(search)}&limit=${limit}` : ``;
-  return request(`/api/ingredients${qs}`);
-}
+function addComment(id, comment) { return request(`/api/foods/${id}`, "PATCH", { comment }); }
+function searchIngredients(q, limit) { return request(`/api/ingredients?search=${encodeURIComponent(q)}&limit=${limit}`); }
 function addIngredient(name) { return request("/api/ingredients", "POST", { name }); }
 function getCategories() { return request("/api/categories"); }
 
-module.exports = { BASE_URL, getConfig, getFoods, getFoodsByCategory, submitFood, updateFoodDetails, searchIngredients, addIngredient, getCategories, uploadImage, compressAndUpload };
+module.exports = {
+  BASE_URL, getConfig, getFoods, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
+  searchIngredients, addIngredient, getCategories, uploadImage, compressAndUpload,
+};
