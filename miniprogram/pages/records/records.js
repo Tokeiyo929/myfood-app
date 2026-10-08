@@ -11,7 +11,6 @@ try {
 Page({
   data: {
     settings: null,
-    imagePath: '',
     fileList: [],
     uploading: false,
     todayRecords: [],
@@ -27,13 +26,8 @@ Page({
   },
 
 
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2 });
-    }
-  },
   onShow() {
-    this.setTab();    this.loadToday();
+    this.loadToday();
   },
 
   onUnload() {
@@ -46,6 +40,7 @@ Page({
       recorder = plugin.getRecordRecognitionManager();
       const that = this;
       recorder.onStop = function(res) {
+        if (!that.data.recording) return;
         const text = res.result || '';
         that.setData({ recording: false });
         if (text) {
@@ -88,7 +83,7 @@ Page({
   async loadToday() {
     try {
       if (!this.data.settings) return;
-      const result = await api.getFoods(1, 100, '', true);
+      const result = await api.getFoods(1, this.data.settings.pagination.max_page_size, '', true);
       const records = (result.items || []).map(r => ({
         ...r,
         comments: r.comment || [],
@@ -103,8 +98,11 @@ Page({
     const file = e.detail && e.detail.file;
     const path = file && (file.path || file.url);
     if (!path) return;
+    this.setData({ fileList: [{ url: path }] });
     this.saveQuick(path);
   },
+
+  removeImage() { this.setData({ fileList: [] }); },
 
   async saveQuick(path) {
     if (this.data.uploading) { wx.showToast({ title: '上传中', icon: 'none' }); return; }
@@ -129,7 +127,7 @@ Page({
       await api.submitFood(record);
       wx.hideLoading();
       wx.showToast({ title: '已保存', icon: 'success' });
-      this.setData({ imagePath: '', fileList: [], uploading: false });
+      this.setData({ fileList: [], uploading: false });
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
@@ -151,7 +149,7 @@ Page({
   },
 
   onCommentInput(e) {
-    this.setData({ commentInput: e.detail.value !== undefined ? e.detail.value : e.detail });
+    this.setData({ commentInput: e.detail.value });
   },
 
   async saveComment() {

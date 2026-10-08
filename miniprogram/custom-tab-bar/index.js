@@ -9,9 +9,20 @@ Component({
       { pagePath: '/pages/ingredients/ingredients', text: '原料', icon: '/images/ingredient.png', selectedIcon: '/images/ingredient-active.png' },
     ],
   },
+  lifetimes: {
+    attached() { this.updateSelected(); },
+  },
+  pageLifetimes: {
+    show() { this.updateSelected(); },
+  },
   methods: {
+    updateSelected() {
+      const pages = getCurrentPages();
+      const route = pages[pages.length - 1].route;
+      const selected = this.data.list.findIndex(item => item.pagePath === '/' + route);
+      if (selected >= 0) this.setData({ selected });
+    },
     switchTab(e) {
-      const index = e.currentTarget.dataset.index;
       const path = e.currentTarget.dataset.path;
       wx.switchTab({ url: path });
     },

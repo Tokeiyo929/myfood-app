@@ -16,14 +16,8 @@ Page({
     this.loadConfig();
   },
 
-
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 });
-    }
-  },
   onShow() {
-    this.setTab();    this.loadRecords(true);
+    this.loadRecords(true);
   },
 
   async loadConfig() {

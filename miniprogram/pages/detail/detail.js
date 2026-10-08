@@ -39,14 +39,8 @@ Page({
     this.loadConfig();
   },
 
-
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 3 });
-    }
-  },
   onShow() {
-    this.setTab();    const app = getApp();
+    const app = getApp();
     const gid = app.globalData.selectedRecordId;
     if (gid && gid !== this.data.selectedId) {
       // 选中项变了，重新加载记录并选中
@@ -113,7 +107,6 @@ Page({
       });
       return;
     }
-    if (!this.data.settings) return;
     this.fillDetail(rec);
   },
   fillDetail(rec) {
@@ -291,8 +284,6 @@ Page({
   setPrefLevel(level) {
     const prefs = this.data.preferenceOptions;
     const pref = prefs.reduce((best, pp) => Math.abs(pp.level - level) < Math.abs(best.level - level) ? pp : best, prefs[0]);
-    const bad = this.data.settings.preferences.bad.value;
-    const good = this.data.settings.preferences.excellent.value;
     this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, prefLevel: pref.level, prefPercent: this.preferencePercent(pref.level) });
   },
   resetFlavors() {
@@ -303,7 +294,7 @@ Page({
     this.setData({ flavorLevels }, () => this.drawWheel());
   },
 
-  onCommentInput(e) { this.setData({ commentInput: e.detail.value !== undefined ? e.detail.value : e.detail }); },
+  onCommentInput(e) { this.setData({ commentInput: e.detail.value }); },
 
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
@@ -357,9 +348,8 @@ Page({
   async saveDetail() {
     if (this.data.editId == null || !this.data.settings) return;
     const config = this.data.settings;
-    const bad = this.data.settings.preferences.bad.value;
-    const excellent = this.data.settings.preferences.excellent.value;
-    const comment = this.data.commentInput ? this.data.comments.concat([this.data.commentInput]) : this.data.comments;
+    const text = this.data.commentInput.trim();
+    const comment = text ? this.data.comments.concat([text]) : this.data.comments;
     const flavors = Object.keys(this.data.flavorLevels)
       .filter(f => this.data.flavorLevels[f] > config.flavor_scale.min_level)
       .map(f => ({ name: f, level: this.data.flavorLevels[f] }));
