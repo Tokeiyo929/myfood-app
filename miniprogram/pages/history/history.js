@@ -65,7 +65,8 @@ Page({
   },
 
   onRecordSearch(e) {
-    this.setData({ recordSearch: e.detail });
+    const v = e.detail && e.detail.value !== undefined ? e.detail.value : e.detail;
+    this.setData({ recordSearch: v });
     this.loadRecords(true);
   },
 
