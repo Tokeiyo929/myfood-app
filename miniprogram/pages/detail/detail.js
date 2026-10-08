@@ -18,6 +18,7 @@ Page({
     dishName: '',
     brandName: '',
     price: '',
+    repurchase: '',
     ingredientSearch: '',
     ingredientSuggestions: [],
     ingredientAmount: '',
@@ -107,6 +108,7 @@ Page({
       dishName: rec.name || '',
       brandName: rec.brand_name || '',
       price: rec.price == null ? '' : String(rec.price),
+      repurchase: rec.repurchase_count == null ? '' : String(rec.repurchase_count),
       selectedCategory: (rec.categories && rec.categories[0]) || '',
       categorySearch: '',
       categorySuggestions: [],
@@ -286,6 +288,7 @@ Page({
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
+  onRepurchase(e) { this.setData({ repurchase: e.detail }); },
   onIngredientAmount(e) { this.setData({ ingredientAmount: e.detail }); },
 
   onCategorySearch(e) {
@@ -345,10 +348,16 @@ Page({
       wx.showToast({ title: '价格无效', icon: 'none' });
       return;
     }
+    const repurchase = this.data.repurchase === '' ? null : Number(this.data.repurchase);
+    if (repurchase !== null && (!Number.isInteger(repurchase) || repurchase < 0)) {
+      wx.showToast({ title: '复购次数无效', icon: 'none' });
+      return;
+    }
     const fields = {
       name: this.data.dishName,
       brand_name: this.data.brandName,
       price,
+      repurchase_count: repurchase,
       categories: this.data.selectedCategory ? [this.data.selectedCategory] : [],
       ingredients: this.data.ingredients,
       flavors,
