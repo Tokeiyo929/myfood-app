@@ -100,9 +100,23 @@ Page({
 
   syncSelected() {
     const id = getApp().globalData.selectedRecordId || this.data.selectedId;
-    if (!id) return;
+    if (!id || !this.data.settings) return;
     const rec = this.data.records.find(r => Number(r.id) === Number(id));
-    if (!rec || !this.data.settings) return;
+    if (!rec) {
+      const that = this;
+      api.getFoodById(id).then(r => {
+        const loaded = (that.data.records || []).concat([r]);
+        that.setData({ records: loaded, scrollIntoId: 'img-' + id });
+        that.fillDetail(r);
+      }).catch(() => {
+        wx.showToast({ title: '记录加载失败', icon: 'none' });
+      });
+      return;
+    }
+    if (!this.data.settings) return;
+    this.fillDetail(rec);
+  },
+  fillDetail(rec) {
     const scale = this.data.settings.flavor_scale;
     const flavorLevels = {};
     this.data.flavors.forEach(f => flavorLevels[f] = scale.default_level);

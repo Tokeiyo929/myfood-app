@@ -81,11 +81,12 @@ function getFoodsByCategory(parentName, limit) { return request(`/api/foods?cate
 function submitFood(record) { return request("/api/foods", "POST", record); }
 function updateFoodDetails(id, fields) { return request(`/api/foods/${id}`, "PATCH", { fields }); }
 function addComment(id, comment) { return request(`/api/foods/${id}`, "PATCH", { comment }); }
+function getFoodById(id) { return request(`/api/foods/${id}`); }
 function searchIngredients(q, limit) { return request(`/api/ingredients?search=${encodeURIComponent(q)}&limit=${limit}`); }
 function addIngredient(name) { return request("/api/ingredients", "POST", { name }); }
 function getCategories() { return request("/api/categories"); }
 
 module.exports = {
-  BASE_URL, getConfig, getFoods, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
+  BASE_URL, getConfig, getFoods, getFoodById, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
   searchIngredients, addIngredient, getCategories, uploadImage, compressAndUpload,
 };
