@@ -39,8 +39,14 @@ Page({
     this.loadConfig();
   },
 
+
+  setTab() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 3 });
+    }
+  },
   onShow() {
-    const app = getApp();
+    this.setTab();    const app = getApp();
     const gid = app.globalData.selectedRecordId;
     if (gid && gid !== this.data.selectedId) {
       // 选中项变了，重新加载记录并选中

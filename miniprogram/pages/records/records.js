@@ -26,8 +26,14 @@ Page({
   },
 
 
+
+  setTab() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 2 });
+    }
+  },
   onShow() {
-    this.loadToday();
+    this.setTab();    this.loadToday();
   },
 
   onUnload() {
