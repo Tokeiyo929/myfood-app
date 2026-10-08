@@ -1,0 +1,69 @@
+<view class="page">
+  <!-- 上方：图片列表可滑动选择 -->
+  <scroll-view class="img-strip" scroll-x="{{true}}">
+    <view class="img-item {{selectedId === item.id ? 'selected' : ''}}" wx:for="{{records}}" wx:key="id" bindtap="selectImage" data-id="{{item.id}}">
+      <image wx:if="{{item.image_path}}" src="{{item.image_path}}" mode="aspectFill" class="strip-img" />
+      <view class="strip-name">{{item.name || '未命名'}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- 下方：所选记录的详情编辑 -->
+  <view class="detail-body" wx:if="{{editId != null}}">
+    <view class="detail-section">
+      <view class="section-label">基本信息</view>
+      <van-field label="产品" value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
+      <van-field label="品牌" value="{{brandName}}" bindinput="onBrandName" placeholder="品牌" />
+      <van-field label="价格" value="{{price}}" type="number" bindinput="onPrice" placeholder="价格" />
+      <van-field label="类别" value="{{categorySearch}}" bindinput="onCategorySearch" placeholder="搜索产品类别" class="cat-field" />
+      <view class="suggestions" wx:if="{{categorySuggestions.length}}">
+        <van-tag wx:for="{{categorySuggestions}}" wx:key="*this" data-name="{{item}}" bindtap="pickCategory" style="margin:4px">{{item}}</van-tag>
+      </view>
+      <view class="chips" wx:if="{{selectedCategory}}">
+        <van-tag closeable type="warning" bindtap="removeCategory">{{selectedCategory}}</van-tag>
+      </view>
+    </view>
+
+    <view class="detail-section" wx:if="{{flavors.length && preferenceOptions.length}}">
+      <view class="section-label">味道与偏好</view>
+      <view class="flavor-pref-row">
+        <view class="flavor-box">
+          <view class="wheel-wrap">
+            <view class="reset-btn" bindtap="resetFlavors">↻</view>
+            <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="180" height="180" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
+          </view>
+        </view>
+        <view class="pref-box">
+          <view class="pref-custom">
+            <text class="pref-face">{{preferenceFace}}</text>
+            <view class="pref-track" bindtouchstart="onPrefTouch" bindtouchmove="onPrefMove">
+              <view class="pref-fill" style="height: {{prefPercent}}%"></view>
+              <view class="pref-thumb" style="bottom: {{prefPercent}}%"></view>
+            </view>
+            <text class="pref-label">{{preferenceLabel}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="reason-area" wx:if="{{reasonField !== 'none'}}">
+      <textarea value="{{reasonField === 'bad' ? badlyReason : goodReason}}" bindinput="{{reasonField === 'bad' ? 'onBadlyReason' : 'onGoodReason'}}" maxlength="500" class="reason-textarea" placeholder="{{reasonField === 'bad' ? '请输入难吃理由' : '请输入推荐理由'}}" />
+    </view>
+
+    <view class="detail-section">
+      <view class="section-label">原料</view>
+      <view class="ing-row">
+        <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="原料" class="ing-main" />
+        <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" placeholder="%" class="amount-field" />
+      </view>
+      <view class="suggestions" wx:if="{{ingredientSuggestions.length}}">
+        <van-tag wx:for="{{ingredientSuggestions}}" wx:key="index" data-idx="{{index}}" bindtap="pickIngredient" style="margin:4px">{{item.name}}</van-tag>
+      </view>
+      <view class="chips">
+        <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount ? '(' + item.amount + '%)' : ''}}</van-tag>
+      </view>
+    </view>
+
+    <view style="margin-top:16px"><van-button type="primary" block bindtap="saveDetail">保存</van-button></view>
+  </view>
+
+  <view class="detail-empty" wx:if="{{editId == null}}"><van-empty description="请在历史记录中选择一条记录" /></view>
+</view>

@@ -1,0 +1,31 @@
+<view class="page">
+  <view class="search-bar">
+    <input class="search-input" value="{{recordSearch}}" bindinput="onRecordSearch" placeholder="搜索名称/品牌" confirm-type="search" />
+    <text wx:if="{{recordSearch}}" class="clear-btn" bindtap="clearSearch">×</text>
+  </view>
+
+  <view class="records">
+    <view class="record" wx:for="{{records}}" wx:key="id">
+      <view class="record-card {{item.prefClass}} {{selectedId === item.id ? 'selected' : ''}}">
+        <view class="record-main" bindtap="selectRecord" data-id="{{item.id}}">
+          <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="record-img" mode="aspectFill" />
+          <view class="record-info">
+            <view class="line1"><text class="record-name">{{item.name || '未命名'}}</text><text class="record-brand" wx:if="{{item.brand_name}}"> - {{item.brand_name}}</text></view>
+            <view class="line2" wx:if="{{item.flavorLabels && item.flavorLabels.length}}">
+              <text class="item-label">味道：</text>
+              <van-tag wx:for="{{item.flavorLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
+            </view>
+            <view class="line2" wx:if="{{item.ingredientLabels && item.ingredientLabels.length}}">
+              <text class="item-label">材料：</text>
+              <van-tag wx:for="{{item.ingredientLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
+            </view>
+            <text class="repurchase-count" wx:if="{{item.repurchase_count}}">复购{{item.repurchase_count}}次</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{!records.length && !loading}}"><van-empty description="暂无记录" /></view>
+    <view wx:if="{{loading}}"><van-loading /></view>
+  </view>
+  <view wx:if="{{hasMore && records.length}}" class="loading-hint">上拉加载更多</view>
+</view>
