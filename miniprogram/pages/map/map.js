@@ -4,6 +4,24 @@ const api = require('../../utils/api');
 
 let chart = null;
 
+// 短名(地图) <-> 全名(categories)
+const PROVINCE_MAP = {
+  '北京': '北京市', '天津': '天津市', '上海': '上海市', '重庆': '重庆市',
+  '内蒙古': '内蒙古自治区', '广西': '广西壮族自治区', '西藏': '西藏自治区', '宁夏': '宁夏回族自治区', '新疆': '新疆维吾尔自治区',
+  '香港': '香港特别行政区', '澳门': '澳门特别行政区',
+};
+function toFullName(name) {
+  if (PROVINCE_MAP[name]) return PROVINCE_MAP[name];
+  return name + '省';
+}
+function toRegionName(full) {
+  for (const k of Object.keys(PROVINCE_MAP)) {
+    if (PROVINCE_MAP[k] === full) return k;
+  }
+  if (full.endsWith('省')) return full.slice(0, -1);
+  return full;
+}
+
 Page({
   data: {
     ec: { onInit: initChart },
@@ -45,11 +63,12 @@ Page({
 
   renderMap(byProvince) {
     if (!chart) return;
-    const data = Object.keys(byProvince).map(name => ({
-      name,
-      value: byProvince[name].length,
-      itemStyle: { areaColor: '#b39ddb' },
-    }));
+    const data = [];
+    for (const key of Object.keys(byProvince)) {
+      if (byProvince[key].length) {
+        data.push({ name: toRegionName(key), value: byProvince[key].length, itemStyle: { areaColor: '#b39ddb' } });
+      }
+    }
     chart.setOption({
       tooltip: { trigger: 'item' },
       series: [{
@@ -69,7 +88,8 @@ Page({
     chart.off('click');
     chart.on('click', params => {
       if (!params || !params.name) return;
-      this.setData({ selectedProvince: params.name, provinceDishes: this.byProvince[params.name] || [] });
+      const province = toFullName(params.name);
+      this.setData({ selectedProvince: province, provinceDishes: this.byProvince[province] || [] });
     });
   },
 });
