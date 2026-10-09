@@ -14,22 +14,23 @@ function toFullName(name) {
   return name + '省';
 }
 function toRegionName(full) {
-  for (const k of Object.keys(PROVINCE_MAP)) {
-    if (PROVINCE_MAP[k] === full) return k;
-  }
+  for (const k of Object.keys(PROVINCE_MAP)) { if (PROVINCE_MAP[k] === full) return k; }
   if (full.endsWith('省')) return full.slice(0, -1);
   return full;
 }
+
+const VISITED_COLOR = '#b39ddb';
+const SELECT_COLOR = '#66508f';
 
 Page({
   data: {
     ec: { onInit: initChart },
     selectedProvince: '',
-    provinceDishes: [],
+    dishList: [], // {name, visited}
   },
 
   onReady() {
-    this.loadCategories();
+    this.loadData();
   },
 
   onShow() {
@@ -42,34 +43,51 @@ Page({
     }
   },
 
-  async loadCategories() {
+  async loadData() {
     try {
-      const result = await api.getCategories();
+      const config = await api.getConfig();
+      const limit = config.pagination.max_page_size;
+      const first = await api.getFoods(1, limit, '');
+      const pages = Math.ceil(first.total / limit);
+      const all = [first];
+      for (let page = 2; page <= pages; page += 1) { all.push(await api.getFoods(page, limit, '')); }
+      // 吃过的菜名集合
+      const visitedDishes = new Set();
+      all.forEach(r => (r.items || []).forEach(food => {
+        (food.categories || []).forEach(cat => { if (cat) visitedDishes.add(cat); });
+      }));
+      this.visitedDishes = visitedDishes;
+
+      const catResult = await api.getCategories();
       const byProvince = {};
-      (result.items || []).forEach(item => {
+      (catResult.items || []).forEach(item => {
         const province = (item.parentcategories || '').trim();
-        if (province) {
-          (byProvince[province] = byProvince[province] || []).push(item.name);
-        }
+        if (province) { (byProvince[province] = byProvince[province] || []).push(item.name); }
       });
       this.byProvince = byProvince;
-      this.renderMap(byProvince);
+
+      // 各省是否有吃过的菜（visited）
+      this.visitedProvinces = {};
+      Object.keys(byProvince).forEach(prov => {
+        this.visitedProvinces[prov] = byProvince[prov].some(dish => visitedDishes.has(dish));
+      });
+
+      this.renderMap();
       this.bindClick();
     } catch (e) {
       wx.showToast({ title: '地图数据加载失败', icon: 'none' });
     }
   },
 
-  renderMap(byProvince) {
+  renderMap() {
     if (!chart) return;
     const data = [];
-    for (const key of Object.keys(byProvince)) {
-      if (byProvince[key].length) {
-        data.push({ name: toRegionName(key), value: byProvince[key].length, itemStyle: { areaColor: '#b39ddb' } });
+    Object.keys(this.byProvince).forEach(prov => {
+      if (this.visitedProvinces[prov]) {
+        data.push({ name: toRegionName(prov), value: 1, itemStyle: { areaColor: VISITED_COLOR } });
       }
-    }
+    });
     chart.setOption({
-      // 去掉白色 tooltip 弹窗
       tooltip: { show: false },
       series: [{
         type: 'map',
@@ -78,8 +96,7 @@ Page({
         scaleLimit: { min: 0.5, max: 10 },
         selectedMode: false,
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
-        emphasis: { itemStyle: { areaColor: '#b39ddb' }, label: { show: false } },
-        select: { itemStyle: { areaColor: '#66508f' }, label: { show: false } },
+        emphasis: { itemStyle: { areaColor: SELECT_COLOR }, label: { show: false } },
         data,
       }],
     }, true);
@@ -91,7 +108,11 @@ Page({
     chart.on('click', params => {
       if (!params || !params.name) return;
       const province = toFullName(params.name);
-      this.setData({ selectedProvince: province, provinceDishes: this.byProvince[province] || [] });
+      const dishes = (this.byProvince[province] || []).map(name => ({ name, visited: this.visitedDishes.has(name) }));
+      // visited 置顶
+      dishes.sort((a, b) => (b.visited ? 1 : 0) - (a.visited ? 1 : 0));
+      this.setData({ selectedProvince: province, dishList: dishes });
+      // 选中该省：设置单独高亮(用dispatch select 或重新强调)
     });
   },
 });
