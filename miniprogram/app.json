@@ -3,10 +3,10 @@
   "pages": [
     "pages/records/records",
     "pages/index/index",
-    "pages/ingredients/ingredients",
     "pages/categories/categories",
     "pages/history/history",
-    "pages/detail/detail"
+    "pages/detail/detail",
+    "pages/map/map"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -44,10 +44,10 @@
         "selectedIconPath": "images/detail-active.png"
       },
       {
-        "pagePath": "pages/ingredients/ingredients",
-        "text": "原料",
-        "iconPath": "images/ingredient.png",
-        "selectedIconPath": "images/ingredient-active.png"
+        "pagePath": "pages/map/map",
+        "text": "地图",
+        "iconPath": "images/map.png",
+        "selectedIconPath": "images/map-active.png"
       }
     ]
   },
