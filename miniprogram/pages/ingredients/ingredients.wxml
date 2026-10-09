@@ -1,6 +1,7 @@
 <view class="page">
   <view class="add-search">
-    <van-field value="{{search}}" bindinput="onSearch" placeholder="搜索并添加原料" />
+    <van-field value="{{search}}" bindinput="onSearch" placeholder="搜索或输入原料名" bindconfirm="addIngredient" />
+    <van-button type="primary" size="small" bindtap="addIngredient" disabled="{{!search}}">添加</van-button>
   </view>
   <view class="suggestions" wx:if="{{suggestions.length}}">
     <van-tag wx:for="{{suggestions}}" wx:key="id" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="pickIngredient" style="margin:4px">{{item.name}}</van-tag>

@@ -39,10 +39,26 @@ Page({
     }).catch(() => that.setData({ suggestions: [] }));
   },
 
+  async addIngredient() {
+    const name = (this.data.search || '').trim();
+    if (!name) {
+      wx.showToast({ title: '请输入原料名', icon: 'none' });
+      return;
+    }
+    wx.showLoading({ title: '添加中' });
+    try {
+      await api.addIngredient(name);
+      wx.hideLoading();
+      wx.showToast({ title: '添加成功', icon: 'success' });
+      this.setData({ search: '', suggestions: [] });
+      this.loadIngredients();
+    } catch (e) {
+      wx.hideLoading();
+      wx.showToast({ title: e.message || '添加失败', icon: 'none' });
+    }
+  },
+
   pickIngredient(e) {
-    const name = e.currentTarget.dataset.name;
-    if (!name) return;
-    this.setData({ search: '', suggestions: [] });
-    this.loadIngredients();
+    this.setData({ search: e.currentTarget.dataset.name, suggestions: [] });
   },
 });
