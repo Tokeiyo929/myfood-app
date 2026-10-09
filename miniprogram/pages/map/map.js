@@ -4,7 +4,6 @@ const api = require('../../utils/api');
 
 let chart = null;
 
-// 短名(地图) <-> 全名(categories)
 const PROVINCE_MAP = {
   '北京': '北京市', '天津': '天津市', '上海': '上海市', '重庆': '重庆市',
   '内蒙古': '内蒙古自治区', '广西': '广西壮族自治区', '西藏': '西藏自治区', '宁夏': '宁夏回族自治区', '新疆': '新疆维吾尔自治区',
@@ -70,14 +69,17 @@ Page({
       }
     }
     chart.setOption({
-      tooltip: { trigger: 'item' },
+      // 去掉白色 tooltip 弹窗
+      tooltip: { show: false },
       series: [{
         type: 'map',
         map: 'china',
         roam: true,
         scaleLimit: { min: 0.5, max: 10 },
+        selectedMode: false,
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
-        emphasis: { itemStyle: { areaColor: '#66508f' }, label: { show: true } },
+        emphasis: { itemStyle: { areaColor: '#b39ddb' }, label: { show: false } },
+        select: { itemStyle: { areaColor: '#66508f' }, label: { show: false } },
         data,
       }],
     }, true);
