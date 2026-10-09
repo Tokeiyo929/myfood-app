@@ -214,6 +214,7 @@ Component({
     },
 
     touchStart(e) {
+      if (e && typeof e.preventDefault !== 'function') e.preventDefault = function() {};
       if (this.chart && e.touches.length > 0) {
         var touch = e.touches[0];
         var handler = this.chart.getZr().handler;
@@ -236,6 +237,7 @@ Component({
     },
 
     touchMove(e) {
+      if (e && typeof e.preventDefault !== 'function') e.preventDefault = function() {};
       if (this.chart && e.touches.length > 0) {
         var touch = e.touches[0];
         var handler = this.chart.getZr().handler;
@@ -251,6 +253,7 @@ Component({
     },
 
     touchEnd(e) {
+      if (e && typeof e.preventDefault !== 'function') e.preventDefault = function() {};
       if (this.chart) {
         const touch = e.changedTouches ? e.changedTouches[0] : {};
         var handler = this.chart.getZr().handler;
