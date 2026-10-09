@@ -325,25 +325,25 @@ Page({
   },
 
   onIngredientSearch(e) {
-    const q = e.detail.trim();
-    const requestId = ++ingredientRequest;
+    const q = (e.detail && e.detail.value !== undefined ? e.detail.value : e.detail) || '';
     this.setData({ ingredientSearch: q });
-    if (!q) { this.setData({ ingredientSuggestions: [] }); return; }
-    if (!this.data.settings) return;
-    const limit = this.data.settings.pagination.ingredient_page_size;
-    api.searchIngredients(q, limit).then(result => {
-      if (requestId === ingredientRequest) this.setData({ ingredientSuggestions: result.items || [] });
-    }).catch(() => {
-      if (requestId === ingredientRequest) this.setData({ ingredientSuggestions: [] });
-    });
   },
-  pickIngredient(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const item = this.data.ingredientSuggestions[idx];
-    if (!item) return;
+  // 添加原料: 拼装原料+含量, 不存在自动创建
+  async addIngredientBlock() {
+    const name = (this.data.ingredientSearch || '').trim();
+    if (!name) { wx.showToast({ title: '请输入原料名', icon: 'none' }); return; }
     const amount = this.data.ingredientAmount === '' ? null : Number(this.data.ingredientAmount) || null;
-    this.setData({ ingredients: this.data.ingredients.concat([{ name: item.name, amount }]), ingredientSearch: '', ingredientSuggestions: [], ingredientAmount: '' });
+    try {
+      api.addIngredient(name).catch(() => {});
+      this.setData({
+        ingredients: this.data.ingredients.concat([{ name, amount }]),
+        ingredientSearch: '',
+        ingredientAmount: '',
+        ingredientSuggestions: [],
+      });
+    } catch (e) {}
   },
+
   removeIngredient(e) {
     const idx = e.currentTarget.dataset.idx;
     const ingredients = this.data.ingredients.slice();
