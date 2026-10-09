@@ -3,8 +3,7 @@ const api = require('../../utils/api');
 Page({
   data: {
     stats: null,
-    version: '1.0.0',
-    startDate: '2026-09-30',
+    version: '',
     days: null,
   },
 
@@ -13,6 +12,7 @@ Page({
       this.getTabBar().setData({ selected: 0 });
     }
   },
+
   onShow() { this.setTab(); this.loadStats(); },
 
   gotoMap() {
@@ -20,9 +20,21 @@ Page({
   },
 
   async loadStats() {
+    // 版本号：微信返回当前小程序版本
+    let version = '';
+    try {
+      const info = wx.getAccountInfoSync();
+      version = (info.miniProgram || {}).version || '';
+    } catch (e) { version = ''; }
+    this.setData({ version });
+
     try {
       const s = await api.getStats();
-      const days = Math.max(1, Math.floor((Date.now() - new Date(this.data.startDate)) / 86400000));
+      let days = null;
+      if (s.start_date) {
+        const start = new Date(s.start_date).getTime();
+        days = Math.max(1, Math.floor((Date.now() - start) / 86400000));
+      }
       this.setData({ stats: s, days });
     } catch (e) {
       this.setData({ stats: null });

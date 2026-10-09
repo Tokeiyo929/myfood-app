@@ -11,14 +11,13 @@
       <view class="stat-label">照片数</view>
     </view>
     <view class="stat-item">
-      <view class="stat-num">{{days}}</view>
+      <view class="stat-num">{{days || '-'}}</view>
       <view class="stat-label">服务天数</view>
     </view>
   </view>
   <view class="info-card">
-    <view class="info-row"><text class="info-label">版本号</text><text class="info-value">{{version}}</text></view>
-    <view class="info-row"><text class="info-label">项目开始</text><text class="info-value">{{startDate}}</text></view>
-    <view class="info-row"><text class="info-label">存储用量</text><text class="info-value">查看 COS 控制台</text></view>
-    <view class="info-row"><text class="info-label">今日流量</text><text class="info-value">查看 COS 控制台</text></view>
+    <view class="info-row"><text class="info-label">版本号</text><text class="info-value">{{version || '开发版'}}</text></view>
+    <view class="info-row"><text class="info-label">存储用量</text><text class="info-value">{{storage || '计算中...'}}</text></view>
+    <view class="info-row"><text class="info-label">今日流量</text><text class="info-value">{{traffic || '计算中...'}}</text></view>
   </view>
 </view>
