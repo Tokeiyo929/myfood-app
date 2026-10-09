@@ -1,4 +1,4 @@
-.page { padding: 12px; padding-bottom: 20px; }
+.page { padding: 12px; padding-bottom: 80px; }
 .search-bar { display: flex; align-items: center; margin-bottom: 12px; background: #f2f0f7; border-radius: 10px; padding: 4px 10px; }
 .search-input { flex: 1; font-size: 14px; padding: 6px 0; }
 .clear-btn { color: #999; font-size: 20px; padding: 0 4px; }

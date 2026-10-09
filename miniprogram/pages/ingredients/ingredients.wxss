@@ -1,4 +1,4 @@
-.page { padding: 0; }
+.page { padding: 0; padding-bottom: 80px; }
 .add-row { background: #fff; display: flex; align-items: center; padding: 8px 16px; }
 .grid { display: flex; flex-wrap: wrap; background: #fff; }
 .grid-item { width: 25%; box-sizing: border-box; padding: 10px 6px; text-align: center; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
