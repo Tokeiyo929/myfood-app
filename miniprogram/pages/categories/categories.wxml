@@ -17,7 +17,7 @@
   </view>
   <view class="info-card">
     <view class="info-row"><text class="info-label">版本号</text><text class="info-value">{{version || '开发版'}}</text></view>
-    <view class="info-row"><text class="info-label">存储用量</text><text class="info-value">{{storage || '计算中...'}}</text></view>
-    <view class="info-row"><text class="info-label">今日流量</text><text class="info-value">{{traffic || '计算中...'}}</text></view>
+    <view class="info-row"><text class="info-label">存储用量</text><text class="info-value">{{storage || '暂无'}}</text></view>
+    <view class="info-row"><text class="info-label">今日流量</text><text class="info-value">{{traffic || '暂无'}}</text></view>
   </view>
 </view>

@@ -5,6 +5,8 @@ Page({
     stats: null,
     version: '',
     days: null,
+    storage: '',
+    traffic: '',
   },
 
   setTab() {
@@ -20,7 +22,6 @@ Page({
   },
 
   async loadStats() {
-    // 版本号：微信返回当前小程序版本
     let version = '';
     try {
       const info = wx.getAccountInfoSync();
@@ -35,7 +36,12 @@ Page({
         const start = new Date(s.start_date).getTime();
         days = Math.max(1, Math.floor((Date.now() - start) / 86400000));
       }
-      this.setData({ stats: s, days });
+      this.setData({
+        stats: s,
+        days,
+        storage: s.storage || '',
+        traffic: s.traffic || '',
+      });
     } catch (e) {
       this.setData({ stats: null });
     }
