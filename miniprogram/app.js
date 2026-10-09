@@ -3,5 +3,6 @@ App({
     selectedRecordId: null,
     refreshDetail: false,
     refreshList: false,
+    lastUpdatedRecordId: null,
   }
 });

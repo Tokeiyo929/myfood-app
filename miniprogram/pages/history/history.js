@@ -22,11 +22,37 @@ Page({
   onShow() {
     this.setTab();
     const app = getApp();
-    // 新增了记录才刷新（否则保留缓存和滑动位置）
+    // 新增了记录：整体刷新
     if (app.globalData.refreshList) {
       app.globalData.refreshList = false;
       this.loadRecords(true);
     }
+    // 详情页保存了某条：局部刷新该条（不重拉全列表，保留位置）
+    if (app.globalData.lastUpdatedRecordId != null) {
+      const id = app.globalData.lastUpdatedRecordId;
+      app.globalData.lastUpdatedRecordId = null;
+      this.refreshRecord(id);
+    }
+  },
+  refreshRecord(id) {
+    const that = this;
+    api.getFoodById(id).then(r => {
+      const records = that.data.records.map(item => Number(item.id) === Number(id) ? that.decorate(r) : item);
+      that.setData({ records });
+      that.saveCache();
+    }).catch(() => {});
+  },
+  decorate(record) {
+    const scale = this.data.settings ? this.data.settings.flavor_scale : { default_level: 50, low_threshold: 25, mid_threshold: 50, high_threshold: 75 };
+    const prefs = this.data.settings ? this.data.settings.preferences : { excellent: { value: '推荐吃' }, bad: { value: '偏难吃' } };
+    const { bad, excellent } = prefs;
+    const flavorLabel = (name, level) => { const lv = level || scale.default_level; if (lv < scale.low_threshold) return '不' + name; if (lv < scale.mid_threshold) return '微' + name; if (lv < scale.high_threshold) return name; return '太' + name; };
+    return {
+      ...record,
+      prefClass: record.preference === excellent.value ? 'preference-excellent' : record.preference === bad.value ? 'preference-bad' : 'preference-good',
+      flavorLabels: (record.flavors || []).filter(f => f.level && f.level !== (scale.default_level)).map(f => flavorLabel(f.name, f.level)),
+      ingredientLabels: (record.ingredients || []).map(it => it.amount ? it.name + '(' + it.amount + '%)' : it.name),
+    };
   },
 
   setTab() {
