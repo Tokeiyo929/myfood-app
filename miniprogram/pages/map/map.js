@@ -1,7 +1,6 @@
 import * as echarts from '../../ec-canvas/echarts';
 import china from '../../mapdata/china';
 const api = require('../../utils/api');
-const { CUISINE_TO_PROVINCES } = require('../../utils/regionMap');
 
 let chart = null;
 
@@ -9,11 +8,11 @@ Page({
   data: {
     ec: { onInit: initChart },
     selectedProvince: '',
-    provinceFoods: [],
+    provinceDishes: [],
   },
 
   onReady() {
-    this.loadFoods();
+    this.loadCategories();
   },
 
   onShow() {
@@ -26,34 +25,22 @@ Page({
     }
   },
 
-  async loadFoods() {
+  async loadCategories() {
     try {
-      const config = await api.getConfig();
-      const limit = config.pagination.max_page_size;
-      const first = await api.getFoods(1, limit, '');
-      const pages = Math.ceil(first.total / limit);
-      const results = [first];
-      for (let page = 2; page <= pages; page += 1) {
-        results.push(await api.getFoods(page, limit, ''));
-      }
+      const result = await api.getCategories();
       const byProvince = {};
-      results.forEach(result => (result.items || []).forEach(food => {
-        (food.categories || []).forEach(cat => {
-          this.mapRegionToProvinces(cat).forEach(province => {
-            (byProvince[province] = byProvince[province] || []).push(food);
-          });
-        });
-      }));
+      (result.items || []).forEach(item => {
+        const province = (item.parentcategories || '').trim();
+        if (province) {
+          (byProvince[province] = byProvince[province] || []).push(item.name);
+        }
+      });
       this.byProvince = byProvince;
       this.renderMap(byProvince);
       this.bindClick();
     } catch (e) {
       wx.showToast({ title: '地图数据加载失败', icon: 'none' });
     }
-  },
-
-  mapRegionToProvinces(cat) {
-    return CUISINE_TO_PROVINCES[String(cat || '').trim()] || [];
   },
 
   renderMap(byProvince) {
@@ -82,7 +69,7 @@ Page({
     chart.off('click');
     chart.on('click', params => {
       if (!params || !params.name) return;
-      this.setData({ selectedProvince: params.name, provinceFoods: this.byProvince[params.name] || [] });
+      this.setData({ selectedProvince: params.name, provinceDishes: this.byProvince[params.name] || [] });
     });
   },
 });

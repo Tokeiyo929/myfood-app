@@ -2,13 +2,10 @@
   <view class="map-wrap">
     <ec-canvas id="map" canvas-id="map" ec="{{ec}}" />
   </view>
-  <view class="province-foods" wx:if="{{selectedProvince}}">
-    <view class="pf-title">{{selectedProvince}} 的美食</view>
-    <view class="pf-list">
-      <view class="pf-item" wx:for="{{provinceFoods}}" wx:key="id">
-        <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="pf-img" mode="aspectFill" />
-        <text class="pf-name">{{item.name || '未命名'}}</text>
-      </view>
+  <view class="province-dishes" wx:if="{{selectedProvince}}">
+    <view class="pd-title">{{selectedProvince}} 的特色美食</view>
+    <view class="pd-list">
+      <view class="pd-item" wx:for="{{provinceDishes}}" wx:key="index">{{item}}</view>
     </view>
   </view>
 </view>
