@@ -3,8 +3,8 @@ const api = require('../../utils/api');
 Page({
   data: {
     stats: null,
-    version: '',
     days: null,
+    storage: '',
     traffic: '',
   },
 
@@ -21,13 +21,6 @@ Page({
   },
 
   async loadStats() {
-    let version = '';
-    try {
-      const info = wx.getAccountInfoSync();
-      version = (info.miniProgram || {}).version || '';
-    } catch (e) { version = ''; }
-    this.setData({ version });
-
     try {
       const s = await api.getStats();
       let days = null;
@@ -35,15 +28,14 @@ Page({
         const start = new Date(s.start_date).getTime();
         days = Math.max(1, Math.floor((Date.now() - start) / 86400000));
       }
-      // traffic: bytes sum
       let traffic = '';
       if (Array.isArray(s.traffic) && s.traffic[0] && Array.isArray(s.traffic[0].Values)) {
         const bytes = s.traffic[0].Values.reduce((a, b) => a + b, 0);
         traffic = this.fmtBytes(bytes);
       }
-      this.setData({ stats: s, days, traffic });
+      this.setData({ stats: s, days, traffic, storage: '' });
     } catch (e) {
-      this.setData({ stats: null, days: null, traffic: '' });
+      this.setData({ stats: null });
     }
   },
 
