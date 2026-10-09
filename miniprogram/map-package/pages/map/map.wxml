@@ -2,8 +2,8 @@
   <view class="map-wrap">
     <ec-canvas id="map" canvas-id="map" ec="{{ec}}" />
   </view>
-  <view class="dish-warp" wx:if="{{selectedProvince}}">
-    <view class="dw-title">{{selectedProvince}} 的特色美食（<text>{{selectedProvince}}</text>）</view>
+  <view class="dish-wrap" wx:if="{{selectedProvince}}">
+    <view class="dw-title">{{selectedProvince}} 的特色美食</view>
     <scroll-view scroll-y class="dish-scroll">
       <view class="dish-item {{item.visited ? '' : 'locked'}}" wx:for="{{dishList}}" wx:key="index">
         <text>{{item.name}}</text>

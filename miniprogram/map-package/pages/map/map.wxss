@@ -1,6 +1,6 @@
 .page { padding: 12px; padding-bottom: 80px; }
 .map-wrap { width: 100%; height: 420px; background: #fff; border-radius: 12px; overflow: hidden; }
-.dish-warp { margin-top: 12px; }
+.dish-wrap { margin-top: 12px; }
 .dw-title { font-size: 15px; font-weight: 600; color: #66508f; margin-bottom: 8px; }
 .dish-scroll { max-height: 300px; }
 .dish-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fff; border-radius: 8px; margin-bottom: 6px; }

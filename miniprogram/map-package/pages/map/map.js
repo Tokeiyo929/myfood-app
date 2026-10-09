@@ -33,14 +33,19 @@ Page({
     this.loadData();
   },
 
+  onShow() {
+    if (this.loaded) this.loadData();
+  },
+
   async loadData() {
     try {
       const config = await api.getConfig();
       const limit = config.pagination.max_page_size;
       const first = await api.getFoods(1, limit, '');
       const pages = Math.ceil(first.total / limit);
-      const all = [first];
-      for (let page = 2; page <= pages; page += 1) { all.push(await api.getFoods(page, limit, '')); }
+      const requests = [first];
+      for (let page = 2; page <= pages; page += 1) requests.push(api.getFoods(page, limit, ''));
+      const all = await Promise.all(requests);
       // 吃过的菜名集合
       const visitedDishes = new Set();
       all.forEach(r => (r.items || []).forEach(food => {
@@ -64,6 +69,7 @@ Page({
 
       this.renderMap();
       this.bindClick();
+      this.loaded = true;
     } catch (e) {
       wx.showToast({ title: '地图数据加载失败', icon: 'none' });
     }
