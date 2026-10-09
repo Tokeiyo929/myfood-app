@@ -28,4 +28,7 @@
     <view wx:if="{{loading}}"><van-loading /></view>
   </view>
   <view wx:if="{{hasMore && records.length}}" class="loading-hint">上拉加载更多</view>
+
+  <!-- 回到顶部 -->
+  <view class="back-top {{showBackTop ? 'show' : ''}}" bindtap="backToTop">↑</view>
 </view>

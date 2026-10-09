@@ -134,6 +134,7 @@ Page({
       wx.hideLoading();
       wx.showToast({ title: '已保存', icon: 'success' });
       this.setData({ fileList: [], uploading: false });
+      getApp().globalData.refreshList = true;
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
