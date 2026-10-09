@@ -1,5 +1,6 @@
 <view class="page">
   <view class="my-header">MyFood</view>
+  <view class="map-entry" bindtap="gotoMap">美食地图 <text class="me-arrow">›</text></view>
   <view class="stat-card">
     <view class="stat-item">
       <view class="stat-num">{{stats.foods || 0}}</view>

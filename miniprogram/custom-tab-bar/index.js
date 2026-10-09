@@ -6,7 +6,6 @@ Component({
       { pagePath: '/pages/history/history', text: '历史记录', icon: '/images/history.png', selectedIcon: '/images/history-active.png' },
       { pagePath: '/pages/records/records', text: '记录', icon: '/images/record.png', selectedIcon: '/images/record-active.png' },
       { pagePath: '/pages/detail/detail', text: '详情', icon: '/images/detail.png', selectedIcon: '/images/detail-active.png' },
-      { pagePath: '/pages/map/map', text: '地图', icon: '/images/map.png', selectedIcon: '/images/map-active.png' },
     ],
   },
   methods: {

@@ -1,6 +1,6 @@
 import * as echarts from '../../ec-canvas/echarts';
 import china from '../../mapdata/china';
-const api = require('../../utils/api');
+const api = require('../../../utils/api');
 
 let chart = null;
 
@@ -31,16 +31,6 @@ Page({
 
   onReady() {
     this.loadData();
-  },
-
-  onShow() {
-    this.setTab();
-  },
-
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 4 });
-    }
   },
 
   async loadData() {
@@ -112,7 +102,6 @@ Page({
       // visited 置顶
       dishes.sort((a, b) => (b.visited ? 1 : 0) - (a.visited ? 1 : 0));
       this.setData({ selectedProvince: province, dishList: dishes });
-      // 选中该省：设置单独高亮(用dispatch select 或重新强调)
     });
   },
 });

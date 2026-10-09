@@ -15,6 +15,10 @@ Page({
   },
   onShow() { this.setTab(); this.loadStats(); },
 
+  gotoMap() {
+    wx.navigateTo({ url: '/map-package/pages/map/map' });
+  },
+
   async loadStats() {
     try {
       const s = await api.getStats();

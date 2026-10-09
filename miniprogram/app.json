@@ -5,8 +5,7 @@
     "pages/index/index",
     "pages/categories/categories",
     "pages/history/history",
-    "pages/detail/detail",
-    "pages/map/map"
+    "pages/detail/detail"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -42,12 +41,6 @@
         "text": "详情",
         "iconPath": "images/detail.png",
         "selectedIconPath": "images/detail-active.png"
-      },
-      {
-        "pagePath": "pages/map/map",
-        "text": "地图",
-        "iconPath": "images/map.png",
-        "selectedIconPath": "images/map-active.png"
       }
     ]
   },
@@ -57,5 +50,13 @@
       "provider": "wx069ba97219f66d99"
     }
   },
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "subpackages": [
+    {
+      "root": "map-package",
+      "pages": [
+        "pages/map/map"
+      ]
+    }
+  ]
 }
