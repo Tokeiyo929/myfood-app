@@ -386,6 +386,7 @@ Page({
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });
       getApp().globalData.refreshDetail = true;
+      getApp().globalData.lastUpdatedRecordId = this.data.editId;
       this.loadRecords();
     } catch (e) {
       wx.hideLoading();
