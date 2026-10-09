@@ -1,6 +1,5 @@
 const api = require('../../utils/api');
 let recordsRequest = 0;
-const CACHE_KEY = 'history_cache';
 
 Page({
   data: {
@@ -16,7 +15,6 @@ Page({
 
   onLoad() {
     this.loadConfig();
-    this.restoreCache();
   },
 
   onShow() {
@@ -27,21 +25,28 @@ Page({
       app.globalData.refreshList = false;
       this.loadRecords(true);
     }
-    // 详情页保存了某条：局部刷新该条（不重拉全列表，保留位置）
+    // 详情页保存了某条：局部刷新该条（不重拉全列表，保留滑动位置）
     if (app.globalData.lastUpdatedRecordId != null) {
       const id = app.globalData.lastUpdatedRecordId;
       app.globalData.lastUpdatedRecordId = null;
       this.refreshRecord(id);
     }
   },
+
+  setTab() {
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 });
+    }
+  },
+
   refreshRecord(id) {
     const that = this;
     api.getFoodById(id).then(r => {
       const records = that.data.records.map(item => Number(item.id) === Number(id) ? that.decorate(r) : item);
       that.setData({ records });
-      that.saveCache();
     }).catch(() => {});
   },
+
   decorate(record) {
     const scale = this.data.settings ? this.data.settings.flavor_scale : { default_level: 50, low_threshold: 25, mid_threshold: 50, high_threshold: 75 };
     const prefs = this.data.settings ? this.data.settings.preferences : { excellent: { value: '推荐吃' }, bad: { value: '偏难吃' } };
@@ -55,32 +60,11 @@ Page({
     };
   },
 
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 });
-    }
-  },
-
-  // 从缓存恢复记录（保留滑动位置，不重新拉数据）
-  restoreCache() {
-    try {
-      const cache = wx.getStorageSync(CACHE_KEY);
-      if (cache && cache.records && cache.records.length) {
-        this.setData({ records: cache.records, page: cache.page || 1, hasMore: cache.hasMore !== false, recordSearch: cache.recordSearch || '' });
-      }
-    } catch (e) {}
-  },
-
-  saveCache() {
-    try {
-      wx.setStorageSync(CACHE_KEY, { records: this.data.records, page: this.data.page, hasMore: this.data.hasMore, recordSearch: this.data.recordSearch });
-    } catch (e) {}
-  },
-
   async loadConfig() {
     try {
       const config = await api.getConfig();
       this.setData({ settings: config });
+      // 首次进入（records 为空）才加载
       if (!this.data.records.length) this.loadRecords(true);
     } catch (e) {
       wx.showToast({ title: '配置加载失败', icon: 'none' });
@@ -114,7 +98,6 @@ Page({
         ingredientLabels: (record.ingredients || []).map(it => it.amount ? it.name + '(' + it.amount + '%)' : it.name),
       }));
       this.setData({ records, page, hasMore: records.length < result.total, selectedId: this.data.selectedId });
-      this.saveCache();
     } catch (e) {
       if (requestId === recordsRequest) wx.showToast({ title: e.message || '记录加载失败', icon: 'none' });
     } finally {
