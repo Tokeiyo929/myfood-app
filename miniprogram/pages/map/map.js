@@ -3,6 +3,7 @@ import china from '../../mapdata/china';
 import api from '../../utils/api';
 
 let chart = null;
+let clickBound = false;
 
 Page({
   data: {
@@ -38,6 +39,7 @@ Page({
       });
       this.byProvince = byProvince;
       this.renderMap(byProvince);
+      this.bindClick();
     }).catch(() => {});
   },
 
@@ -47,7 +49,6 @@ Page({
 
   renderMap(byProvince) {
     if (!chart) return;
-    const that = this;
     const data = Object.keys(byProvince).map(name => ({
       name,
       value: byProvince[name].length,
@@ -58,14 +59,21 @@ Page({
       series: [{
         type: 'map',
         map: 'china',
-        roam: false,
+        roam: true,
+        scaleLimit: { min: 0.5, max: 10 },
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
         emphasis: { itemStyle: { areaColor: '#66508f' }, label: { show: true } },
         data,
       }],
     }, true);
-    chart.off('click');
+  },
+
+  bindClick() {
+    if (!chart || clickBound) return;
+    clickBound = true;
+    const that = this;
     chart.on('click', function(params) {
+      if (!params || !params.name) return;
       that.setData({ selectedProvince: params.name, provinceFoods: that.byProvince[params.name] || [] });
     });
   },
