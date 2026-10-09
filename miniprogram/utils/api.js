@@ -71,6 +71,7 @@ function compressAndUpload(filePath, imageConfig) {
 }
 
 function getConfig() { return request("/api/config"); }
+function getStats() { return request("/api/stats"); }
 function getFoods(page, limit, search, today) {
   let qs = `page=${page}&limit=${limit}`;
   if (search) qs += `&search=${encodeURIComponent(search)}`;
@@ -87,6 +88,6 @@ function addIngredient(name) { return request("/api/ingredients", "POST", { name
 function getCategories() { return request("/api/categories"); }
 
 module.exports = {
-  BASE_URL, getConfig, getFoods, getFoodById, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
+  BASE_URL, getConfig, getStats, getFoods, getFoodById, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
   searchIngredients, addIngredient, getCategories, uploadImage, compressAndUpload,
 };
