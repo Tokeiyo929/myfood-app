@@ -100,23 +100,32 @@ Page({
     }
   },
 
-  chooseImage(e) {
-    const file = e.detail && e.detail.file;
-    const path = file && (file.path || file.url);
-    if (!path) return;
-    this.setData({ fileList: [{ url: path }] });
-    this.saveQuick(path);
+  chooseImage() {
+    const that = this;
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ["image"],
+      sourceType: ["album", "camera"],
+      success(res) {
+        const f = (res.tempFiles && res.tempFiles[0]) || {};
+        const path = f.tempFilePath;
+        if (!path) return;
+        const taken = f.createTime || f.time || null;
+        that.setData({ fileList: [{ url: path }] });
+        that.saveQuick(path, taken);
+      }
+    });
   },
 
   removeImage() { this.setData({ fileList: [] }); },
 
-  async saveQuick(path) {
+  async saveQuick(path, takenAt) {
     if (this.data.uploading) { wx.showToast({ title: '上传中', icon: 'none' }); return; }
     if (!this.data.settings) { wx.showToast({ title: '配置加载中', icon: 'none' }); return; }
     this.setData({ uploading: true });
     wx.showLoading({ title: '上传中' });
     try {
-      const upload = await api.compressAndUpload(path, this.data.settings.image);
+      const upload = await api.compressAndUpload(path, this.data.settings.image, takenAt);
       const record = {
         name: '',
         brand_name: '',

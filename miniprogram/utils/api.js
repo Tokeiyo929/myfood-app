@@ -60,7 +60,15 @@ function compressAndUpload(filePath, imageConfig) {
           compressedWidth: w,
           compressedHeight: h,
           success: (res) => {
-            uploadImage(res.tempFilePath).then(resolve).catch(reject);
+            uploadImage(res.tempFilePath).then((r) => {
+              if (r && takenAt) {
+                const d = new Date(takenAt);
+                const pad = (n) => (n < 10 ? "0" + n : "" + n);
+                const ts = d.getFullYear() + ":" + pad(d.getMonth() + 1) + ":" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+                r.metadata = Object.assign({}, r.metadata || {}, { taken_at: ts });
+              }
+              resolve(r);
+            }).catch(reject);
           },
           fail: reject,
         });
