@@ -18,7 +18,4 @@
   <view class="info-card">
     <view class="info-row"><text class="info-label">今日外网流量</text><text class="info-value">{{traffic || '暂无'}}</text></view>
   </view>
-  <view class="info-card">
-    <view class="info-row"><text class="info-label">存储用量</text><text class="info-value">{{storage || '暂无'}}</text></view>
-  </view>
 </view>
