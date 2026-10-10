@@ -40,7 +40,7 @@ function uploadImage(filePath) {
   });
 }
 
-function compressAndUpload(filePath, imageConfig) {
+function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise((resolve, reject) => {
     wx.getImageInfo({
       src: filePath,
