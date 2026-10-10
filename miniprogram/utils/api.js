@@ -54,8 +54,17 @@ function compressAndUpload(filePath, imageConfig, takenAt) {
           var now = new Date();
           var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
           var ts = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-          if (!r.metadata || !r.metadata.taken_at) { r.metadata = Object.assign({}, r.metadata || {}, { taken_at: ts }); }
-          resolve(r);
+          var meta = r.metadata || {};
+          if (!meta.taken_at) { meta.taken_at = ts; }
+          wx.getLocation({
+            type: "gcj02",
+            success: function (loc) {
+              if (loc && loc.latitude && loc.longitude) { meta.latitude = loc.latitude; meta.longitude = loc.longitude; }
+              r.metadata = meta;
+              resolve(r);
+            },
+            fail: function () { r.metadata = meta; resolve(r); }
+          });
         }).catch(reject); }, fail: reject });
       },
       fail: reject
