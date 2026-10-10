@@ -42,13 +42,14 @@ function uploadImage(filePath) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise((resolve, reject) => {
-    var quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
-    // 质量压缩(不指定宽高,尽量保留EXIF), 节省COS流量
-    wx.compressImage({
+    wx.getImageInfo({
       src: filePath,
-      quality: quality,
-      success: function (res) {
-        uploadImage(res.tempFilePath).then(resolve).catch(reject);
+      success: function (info) {
+        var maxD = Number(imageConfig.max_dimension);
+        var quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
+        var w = info.width, h = info.height;
+        if (w > maxD || h > maxD) { var r = maxD / Math.max(w, h); w = Math.round(w * r); h = Math.round(h * r); }
+        wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { uploadImage(res.tempFilePath).then(resolve).catch(reject); }, fail: reject });
       },
       fail: reject
     });
