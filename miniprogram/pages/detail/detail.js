@@ -31,6 +31,7 @@ Page({
     draggingAxis: -1,
     prefLevel: 0,
     prefPercent: 0,
+    prefBottom: 0,
   },
 
   onLoad() {
@@ -40,7 +41,7 @@ Page({
 
   initVoice() {
     try {
-      const plugin = wx.requirePlugin("WechatSI");
+      const plugin = requirePlugin("WechatSI");
       const manager = plugin.getRecordRecognitionManager();
       const that = this;
       manager.onStop = function (res) {
@@ -169,6 +170,7 @@ Page({
       preferenceLabel: pref.label,
       prefLevel: pref.level,
       prefPercent: this.preferencePercent(pref.level),
+      prefBottom: this.prefBottom(this.preferencePercent(pref.level)),
       comments: rec.comment || [],
       commentInput: '',
     }, () => {
@@ -315,10 +317,14 @@ Page({
     const min = prefs[0].level, max = prefs[prefs.length - 1].level;
     return Math.round((level - min) / (max - min) * 100);
   },
+  prefBottom(pct) {
+    return Math.round(pct / 100 * 116);
+  },
   setPrefLevel(level) {
     const prefs = this.data.preferenceOptions;
     const pref = prefs.reduce((best, pp) => Math.abs(pp.level - level) < Math.abs(best.level - level) ? pp : best, prefs[0]);
-    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, prefLevel: pref.level, prefPercent: this.preferencePercent(pref.level) });
+    const pct = this.preferencePercent(pref.level);
+    this.setData({ preference: pref.value, preferenceFace: pref.face, preferenceLabel: pref.label, prefLevel: pref.level, prefPercent: pct, prefBottom: this.prefBottom(pct) });
   },
   resetFlavors() {
     if (!this.data.settings) return;
@@ -329,6 +335,12 @@ Page({
   },
 
   onCommentInput(e) { this.setData({ commentInput: e.detail.value }); },
+  editComment(e) {
+    const idx = e.currentTarget.dataset.idx;
+    const text = this.data.comments[idx];
+    if (text == null) return;
+    this.setData({ commentInput: text, editingCommentIndex: idx });
+  },
 
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },

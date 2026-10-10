@@ -39,7 +39,7 @@
             <text class="pref-face">{{preferenceFace}}</text>
             <view class="pref-track" bindtouchstart="onPrefTouch" catchtouchmove="onPrefMove">
               <view class="pref-fill" style="height: {{prefPercent}}%"></view>
-              <view class="pref-thumb" style="bottom: {{prefPercent}}%"></view>
+              <view class="pref-thumb" style="bottom: {{prefBottom}}px"></view>
             </view>
             <text class="pref-label">{{preferenceLabel}}</text>
           </view>
@@ -50,7 +50,7 @@
     <view class="detail-section">
       <view class="section-label">评论</view>
       <view class="comment-list" wx:if="{{comments.length}}">
-        <view class="comment-item" wx:for="{{comments}}" wx:key="index">· {{item}}</view>
+        <view class="comment-item" wx:for="{{comments}}" wx:key="index" bindtap="editComment" data-idx="{{index}}">· {{item}} <text class="comment-edit">编辑</text></view>
       </view>
       <view class="comment-input-row">
         <input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="添加评论" confirm-type="send" bindconfirm="saveDetail" />
