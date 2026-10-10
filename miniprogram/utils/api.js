@@ -49,7 +49,14 @@ function compressAndUpload(filePath, imageConfig, takenAt) {
         var quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
         var w = info.width, h = info.height;
         if (w > maxD || h > maxD) { var r = maxD / Math.max(w, h); w = Math.round(w * r); h = Math.round(h * r); }
-        wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { uploadImage(res.tempFilePath).then(resolve).catch(reject); }, fail: reject });
+        wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { uploadImage(res.tempFilePath).then(function (r) {
+          // 微信压缩丢EXIF且无拍摄时间API, 用上传时刻作taken_at近似
+          var now = new Date();
+          var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+          var ts = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+          if (!r.metadata || !r.metadata.taken_at) { r.metadata = Object.assign({}, r.metadata || {}, { taken_at: ts }); }
+          resolve(r);
+        }).catch(reject); }, fail: reject });
       },
       fail: reject
     });
