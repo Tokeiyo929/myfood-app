@@ -45,13 +45,10 @@ Page({
       const plugin = requirePlugin("WechatSI");
       const manager = plugin.getRecordRecognitionManager();
       const that = this;
-      manager.onRecognize = function (res) {
-        const mid = (res && res.result) || "";
-        if (mid) that.setData({ commentInput: mid });
-      };
+
       manager.onStop = function (res) {
         const text = (res && res.result) || "";
-        if (text) that.setData({ commentInput: that.data.commentInput + (that.data.commentInput ? " " : "") + text });
+        if (text) that.setData({ commentInput: text });
       };
       manager.onError = function () {
         wx.showToast({ title: "语音识别失败", icon: "none" });
