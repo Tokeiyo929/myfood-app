@@ -56,8 +56,8 @@
         </view>
       </view>
       <view class="comment-input-row">
-        <input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="添加评论" confirm-type="send" bindconfirm="saveDetail" />
-        <view class="voice-btn" bindtouchstart="onVoiceStart" bindtouchend="onVoiceEnd" bindtouchcancel="onVoiceEnd">🎤</view>
+        <textarea class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="添加评论" auto-height maxlength="-1" confirm-type="send" bindconfirm="saveDetail" />
+        <view class="voice-btn" bindtouchstart="onVoiceStart" bindtouchend="onVoiceEnd">🎤</view>
       </view>
     </view>
 
@@ -65,10 +65,11 @@
       <view class="section-label">原料</view>
       <view class="ing-row">
         <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="原料" class="ing-main" />
-        <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" bindconfirm="addIngredientBlock" placeholder="%" class="amount-field" />
+        <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" placeholder="%" class="amount-field" />
       </view>
+      <view class="ing-preview" wx:if="{{ingredientPreview}}" bindtap="confirmIngredient">＋ 确认添加：{{ingredientPreview.name}}{{ingredientPreview.amount != null ? ' (' + ingredientPreview.amount + '%)' : ''}}</view>
       <view class="chips">
-        <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount != null ? '(' + item.amount + '%)' : ''}}</van-tag>
+        <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount ? '(' + item.amount + '%)' : ''}}</van-tag>
       </view>
     </view>
 

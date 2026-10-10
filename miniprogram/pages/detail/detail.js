@@ -45,6 +45,10 @@ Page({
       const plugin = requirePlugin("WechatSI");
       const manager = plugin.getRecordRecognitionManager();
       const that = this;
+      manager.onRecognize = function (res) {
+        const mid = (res && res.result) || "";
+        if (mid) that.setData({ commentInput: mid });
+      };
       manager.onStop = function (res) {
         const text = (res && res.result) || "";
         if (text) that.setData({ commentInput: that.data.commentInput + (that.data.commentInput ? " " : "") + text });
@@ -367,7 +371,16 @@ Page({
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
   onRepurchaseChange(e) { this.setData({ repurchase: e.detail }); },
-  onIngredientAmount(e) { this.setData({ ingredientAmount: e.detail }); },
+  onIngredientAmount(e) {
+    const amount = e.detail;
+    this.setData({ ingredientAmount: amount });
+    this.updateIngredientPreview();
+  },
+  updateIngredientPreview() {
+    const name = (this.data.ingredientSearch || "").trim();
+    const amount = this.data.ingredientAmount === "" ? null : Number(this.data.ingredientAmount);
+    this.setData({ ingredientPreview: name ? { name, amount } : null });
+  },
 
   onCategorySearch(e) {
     const q = e.detail;
@@ -387,6 +400,22 @@ Page({
 
   onIngredientSearch(e) {
     this.setData({ ingredientSearch: e.detail });
+    this.updateIngredientPreview();
+  },
+  confirmIngredient() {
+    const preview = this.data.ingredientPreview;
+    if (!preview || !preview.name) return;
+    const that = this;
+    api.addIngredient(preview.name).then(() => {
+      that.setData({
+        ingredients: that.data.ingredients.concat([preview]),
+        ingredientSearch: "",
+        ingredientAmount: "",
+        ingredientPreview: null,
+      });
+    }).catch(e => {
+      wx.showToast({ title: (e && e.message) || "原料添加失败", icon: "none" });
+    });
   },
   // 添加原料: 拼装原料+含量, 不存在自动创建
   async addIngredientBlock() {
