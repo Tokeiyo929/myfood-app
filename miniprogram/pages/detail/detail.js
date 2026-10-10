@@ -341,6 +341,24 @@ Page({
     if (text == null) return;
     this.setData({ commentInput: text, editingCommentIndex: idx });
   },
+  deleteComment(e) {
+    const idx = e.currentTarget.dataset.idx;
+    const that = this;
+    wx.showModal({
+      title: "删除评论",
+      content: "确定要删除这条评论吗？",
+      confirmText: "删除",
+      confirmColor: "#ee0a24",
+      success(res) {
+        if (res.confirm) {
+          const comments = that.data.comments.slice();
+          comments.splice(idx, 1);
+          that.setData({ comments });
+          that.setData({ editingCommentIndex: null, commentInput: "" });
+        }
+      }
+    });
+  },
 
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
@@ -422,7 +440,15 @@ Page({
     if (this.data.editId == null || !this.data.settings) return;
     const config = this.data.settings;
     const text = this.data.commentInput.trim();
-    const comment = text ? this.data.comments.concat([text]) : this.data.comments;
+    let comment = this.data.comments.slice();
+    const editIdx = this.data.editingCommentIndex;
+    if (editIdx != null) {
+      if (text) comment[editIdx] = text;
+      else comment.splice(editIdx, 1);
+    } else if (text) {
+      comment.push(text);
+    }
+    this.setData({ editingCommentIndex: null, commentInput: "" });
     const flavors = Object.keys(this.data.flavorLevels)
       .filter(f => this.data.flavorLevels[f] > config.flavor_scale.min_level)
       .map(f => ({ name: f, level: this.data.flavorLevels[f] }));

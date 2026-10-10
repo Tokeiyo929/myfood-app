@@ -50,7 +50,10 @@
     <view class="detail-section">
       <view class="section-label">评论</view>
       <view class="comment-list" wx:if="{{comments.length}}">
-        <view class="comment-item" wx:for="{{comments}}" wx:key="index" bindtap="editComment" data-idx="{{index}}">· {{item}} <text class="comment-edit">编辑</text></view>
+        <view class="comment-item" wx:for="{{comments}}" wx:key="index">
+          <text class="comment-txt" bindtap="editComment" data-idx="{{index}}">· {{item}}</text>
+          <text class="comment-del" bindtap="deleteComment" data-idx="{{index}}">删除</text>
+        </view>
       </view>
       <view class="comment-input-row">
         <input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="添加评论" confirm-type="send" bindconfirm="saveDetail" />
