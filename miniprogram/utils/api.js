@@ -42,33 +42,8 @@ function uploadImage(filePath) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise((resolve, reject) => {
-    wx.getImageInfo({
-      src: filePath,
-      success: function (info) {
-        var maxD = Number(imageConfig.max_dimension);
-        var quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
-        var w = info.width, h = info.height;
-        if (w > maxD || h > maxD) { var r = maxD / Math.max(w, h); w = Math.round(w * r); h = Math.round(h * r); }
-        wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { uploadImage(res.tempFilePath).then(function (r) {
-          // 微信压缩丢EXIF且无拍摄时间API, 用上传时刻作taken_at近似
-          var now = new Date();
-          var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-          var ts = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-          var meta = r.metadata || {};
-          if (!meta.taken_at) { meta.taken_at = ts; }
-          wx.getLocation({
-            type: "gcj02",
-            success: function (loc) {
-              if (loc && loc.latitude && loc.longitude) { meta.latitude = loc.latitude; meta.longitude = loc.longitude; }
-              r.metadata = meta;
-              resolve(r);
-            },
-            fail: function () { r.metadata = meta; resolve(r); }
-          });
-        }).catch(reject); }, fail: reject });
-      },
-      fail: reject
-    });
+    // 上传原图: worker从图片EXIF读取taken_at/经纬度(用户要求从图片加载信息)
+    uploadImage(filePath).then(resolve).catch(reject);
   });
 }
 function getConfig() { return request("/api/config"); }
