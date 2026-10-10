@@ -368,6 +368,8 @@ Page({
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
   onRepurchaseChange(e) { this.setData({ repurchase: e.detail }); },
+  onRepDec() { this.setData({ repurchase: Math.max(0, (Number(this.data.repurchase) || 0) - 1) }); },
+  onRepInc() { this.setData({ repurchase: (Number(this.data.repurchase) || 0) + 1 }); },
   onIngredientAmount(e) {
     const amount = e.detail;
     this.setData({ ingredientAmount: amount });

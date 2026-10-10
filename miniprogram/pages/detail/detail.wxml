@@ -14,7 +14,7 @@
       <van-field label="价格" value="{{price}}" type="digit" bindinput="onPrice" placeholder="价格" />
       <view class="repurchase-row">
         <view class="section-inline-label">复购</view>
-        <van-stepper value="{{repurchase || 0}}" min="0" integer bind:change="onRepurchaseChange" />
+        <view class="step-row"><view class="step-btn" bindtap="onRepDec">-</view><text class="step-val">{{repurchase || 0}}</text><view class="step-btn" bindtap="onRepInc">+</view></view>
       </view>
       <van-field label="类别" value="{{categorySearch}}" bindinput="onCategorySearch" placeholder="搜索产品类别" class="cat-field" />
       <view class="suggestions" wx:if="{{categorySuggestions.length}}">
