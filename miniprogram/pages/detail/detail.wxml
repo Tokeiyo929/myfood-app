@@ -59,14 +59,16 @@
       <view class="ing-row">
         <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="原料" class="ing-main" />
         <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" placeholder="%" class="amount-field" />
-        <van-button type="primary" size="small" bindtap="addIngredientBlock">添加</van-button>
       </view>
       <view class="chips">
         <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount ? '(' + item.amount + '%)' : ''}}</van-tag>
       </view>
     </view>
 
-    <view style="margin-top:16px"><van-button type="primary" block bindtap="saveDetail">保存</van-button></view>
+    <view class="action-row">
+      <van-button type="primary" block bindtap="saveDetail" class="save-btn">保存</van-button>
+      <van-button type="danger" bindtap="deleteCurrent" class="del-btn">删除</van-button>
+    </view>
   </view>
 
   <view class="detail-empty" wx:if="{{editId == null}}"><van-empty description="请在历史记录中选择一条记录" /></view>

@@ -1,4 +1,4 @@
-.page { padding: 16px; padding-bottom: 80px; }
+.page { padding: 16px; padding-bottom: 120px; }
 .my-header { font-size: 22px; font-weight: 700; color: #66508f; margin-bottom: 16px; }
 .stat-card { display: flex; justify-content: space-between; background: #fff; border-radius: 12px; padding: 18px 12px; margin-bottom: 16px; }
 .stat-item { flex: 1; text-align: center; }

@@ -303,7 +303,7 @@ Page({
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
   onRepurchase(e) { this.setData({ repurchase: e.detail }); },
-  onIngredientAmount(e) { this.setData({ ingredientAmount: e.detail }); },
+  onIngredientAmount(e) { this.setData({ ingredientAmount: e.detail }, () => { if ((this.data.ingredientSearch || '').trim()) this.addIngredientBlock(); }); },
 
   onCategorySearch(e) {
     const q = e.detail;
@@ -346,6 +346,33 @@ Page({
     const ingredients = this.data.ingredients.slice();
     ingredients.splice(idx, 1);
     this.setData({ ingredients });
+  },
+
+  deleteCurrent() {
+    const id = this.data.editId;
+    if (id == null) return;
+    const that = this;
+    wx.showModal({
+      title: '确认删除',
+      content: '确定要删除这条记录吗？此操作不可恢复',
+      confirmText: '删除',
+      confirmColor: '#ee0a24',
+      success(res) {
+        if (res.confirm) that.doDelete(id);
+      }
+    });
+  },
+  async doDelete(id) {
+    try {
+      await api.deleteFood(id);
+      wx.showToast({ title: '已删除', icon: 'success' });
+      getApp().globalData.selectedRecordId = null;
+      getApp().globalData.refreshList = true;
+      this.setData({ editId: null, records: [] });
+      this.loadRecords();
+    } catch (e) {
+      wx.showToast({ title: e.message || '删除失败', icon: 'none' });
+    }
   },
 
   async saveDetail() {

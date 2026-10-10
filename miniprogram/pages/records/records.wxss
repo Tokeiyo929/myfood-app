@@ -1,4 +1,4 @@
-.page { padding: 12px;  height: 100vh; box-sizing: border-box; padding-bottom: 80px; }
+.page { padding: 12px;  height: 100vh; box-sizing: border-box; padding-bottom: 120px; }
 .quick-card { background: #fff; padding: 12px; border-radius: 12px; }
 .img-box { padding: 0 0 8px; }
 .quick-hint { text-align: center; color: #999; font-size: 12px; }
