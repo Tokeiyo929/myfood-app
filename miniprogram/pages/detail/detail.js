@@ -32,6 +32,7 @@ Page({
     prefLevel: 0,
     prefPercent: 0,
     prefBottom: 0,
+    editingCommentIndex: null,
   },
 
   onLoad() {
@@ -58,7 +59,6 @@ Page({
   },
 
   onVoiceStart() {
-    const that = this;
     if (!this.recorder) { this.initVoice(); }
     if (!this.recorder) return;
     this.recorder.start({ duration: 30000, lang: "zh_CN" });
@@ -173,6 +173,7 @@ Page({
       prefBottom: this.prefBottom(this.preferencePercent(pref.level)),
       comments: rec.comment || [],
       commentInput: '',
+      editingCommentIndex: null,
     }, () => {
       this.setData({ scrollIntoId: 'img-' + this.data.editId });
       this.drawWheel();
@@ -343,18 +344,20 @@ Page({
   },
   deleteComment(e) {
     const idx = e.currentTarget.dataset.idx;
-    const that = this;
     wx.showModal({
       title: "删除评论",
       content: "确定要删除这条评论吗？",
       confirmText: "删除",
       confirmColor: "#ee0a24",
-      success(res) {
-        if (res.confirm) {
-          const comments = that.data.comments.slice();
-          comments.splice(idx, 1);
-          that.setData({ comments });
-          that.setData({ editingCommentIndex: null, commentInput: "" });
+      success: async res => {
+        if (!res.confirm) return;
+        const comments = this.data.comments.slice();
+        comments.splice(idx, 1);
+        try {
+          await api.addComment(this.data.editId, comments);
+          this.setData({ comments, editingCommentIndex: null, commentInput: "" });
+        } catch (e) {
+          wx.showToast({ title: e.message || '删除评论失败', icon: 'none' });
         }
       }
     });
@@ -364,7 +367,7 @@ Page({
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
   onRepurchaseChange(e) { this.setData({ repurchase: e.detail }); },
-  onIngredientAmount(e) { this.setData({ ingredientAmount: e.detail }, () => { if ((this.data.ingredientSearch || '').trim()) this.addIngredientBlock(); }); },
+  onIngredientAmount(e) { this.setData({ ingredientAmount: e.detail }); },
 
   onCategorySearch(e) {
     const q = e.detail;
@@ -389,7 +392,7 @@ Page({
   async addIngredientBlock() {
     const name = (this.data.ingredientSearch || '').trim();
     if (!name) { wx.showToast({ title: '请输入原料名', icon: 'none' }); return; }
-    const amount = this.data.ingredientAmount === '' ? null : Number(this.data.ingredientAmount) || null;
+    const amount = this.data.ingredientAmount === '' ? null : Number(this.data.ingredientAmount);
     try {
       await api.addIngredient(name);
       this.setData({
@@ -448,7 +451,6 @@ Page({
     } else if (text) {
       comment.push(text);
     }
-    this.setData({ editingCommentIndex: null, commentInput: "" });
     const flavors = Object.keys(this.data.flavorLevels)
       .filter(f => this.data.flavorLevels[f] > config.flavor_scale.min_level)
       .map(f => ({ name: f, level: this.data.flavorLevels[f] }));
@@ -476,6 +478,7 @@ Page({
     wx.showLoading({ title: '保存中' });
     try {
       await api.updateFoodDetails(this.data.editId, fields);
+      this.setData({ editingCommentIndex: null, commentInput: "" });
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });
       getApp().globalData.refreshDetail = true;

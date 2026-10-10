@@ -4,7 +4,6 @@ Page({
   data: {
     stats: null,
     days: null,
-    storage: '',
     traffic: '',
   },
 
@@ -33,9 +32,9 @@ Page({
         const bytes = s.traffic[0].Values.reduce((a, b) => a + b, 0);
         traffic = this.fmtBytes(bytes);
       }
-      this.setData({ stats: s, days, traffic, storage: '' });
+      this.setData({ stats: s, days, traffic });
     } catch (e) {
-      this.setData({ stats: null });
+      this.setData({ stats: null, days: null, traffic: '' });
     }
   },
 
