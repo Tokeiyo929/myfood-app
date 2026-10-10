@@ -35,6 +35,37 @@ Page({
 
   onLoad() {
     this.loadConfig();
+    this.initVoice();
+  },
+
+  initVoice() {
+    try {
+      const plugin = wx.requirePlugin("WechatSI");
+      const manager = plugin.getRecordRecognitionManager();
+      const that = this;
+      manager.onStop = function (res) {
+        const text = (res && res.result) || "";
+        if (text) that.setData({ commentInput: that.data.commentInput + (that.data.commentInput ? " " : "") + text });
+      };
+      manager.onError = function () {
+        wx.showToast({ title: "语音识别失败", icon: "none" });
+      };
+      this.recorder = manager;
+    } catch (e) {
+      wx.showToast({ title: "语音组件不可用", icon: "none" });
+    }
+  },
+
+  onVoiceStart() {
+    const that = this;
+    if (!this.recorder) { this.initVoice(); }
+    if (!this.recorder) return;
+    this.recorder.start({ duration: 30000, lang: "zh_CN" });
+  },
+
+  onVoiceEnd() {
+    if (!this.recorder) return;
+    this.recorder.stop();
   },
 
 
@@ -302,7 +333,7 @@ Page({
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
-  onRepurchase(e) { this.setData({ repurchase: e.detail }); },
+  onRepurchaseChange(e) { this.setData({ repurchase: e.detail }); },
   onIngredientAmount(e) { this.setData({ ingredientAmount: e.detail }, () => { if ((this.data.ingredientSearch || '').trim()) this.addIngredientBlock(); }); },
 
   onCategorySearch(e) {
