@@ -42,42 +42,18 @@ function uploadImage(filePath) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise((resolve, reject) => {
-    wx.getImageInfo({
-      src: filePath,
-      success: (info) => {
-        const maxDimension = Number(imageConfig.max_dimension);
-        const quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
-        let w = info.width;
-        let h = info.height;
-        if (w > maxDimension || h > maxDimension) {
-          const ratio = maxDimension / Math.max(w, h);
-          w = Math.round(w * ratio);
-          h = Math.round(h * ratio);
-        }
-        wx.compressImage({
-          src: filePath,
-          quality,
-          compressedWidth: w,
-          compressedHeight: h,
-          success: (res) => {
-            uploadImage(res.tempFilePath).then((r) => {
-              if (r && takenAt) {
-                const d = new Date(takenAt);
-                const pad = (n) => (n < 10 ? "0" + n : "" + n);
-                const ts = d.getFullYear() + ":" + pad(d.getMonth() + 1) + ":" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
-                r.metadata = Object.assign({}, r.metadata || {}, { taken_at: ts });
-              }
-              resolve(r);
-            }).catch(reject);
-          },
-          fail: reject,
-        });
-      },
-      fail: reject,
-    });
+    var extra = {};
+    if (takenAt) {
+      var d = new Date(takenAt);
+      var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+      extra = { taken_at: d.getFullYear() + ":" + pad(d.getMonth() + 1) + ":" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()) };
+    }
+    uploadImage(filePath).then(function (r) {
+      r.metadata = Object.assign({}, r.metadata || {}, extra);
+      resolve(r);
+    }).catch(reject);
   });
 }
-
 function getConfig() { return request("/api/config"); }
 function getStats() { return request("/api/stats"); }
 function deleteFood(id) { return request("/api/foods/" + id, "DELETE"); }
