@@ -42,16 +42,16 @@ function uploadImage(filePath) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise((resolve, reject) => {
-    var extra = {};
-    if (takenAt) {
-      var d = new Date(takenAt);
-      var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-      extra = { taken_at: d.getFullYear() + ":" + pad(d.getMonth() + 1) + ":" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()) };
-    }
-    uploadImage(filePath).then(function (r) {
-      r.metadata = Object.assign({}, r.metadata || {}, extra);
-      resolve(r);
-    }).catch(reject);
+    var quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
+    // 质量压缩(不指定宽高,尽量保留EXIF), 节省COS流量
+    wx.compressImage({
+      src: filePath,
+      quality: quality,
+      success: function (res) {
+        uploadImage(res.tempFilePath).then(resolve).catch(reject);
+      },
+      fail: reject
+    });
   });
 }
 function getConfig() { return request("/api/config"); }
