@@ -40,7 +40,30 @@ function uploadImage(filePath) {
   });
 }
 
-function compressAndUpload(filePath, imageConfig, takenAt) { return new Promise(function (resolve, reject) { function doUpload(p) { uploadImage(p).then(function (r) { var done = false; wx.getLocation({ type: "gcj02", success: function (loc) { if (done) return; done = true; var meta = r.metadata || {}; if (loc && loc.latitude) meta.latitude = loc.latitude; if (loc && loc.longitude) meta.longitude = loc.longitude; var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); }; if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()); r.metadata = meta; resolve(r); }, fail: function () { if (done) return; done = true; var meta = r.metadata || {}; var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); }; if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()); r.metadata = meta; resolve(r); } }); }).catch(reject); } wx.compressImage({ src: filePath, quality: 80, compressedWidth: 320, success: function (res) { doUpload(res.tempFilePath || filePath); }, fail: function () { doUpload(filePath); } }); }); }
+function compressAndUpload(filePath, imageConfig, takenAt) {
+  return new Promise(function (resolve, reject) {
+    function addLoc(r) {
+      var done = false;
+      wx.getLocation({ type: "gcj02", success: function (loc) {
+        if (done) return; done = true;
+        var meta = r.metadata || {};
+        if (loc) { if (loc.latitude) meta.latitude = loc.latitude; if (loc.longitude) meta.longitude = loc.longitude; }
+        var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+        if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+        r.metadata = meta; resolve(r);
+      }, fail: function () {
+        if (done) return; done = true;
+        var meta = r.metadata || {};
+        var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+        if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+        r.metadata = meta; resolve(r);
+      } });
+    }
+    wx.compressImage({ src: filePath, quality: 80, success: function (res) {
+      uploadImage(res.tempFilePath || filePath).then(function (r) { addLoc(r); }).catch(reject);
+    }, fail: function () { uploadImage(filePath).then(function (r) { addLoc(r); }).catch(reject); } });
+  });
+}
 
 function getConfig() { return request("/api/config"); }
 function getStats() { return request("/api/stats"); }

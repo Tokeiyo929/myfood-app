@@ -1,0 +1,32 @@
+import io
+p = r'D:/GitHub/MyFood/myfood-app/miniprogram/utils/api.js'
+c = io.open(p, encoding='utf-8').read()
+i = c.find('function compressAndUpload')
+e = c.find('function getConfig', i)
+new = function compressAndUpload(filePath, imageConfig, takenAt) {
+  return new Promise(function (resolve, reject) {
+    function addLoc(r) {
+      var done = false;
+      wx.getLocation({ type: "gcj02", success: function (loc) {
+        if (done) return; done = true;
+        var meta = r.metadata || {};
+        if (loc) { if (loc.latitude) meta.latitude = loc.latitude; if (loc.longitude) meta.longitude = loc.longitude; }
+        var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+        if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+        r.metadata = meta; resolve(r);
+      }, fail: function () {
+        if (done) return; done = true;
+        var meta = r.metadata || {};
+        var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+        if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+        r.metadata = meta; resolve(r);
+      } });
+    }
+    wx.compressImage({ src: filePath, quality: 80, success: function (res) {
+      uploadImage(res.tempFilePath || filePath).then(function (r) { addLoc(r); }).catch(reject);
+    }, fail: function () { uploadImage(filePath).then(function (r) { addLoc(r); }).catch(reject); } });
+  });
+}
+c = c[:i] + new + "\n\n" + c[e:]
+io.open(p, 'w', encoding='utf-8').write(c)
+print('OK')
