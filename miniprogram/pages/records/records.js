@@ -102,17 +102,15 @@ Page({
 
   chooseImage() {
     const that = this;
-    wx.chooseMedia({
+    wx.chooseImage({
       count: 1,
-      mediaType: ["image"],
+      sizeType: ["original"],
       sourceType: ["album", "camera"],
       success(res) {
-        const f = (res.tempFiles && res.tempFiles[0]) || {};
-        const path = f.tempFilePath;
+        const path = res.tempFilePaths && res.tempFilePaths[0];
         if (!path) return;
-        const taken = f.createTime || f.time || null;
         that.setData({ fileList: [{ url: path }] });
-        that.saveQuick(path, taken);
+        that.saveQuick(path, null);
       }
     });
   },
