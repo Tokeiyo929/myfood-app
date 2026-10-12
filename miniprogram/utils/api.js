@@ -40,7 +40,7 @@ function uploadImage(filePath) {
   });
 }
 
-function compressAndUpload(filePath, imageConfig, takenAt) { return new Promise(function (resolve, reject) { uploadImage(filePath).then(resolve).catch(reject); }); }
+function compressAndUpload(filePath, imageConfig, takenAt) { return new Promise(function (resolve, reject) { uploadImage(filePath).then(function (r) { wx.getLocation({ type: "gcj02", success: function (loc) { var meta = r.metadata || {}; if (loc && loc.latitude) meta.latitude = loc.latitude; if (loc && loc.longitude) meta.longitude = loc.longitude; var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); }; if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()); r.metadata = meta; resolve(r); }, fail: function () { var meta = r.metadata || {}; var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); }; if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()); r.metadata = meta; resolve(r); } }); }).catch(reject); }); }
 function getConfig() { return request("/api/config"); }
 function getStats() { return request("/api/stats"); }
 function deleteFood(id) { return request("/api/foods/" + id, "DELETE"); }
