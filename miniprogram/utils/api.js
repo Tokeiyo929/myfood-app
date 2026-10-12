@@ -40,12 +40,7 @@ function uploadImage(filePath) {
   });
 }
 
-function compressAndUpload(filePath, imageConfig, takenAt) {
-  return new Promise((resolve, reject) => {
-    // 上传原图: worker从图片EXIF读取taken_at/经纬度(用户要求从图片加载信息)
-    uploadImage(filePath).then(resolve).catch(reject);
-  });
-}
+function compressAndUpload(filePath, imageConfig, takenAt) { return new Promise(function (resolve, reject) { uploadImage(filePath).then(resolve).catch(reject); }); }
 function getConfig() { return request("/api/config"); }
 function getStats() { return request("/api/stats"); }
 function deleteFood(id) { return request("/api/foods/" + id, "DELETE"); }
