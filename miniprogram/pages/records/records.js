@@ -102,7 +102,7 @@ Page({
 
   chooseImage() {
     wx.navigateTo({ url: "/pages/webpick/webpick" });
-  },,
+  },
 
   removeImage() { this.setData({ fileList: [] }); },
 
