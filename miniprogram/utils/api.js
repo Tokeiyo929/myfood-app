@@ -59,9 +59,20 @@ function compressAndUpload(filePath, imageConfig, takenAt) {
         r.metadata = meta; resolve(r);
       } });
     }
-    wx.compressImage({ src: filePath, quality: 80, success: function (res) {
-      uploadImage(res.tempFilePath || filePath).then(function (r) { addLoc(r); }).catch(reject);
-    }, fail: function () { uploadImage(filePath).then(function (r) { addLoc(r); }).catch(reject); } });
+    function thumb(p) {
+      wx.getImageInfo({ src: p, success: function (info) {
+        var w = info.width || 320, h = info.height || 320;
+        if (w <= 320 && h <= 320) { uploadImage(p).then(function (r) { addLoc(r); }).catch(reject); return; }
+        var scale = Math.min(320 / w, 320 / h);
+        var tw = Math.max(1, Math.round(w * scale)), th = Math.max(1, Math.round(h * scale));
+        var ctx = wx.createCanvasContext("thumbCanvas");
+        ctx.drawImage(p, 0, 0, tw, th);
+        ctx.draw(false, function () {
+          wx.canvasToTempFilePath({ canvasId: "thumbCanvas", width: tw, height: th, success: function (res) { uploadImage(res.tempFilePath || p).then(function (r) { addLoc(r); }).catch(reject); }, fail: function () { uploadImage(p).then(function (r) { addLoc(r); }).catch(reject); } });
+        });
+      }, fail: function () { uploadImage(p).then(function (r) { addLoc(r); }).catch(reject); } });
+    }
+    thumb(filePath);
   });
 }
 
