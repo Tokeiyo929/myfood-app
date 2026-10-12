@@ -1,0 +1,1 @@
+<web-view src="https://myfood-worker.keiyokaze.workers.dev/h5pick" binderror="onErr" bindmessage="onMsg"></web-view>
