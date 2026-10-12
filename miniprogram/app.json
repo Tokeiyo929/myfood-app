@@ -5,6 +5,7 @@
     "pages/index/index",
     "pages/categories/categories",
     "pages/history/history",
+    "pages/webpick/webpick",
     "pages/detail/detail"
   ],
   "window": {
@@ -26,6 +27,7 @@
       },
       {
         "pagePath": "pages/history/history",
+    "pages/webpick/webpick",
         "text": "历史记录",
         "iconPath": "images/history.png",
         "selectedIconPath": "images/history-active.png"

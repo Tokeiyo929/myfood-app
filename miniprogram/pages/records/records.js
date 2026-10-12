@@ -101,19 +101,8 @@ Page({
   },
 
   chooseImage() {
-    const that = this;
-    wx.chooseImage({
-      count: 1,
-      sizeType: ["original"],
-      sourceType: ["album", "camera"],
-      success(res) {
-        const path = res.tempFilePaths && res.tempFilePaths[0];
-        if (!path) return;
-        that.setData({ fileList: [{ url: path }] });
-        that.saveQuick(path, null);
-      }
-    });
-  },
+    wx.navigateTo({ url: "/pages/webpick/webpick" });
+  },,
 
   removeImage() { this.setData({ fileList: [] }); },
 
