@@ -22,3 +22,11 @@
     </view>
   </scroll-view>
 </view>
+
+<view wx:if="{{commentingId != null}}" class="comment-mask" bindtap="closeComment"></view>
+<view wx:if="{{commentingId != null}}" class="comment-panel">
+  <view class="comment-title">X<text class="comment-close" bindtap="closeComment">x</text></view>
+  <scroll-view scroll-y class="comment-list"><view class="comment-line" wx:for="{{comments}}" wx:key="index">* {{item}}</view></scroll-view>
+  <view class="comment-input-row"><input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" bindconfirm="saveComment" />
+  <view class="voice-btn" bindtouchstart="startRecord" bindtouchend="stopRecord">REC</view>
+  <van-button type="primary" size="small" bindtap="saveComment">Save</van-button></view></view>
