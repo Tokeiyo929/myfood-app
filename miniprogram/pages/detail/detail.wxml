@@ -57,7 +57,7 @@
       </view>
       <view class="comment-input-row">
         <textarea class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" placeholder="添加评论" auto-height maxlength="-1" confirm-type="send" bindconfirm="saveDetail" />
-        <view class="voice-btn" bindtouchstart="onVoiceStart" bindtouchend="onVoiceEnd">🎤</view>
+        <view class="voice-btn" bindtouchstart="onVoiceStart" bindtouchend="onVoiceEnd" bindtouchcancel="onVoiceEnd">🎤</view>
       </view>
     </view>
 
@@ -69,7 +69,7 @@
       </view>
       <view class="ing-preview" wx:if="{{ingredientPreview}}" bindtap="confirmIngredient">＋ 确认添加：{{ingredientPreview.name}}{{ingredientPreview.amount != null ? ' (' + ingredientPreview.amount + '%)' : ''}}</view>
       <view class="chips">
-        <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount ? '(' + item.amount + '%)' : ''}}</van-tag>
+        <van-tag closeable wx:for="{{ingredients}}" wx:key="index" data-idx="{{index}}" bindtap="removeIngredient" style="margin:4px">{{item.name}}{{item.amount != null ? '(' + item.amount + '%)' : ''}}</van-tag>
       </view>
     </view>
 

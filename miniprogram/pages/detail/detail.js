@@ -20,6 +20,7 @@ Page({
     repurchase: '',
     ingredientSearch: '',
     ingredientAmount: '',
+    ingredientPreview: null,
     ingredients: [],
     categories: [],
     selectedCategory: '',
@@ -77,7 +78,8 @@ Page({
     }
   },
   onShow() {
-    this.setTab();    const app = getApp();
+    this.setTab();
+    const app = getApp();
     const gid = app.globalData.selectedRecordId;
     if (gid && gid !== this.data.selectedId) {
       // 选中项变了，重新加载记录并选中
@@ -401,35 +403,19 @@ Page({
     this.setData({ ingredientSearch: e.detail });
     this.updateIngredientPreview();
   },
-  confirmIngredient() {
+  async confirmIngredient() {
     const preview = this.data.ingredientPreview;
     if (!preview || !preview.name) return;
-    const that = this;
-    api.addIngredient(preview.name).then(() => {
-      that.setData({
-        ingredients: that.data.ingredients.concat([preview]),
+    try {
+      await api.addIngredient(preview.name);
+      this.setData({
+        ingredients: this.data.ingredients.concat([preview]),
         ingredientSearch: "",
         ingredientAmount: "",
         ingredientPreview: null,
       });
-    }).catch(e => {
-      wx.showToast({ title: (e && e.message) || "原料添加失败", icon: "none" });
-    });
-  },
-  // 添加原料: 拼装原料+含量, 不存在自动创建
-  async addIngredientBlock() {
-    const name = (this.data.ingredientSearch || '').trim();
-    if (!name) { wx.showToast({ title: '请输入原料名', icon: 'none' }); return; }
-    const amount = this.data.ingredientAmount === '' ? null : Number(this.data.ingredientAmount);
-    try {
-      await api.addIngredient(name);
-      this.setData({
-        ingredients: this.data.ingredients.concat([{ name, amount }]),
-        ingredientSearch: '',
-        ingredientAmount: '',
-      });
     } catch (e) {
-      wx.showToast({ title: e.message || '原料添加失败', icon: 'none' });
+      wx.showToast({ title: (e && e.message) || "原料添加失败", icon: "none" });
     }
   },
 

@@ -1,4 +1,5 @@
 const BASE_URL = "https://myfood-worker.keiyokaze.workers.dev";
+const UPLOAD_TIMEOUT = 90000;
 
 function request(path, method = "GET", data = null) {
   return new Promise((resolve, reject) => {
@@ -23,7 +24,7 @@ function uploadImage(filePath) {
       url: BASE_URL + "/api/upload",
       filePath,
       name: "image",
-      timeout: 60000,
+      timeout: UPLOAD_TIMEOUT,
       success: (res) => {
         try {
           const data = JSON.parse(res.data);
@@ -40,39 +41,43 @@ function uploadImage(filePath) {
   });
 }
 
+function formatTakenAt(value) {
+  var date = new Date(value);
+  var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
+  return date.getFullYear() + ":" + pad(date.getMonth() + 1) + ":" + pad(date.getDate()) + " " + pad(date.getHours()) + ":" + pad(date.getMinutes()) + ":" + pad(date.getSeconds());
+}
+
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
-    function doUp(resPath) {
+    function finishUpload(resPath) {
       uploadImage(resPath).then(function (r) {
-        var done = false;
-        wx.getLocation({ type: "gcj02", success: function (loc) {
-          if (done) return; done = true;
-          var meta = r.metadata || {};
-          if (loc && loc.latitude) meta.latitude = loc.latitude;
-          if (loc && loc.longitude) meta.longitude = loc.longitude;
-          var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-          if (takenAt && !meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-          r.metadata = meta; resolve(r);
-        }, fail: function () {
-          if (done) return; done = true;
-          var meta = r.metadata || {};
-          var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-          if (takenAt && !meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-          r.metadata = meta; resolve(r);
-        } });
+        var meta = r.metadata || {};
+        if (takenAt && !meta.taken_at) meta.taken_at = formatTakenAt(takenAt);
+        wx.getLocation({
+          type: "gcj02",
+          success: function (loc) {
+            if (loc && loc.latitude) meta.latitude = loc.latitude;
+            if (loc && loc.longitude) meta.longitude = loc.longitude;
+            r.metadata = meta;
+            resolve(r);
+          },
+          fail: function () {
+            r.metadata = meta;
+            resolve(r);
+          }
+        });
       }).catch(reject);
     }
     wx.getImageInfo({ src: filePath, success: function (info) {
-      var maxDimension = Number(imageConfig && imageConfig.max_dimension) || 320;
-      var q = imageConfig && imageConfig.quality;
-      var quality = q <= 1 ? q * 100 : (q || 70);
+      var maxDimension = Number(imageConfig.max_dimension);
+      var quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
       var w = info.width, h = info.height;
       if (w > maxDimension || h > maxDimension) {
         var ratio = maxDimension / Math.max(w, h);
         w = Math.round(w * ratio); h = Math.round(h * ratio);
       }
-      wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { doUp(res.tempFilePath || filePath); }, fail: function () { doUp(filePath); } });
-    }, fail: function () { doUp(filePath); } });
+      wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { finishUpload(res.tempFilePath || filePath); }, fail: function () { finishUpload(filePath); } });
+    }, fail: function () { finishUpload(filePath); } });
   });
 }
 

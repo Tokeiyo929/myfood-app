@@ -6,7 +6,6 @@
     "pages/index/index",
     "pages/categories/categories",
     "pages/history/history",
-    "pages/webpick/webpick",
     "pages/detail/detail"
   ],
   "window": {

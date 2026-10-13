@@ -100,17 +100,14 @@ Page({
     }
   },
 
-  chooseImage() {
-    const that = this;
-    wx.chooseImage({ count: 1, sizeType: ["compressed"], sourceType: ["album"], success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path); } });
-  },
+  chooseImage() { this.pickImage(["album"]); },
 
-  takePhoto() {
-    const that = this;
-    wx.chooseImage({ count: 1, sizeType: ["compressed"], sourceType: ["camera"], success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path, Date.now()); } });
-  },
+  takePhoto() { this.pickImage(["camera"]); },
 
-  removeImage() { this.setData({ fileList: [] }); },
+  pickImage(sourceType) {
+    const that = this;
+    wx.chooseImage({ count: 1, sizeType: ["compressed"], sourceType, success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path, Date.now()); } });
+  },
 
   async saveQuick(path, takenAt) {
     if (this.data.uploading) { wx.showToast({ title: '上传中', icon: 'none' }); return; }
