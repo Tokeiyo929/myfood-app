@@ -102,7 +102,7 @@ Page({
 
   chooseImage() {
     const that = this;
-    wx.chooseImage({ count: 1, sizeType: ["original"], sourceType: ["album", "camera"], success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path, Date.now()); } });
+    wx.chooseImage({ count: 1, sizeType: ["compressed"], sourceType: ["album", "camera"], success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path, Date.now()); } });
   },
 
   removeImage() { this.setData({ fileList: [] }); },
