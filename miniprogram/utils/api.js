@@ -42,37 +42,27 @@ function uploadImage(filePath) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
-    function addLoc(r) {
-      var done = false;
-      wx.getLocation({ type: "gcj02", success: function (loc) {
-        if (done) return; done = true;
-        var meta = r.metadata || {};
-        if (loc) { if (loc.latitude) meta.latitude = loc.latitude; if (loc.longitude) meta.longitude = loc.longitude; }
-        var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-        if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-        r.metadata = meta; resolve(r);
-      }, fail: function () {
-        if (done) return; done = true;
-        var meta = r.metadata || {};
-        var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-        if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-        r.metadata = meta; resolve(r);
-      } });
+    function doUp(p) {
+      uploadImage(p).then(function (r) {
+        var done = false;
+        wx.getLocation({ type: "gcj02", success: function (loc) {
+          if (done) return; done = true;
+          var meta = r.metadata || {};
+          if (loc && loc.latitude) meta.latitude = loc.latitude;
+          if (loc && loc.longitude) meta.longitude = loc.longitude;
+          var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+          if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+          r.metadata = meta; resolve(r);
+        }, fail: function () {
+          if (done) return; done = true;
+          var meta = r.metadata || {};
+          var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
+          if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+          r.metadata = meta; resolve(r);
+        } });
+      }).catch(reject);
     }
-    function thumb(p) {
-      wx.getImageInfo({ src: p, success: function (info) {
-        var w = info.width || 320, h = info.height || 320;
-        if (w <= 320 && h <= 320) { uploadImage(p).then(function (r) { addLoc(r); }).catch(reject); return; }
-        var scale = Math.min(320 / w, 320 / h);
-        var tw = Math.max(1, Math.round(w * scale)), th = Math.max(1, Math.round(h * scale));
-        var ctx = wx.createCanvasContext("thumbCanvas");
-        ctx.drawImage(p, 0, 0, tw, th);
-        ctx.draw(false, function () {
-          wx.canvasToTempFilePath({ canvasId: "thumbCanvas", width: tw, height: th, success: function (res) { uploadImage(res.tempFilePath || p).then(function (r) { addLoc(r); }).catch(reject); }, fail: function () { uploadImage(p).then(function (r) { addLoc(r); }).catch(reject); } });
-        });
-      }, fail: function () { uploadImage(p).then(function (r) { addLoc(r); }).catch(reject); } });
-    }
-    thumb(filePath);
+    wx.compressImage({ src: filePath, quality: 70, success: function (res) { doUp(res.tempFilePath || filePath); }, fail: function () { doUp(filePath); } });
   });
 }
 

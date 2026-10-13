@@ -21,4 +21,3 @@
     </view>
   </scroll-view>
 </view>
-<canvas canvas-id="thumbCanvas" style="width:320px;height:320px;position:fixed;left:-9999px;"></canvas>
