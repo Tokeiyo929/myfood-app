@@ -12,15 +12,15 @@
   </view>
 
   <!-- 今日上传记录 -->
-  <view class="today-title">今日上传</view>
-  <scroll-view scroll-y class="today-scroll">
+  <view class="today-title">今日记录今日上传</view>
+  <view class="today-scroll">
     <view class="today-item" wx:for="{{todayRecords}}" wx:key="id" bindtap="openComment" data-id="{{item.id}}">
       <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="today-img" mode="aspectFill" />
       <view class="today-info">
         <view class="today-name">{{item.name || '未命名'}}</view>
       </view>
     </view>
-  </scroll-view>
+  </view>
 </view>
 
 <view wx:if="{{commentingId != null}}" class="comment-mask" bindtap="closeComment"></view>

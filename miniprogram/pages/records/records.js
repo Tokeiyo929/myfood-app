@@ -12,7 +12,7 @@ Page({
   data: {
     settings: null,
     fileList: [],
-    uploading: false,
+    uploading: false, todayLoaded: false,
     todayRecords: [],
     commentingId: null,
     commentInput: '',
@@ -32,10 +32,7 @@ Page({
       this.getTabBar().setData({ selected: 2 });
     }
   },
-  onShow() {
-    this.setTab();    this.loadToday();
-  },
-
+  onShow() { this.setTab(); const app = getApp(); if (app.globalData.refreshList) { app.globalData.refreshList = false; this.loadToday(); } else if (!this.data.todayLoaded) { this.loadToday(); } },
   onUnload() {
     if (recorder) { try { recorder.stop(); } catch (e) {} }
   },
@@ -94,7 +91,7 @@ Page({
         ...r,
         comments: r.comment || [],
       }));
-      this.setData({ todayRecords: records });
+      this.setData({ todayRecords: records, todayLoaded: true });
     } catch (e) {
       wx.showToast({ title: '今日记录加载失败', icon: 'none' });
     }

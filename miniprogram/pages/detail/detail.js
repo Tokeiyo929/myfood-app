@@ -123,7 +123,7 @@ Page({
     try {
       if (!this.data.settings) return;
       const limit = this.data.settings.pagination.max_page_size;
-      const result = await api.getFoods(1, limit, '');
+      const result = await api.getFoods(1, limit, '', true);
       this.setData({ records: result.items || [], selectedId: getApp().globalData.selectedRecordId || null });
       this.syncSelected();
     } catch (e) {
