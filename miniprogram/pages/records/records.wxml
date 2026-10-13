@@ -2,6 +2,7 @@
   <!-- 快速记录：上传图片即自动保存 -->
   <view class="quick-card">
     <view class="img-box" bindtap="chooseImage">
+    <button class="photo-btn" catchtap="takePhoto">????</button>
       <image wx:if="{{fileList[0] && fileList[0].url}}" src="{{fileList[0].url}}" class="quick-img" mode="aspectFill" />
       <view wx:else class="upload-placeholder">＋
         <text class="upload-txt">点击拍照/选图</text>

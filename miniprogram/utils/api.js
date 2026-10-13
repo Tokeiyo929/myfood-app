@@ -51,13 +51,13 @@ function compressAndUpload(filePath, imageConfig, takenAt) {
           if (loc && loc.latitude) meta.latitude = loc.latitude;
           if (loc && loc.longitude) meta.longitude = loc.longitude;
           var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-          if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+          if (takenAt && !meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
           r.metadata = meta; resolve(r);
         }, fail: function () {
           if (done) return; done = true;
           var meta = r.metadata || {};
           var now = new Date(); var pad = function (n) { return (n < 10 ? "0" + n : "" + n); };
-          if (!meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+          if (takenAt && !meta.taken_at) meta.taken_at = now.getFullYear() + ":" + pad(now.getMonth() + 1) + ":" + pad(now.getDate()) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
           r.metadata = meta; resolve(r);
         } });
       }).catch(reject);
