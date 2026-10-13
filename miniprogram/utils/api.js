@@ -42,8 +42,8 @@ function uploadImage(filePath) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
-    function doUp(p) {
-      uploadImage(p).then(function (r) {
+    function doUp(resPath) {
+      uploadImage(resPath).then(function (r) {
         var done = false;
         wx.getLocation({ type: "gcj02", success: function (loc) {
           if (done) return; done = true;
@@ -62,7 +62,17 @@ function compressAndUpload(filePath, imageConfig, takenAt) {
         } });
       }).catch(reject);
     }
-    wx.compressImage({ src: filePath, quality: 70, success: function (res) { doUp(res.tempFilePath || filePath); }, fail: function () { doUp(filePath); } });
+    wx.getImageInfo({ src: filePath, success: function (info) {
+      var maxDimension = Number(imageConfig && imageConfig.max_dimension) || 320;
+      var q = imageConfig && imageConfig.quality;
+      var quality = q <= 1 ? q * 100 : (q || 70);
+      var w = info.width, h = info.height;
+      if (w > maxDimension || h > maxDimension) {
+        var ratio = maxDimension / Math.max(w, h);
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+      }
+      wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { doUp(res.tempFilePath || filePath); }, fail: function () { doUp(filePath); } });
+    }, fail: function () { doUp(filePath); } });
   });
 }
 
