@@ -1,1 +1,0 @@
-import io;c=io.open(r'D:/GitHub/MyFood/myfood-app/miniprogram/pages/detail/detail.js',encoding='utf-8').read();i=c.find("async loadRecords");print(c[i:i+220].encode('ascii','replace').decode('ascii'))

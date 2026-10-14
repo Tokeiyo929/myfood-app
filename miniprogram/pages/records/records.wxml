@@ -1,18 +1,16 @@
 <view class="page">
-  <!-- 快速记录：上传图片即自动保存 -->
   <view class="quick-card">
     <view class="img-box" bindtap="chooseImage">
     <button class="photo-btn" catchtap="takePhoto">拍照</button>
       <image wx:if="{{fileList[0] && fileList[0].url}}" src="{{fileList[0].url}}" class="quick-img" mode="aspectFill" />
-      <view wx:else class="upload-placeholder">＋
-        <text class="upload-txt">点击拍照/选图</text>
+      <view wx:else class="upload-placeholder">
+        <text class="upload-txt">选择/拍照</text>
       </view>
     </view>
-    <view class="quick-hint">{{uploading ? '上传保存中...' : '点击上传图片，自动保存记录'}}</view>
+    <view class="quick-hint">{{uploading ? '上传中...' : '点击选择照片'}}</view>
   </view>
 
-  <!-- 今日上传记录 -->
-  <view class="today-title">今日记录今日上传</view>
+  <view class="today-title">今日记录</view>
   <view class="today-scroll">
     <view class="today-item" wx:for="{{todayRecords}}" wx:key="id" bindtap="openComment" data-id="{{item.id}}">
       <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="today-img" mode="aspectFill" />
@@ -25,8 +23,9 @@
 
 <view wx:if="{{commentingId != null}}" class="comment-mask" bindtap="closeComment"></view>
 <view wx:if="{{commentingId != null}}" class="comment-panel">
-  <view class="comment-title">添加评论<text class="comment-close" bindtap="closeComment">×</text></view>
-  <scroll-view scroll-y class="comment-list"><view class="comment-line" wx:for="{{comments}}" wx:key="index">· {{item}}</view></scroll-view>
+  <view class="comment-title">添加评论<text class="comment-close" bindtap="closeComment">x</text></view>
+  <scroll-view scroll-y class="comment-list"><view class="comment-line" wx:for="{{comments}}" wx:key="index">- {{item}}</view></scroll-view>
   <view class="comment-input-row"><input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" bindconfirm="saveComment" />
-  <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord" bindtouchcancel="stopRecord">🎤</view>
-  <van-button type="primary" size="small" bindtap="saveComment">保存</van-button></view></view>
+  <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord" bindtouchcancel="stopRecord">REC</view>
+  <van-button type="primary" size="small" bindtap="saveComment">保存</van-button></view>
+</view>
