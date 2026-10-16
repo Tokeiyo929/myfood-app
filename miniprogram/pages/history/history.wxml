@@ -19,7 +19,7 @@
               <text class="item-label">材料：</text>
               <van-tag wx:for="{{item.ingredientLabels}}" wx:key="*this" type="primary" plain size="small" style="margin-right:4px">{{item}}</van-tag>
             </view>
-            <text class="repurchase-count" wx:if="{{item.repurchase_count}}">复购{{item.repurchase_count}}次</text>
+            <text class="repurchase-count" wx:if="{{item.repurchase}}">复购{{item.repurchase}}次</text>
           </view>
         </view>
       </view>
