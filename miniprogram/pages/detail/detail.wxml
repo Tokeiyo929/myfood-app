@@ -15,6 +15,7 @@
       <view class="repurchase-row">
         <view class="section-inline-label">复购</view>
         <text class="repurchase-val">{{currentRepurchase || 0}} 次</text>
+      <text class="repurchase-prev" wx:if="{{prevBuyLabel}}">上上次购买：{{prevBuyLabel}}</text>
       </view>
       <van-field label="类别" value="{{categorySearch}}" bindinput="onCategorySearch" placeholder="搜索产品类别" class="cat-field" />
       <view class="suggestions" wx:if="{{categorySuggestions.length}}">

@@ -160,7 +160,8 @@ Page({
       dishName: rec.name || '',
       brandName: rec.brand_name || '',
       price: rec.price == null ? '' : String(rec.price),
-      currentRepurchase: rec.repurchase || 0,
+      currentRepurchase: Math.max(0, ((rec.modify_at || []).length || (rec.repurchase ? rec.repurchase + 1 : 1)) - 1),
+      prevBuyLabel: this.prevBuyLabel(rec.modify_at || []),
       selectedCategory: (rec.categories && rec.categories[0]) || '',
       categorySearch: '',
       categorySuggestions: [],
@@ -181,6 +182,20 @@ Page({
       this.setData({ scrollIntoId: 'img-' + this.data.editId });
       this.drawWheel();
     });
+  },
+
+  prevBuyLabel(modifyAt) {
+    if (!Array.isArray(modifyAt) || modifyAt.length < 2) return '';
+    const d = new Date(modifyAt[modifyAt.length - 2] + 'T00:00:00');
+    if (isNaN(d)) return modifyAt[modifyAt.length - 2];
+    const now = new Date();
+    const day = 24 * 3600 * 1000;
+    const dd = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diff = Math.round((dd - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / day);
+    const base = modifyAt[modifyAt.length - 2];
+    if (diff === 1) return base + ' (昨天)';
+    if (diff === 2) return base + ' (前天)';
+    return base;
   },
 
   selectImage(e) {
