@@ -44,31 +44,47 @@ Page({
   initVoice() {
     try {
       const plugin = requirePlugin("WechatSI");
+      console.log("[voice] plugin loaded");
       const manager = plugin.getRecordRecognitionManager();
       const that = this;
 
+      manager.onStart = function () {
+        console.log("[voice] recognition started");
+      };
       manager.onStop = function (res) {
+        console.log("[voice] onStop", JSON.stringify(res));
         const text = (res && res.result) || "";
         if (text) that.setData({ commentInput: text });
+        else wx.showToast({ title: "未识别到内容", icon: "none" });
       };
-      manager.onError = function () {
-        wx.showToast({ title: "语音识别失败", icon: "none" });
+      manager.onError = function (res) {
+        console.error("[voice] onError", JSON.stringify(res));
+        wx.showToast({ title: (res && res.msg) || "语音识别失败", icon: "none" });
       };
       this.recorder = manager;
+      console.log("[voice] manager ready");
     } catch (e) {
+      console.error("[voice] init failed", e);
       wx.showToast({ title: "语音组件不可用", icon: "none" });
     }
   },
 
   onVoiceStart() {
+    console.log("[voice] start pressed, recorder=", !!this.recorder);
     if (!this.recorder) { this.initVoice(); }
     if (!this.recorder) return;
-    this.recorder.start({ duration: 30000, lang: "zh_CN" });
+    try {
+      this.recorder.start({ duration: 30000, lang: "zh_CN" });
+      console.log("[voice] start() called ok");
+    } catch (e) {
+      console.error("[voice] start threw", e);
+    }
   },
 
   onVoiceEnd() {
+    console.log("[voice] end pressed, recorder=", !!this.recorder);
     if (!this.recorder) return;
-    this.recorder.stop();
+    try { this.recorder.stop(); } catch (e) { console.error("[voice] stop threw", e); }
   },
 
 
