@@ -4,7 +4,6 @@ Page({
   data: {
     stats: null,
     days: null,
-    traffic: '',
   },
 
   setTab() {
@@ -27,21 +26,9 @@ Page({
         const start = new Date(s.start_date).getTime();
         days = Math.max(1, Math.floor((Date.now() - start) / 86400000));
       }
-      let traffic = '';
-      if (Array.isArray(s.traffic) && s.traffic[0] && Array.isArray(s.traffic[0].Values)) {
-        const bytes = s.traffic[0].Values.reduce((a, b) => a + b, 0);
-        traffic = this.fmtBytes(bytes);
-      }
-      this.setData({ stats: s, days, traffic });
+      this.setData({ stats: s, days });
     } catch (e) {
-      this.setData({ stats: null, days: null, traffic: '' });
+      this.setData({ stats: null, days: null });
     }
-  },
-
-  fmtBytes(b) {
-    if (b < 1024) return b + ' B';
-    if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
-    if (b < 1024 * 1024 * 1024) return (b / 1024 / 1024).toFixed(1) + ' MB';
-    return (b / 1024 / 1024 / 1024).toFixed(2) + ' GB';
   },
 });

@@ -81,14 +81,15 @@ Page({
     this.setTab();
     const app = getApp();
     const gid = app.globalData.selectedRecordId;
+    let reload = app.globalData.refreshDetail;
     if (gid && gid !== this.data.selectedId) {
       // 选中项变了，重新加载记录并选中
       this.setData({ selectedId: gid });
-      this.loadRecords();
+      reload = true;
     } else {
       this.syncSelected();
     }
-    if (app.globalData.refreshDetail) {
+    if (reload) {
       app.globalData.refreshDetail = false;
       this.loadRecords();
     }
@@ -160,8 +161,8 @@ Page({
       dishName: rec.name || '',
       brandName: rec.brand_name || '',
       price: rec.price == null ? '' : String(rec.price),
-      currentRepurchase: Math.max(0, ((rec.modify_at || []).length || (rec.repurchase ? rec.repurchase + 1 : 1)) - 1),
-      prevBuyLabel: this.prevBuyLabel(rec.modify_at || []),
+      currentRepurchase: rec.repurchase || 0,
+      prevRecordLabel: this.prevRecordLabel(rec.modify_at || []),
       selectedCategory: (rec.categories && rec.categories[0]) || '',
       categorySearch: '',
       categorySuggestions: [],
@@ -184,7 +185,7 @@ Page({
     });
   },
 
-  prevBuyLabel(modifyAt) {
+  prevRecordLabel(modifyAt) {
     if (!Array.isArray(modifyAt) || modifyAt.length < 2) return '';
     const d = new Date(modifyAt[modifyAt.length - 2] + 'T00:00:00');
     if (isNaN(d)) return modifyAt[modifyAt.length - 2];

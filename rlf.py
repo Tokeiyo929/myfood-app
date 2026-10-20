@@ -1,1 +1,0 @@
-import io;c=io.open(r'D:/GitHub/MyFood/myfood-app/miniprogram/pages/records/records.wxml',encoding='utf-8').read().split(chr(10));print(chr(10).join(c).encode('unicode_escape').decode())

@@ -23,9 +23,9 @@
 
 <view wx:if="{{commentingId != null}}" class="comment-mask" bindtap="closeComment"></view>
 <view wx:if="{{commentingId != null}}" class="comment-panel">
-  <view class="comment-title">添加评论<text class="comment-close" bindtap="closeComment">x</text></view>
-  <scroll-view scroll-y class="comment-list"><view class="comment-line" wx:for="{{comments}}" wx:key="index">- {{item}}</view></scroll-view>
+  <view class="comment-title">添加评论<text class="comment-close" bindtap="closeComment">×</text></view>
+  <scroll-view scroll-y class="comment-list"><view class="comment-line" wx:for="{{comments}}" wx:key="index">· {{item}}</view></scroll-view>
   <view class="comment-input-row"><input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" bindconfirm="saveComment" />
-  <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord" bindtouchcancel="stopRecord">REC</view>
+  <view class="voice-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord" bindtouchcancel="stopRecord">🎤</view>
   <van-button type="primary" size="small" bindtap="saveComment">保存</van-button></view>
 </view>
