@@ -1,6 +1,6 @@
 <view class="page">
   <scroll-view class="img-strip" scroll-x="{{true}}" scroll-into-view="{{scrollIntoId}}" scroll-with-animation>
-    <view class="img-item {{selectedId === item.id ? 'selected' : ''}}" wx:for="{{records}}" wx:key="id" id="img-{{item.id}}" bindtap="selectImage" data-id="{{item.id}}">
+    <view class="img-item {{selectedId === item.id ? 'selected' : ''}}" wx:for="{{records}}" wx:key="id" id="img-{{item.id}}" bindtap="selectImage" bindlongpress="replaceImage" data-id="{{item.id}}">
       <image wx:if="{{item.image_path}}" src="{{item.image_path}}" mode="aspectFill" class="strip-img" />
       <view class="strip-name">{{item.name || '未命名'}}</view>
     </view>

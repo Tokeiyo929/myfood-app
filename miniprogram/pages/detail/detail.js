@@ -215,6 +215,41 @@ Page({
     return base;
   },
 
+  replaceImage(e) {
+    const id = Number(e.currentTarget.dataset.id);
+    const rec = this.data.records.find(r => Number(r.id) === id);
+    if (!rec) return;
+    const that = this;
+    wx.showActionSheet({
+      itemList: ["\u4ece\u76f8\u518c\u9009\u62e9", "\u62cd\u7167"],
+      success(res) {
+        const sourceType = res.tapIndex === 1 ? ["camera"] : ["album"];
+        wx.chooseImage({
+          count: 1,
+          sizeType: ["compressed"],
+          sourceType,
+          success: async function(cho) {
+            const path = cho.tempFilePaths && cho.tempFilePaths[0];
+            if (!path) return;
+            wx.showLoading({ title: "\u4e0a\u4f20\u4e2d" });
+            try {
+              const upload = await api.compressAndUpload(path, that.data.settings.image, Date.now());
+              await api.updateFoodDetails(id, { image_path: upload.path, image_metadata: upload.metadata || {} });
+              wx.hideLoading();
+              wx.showToast({ title: "\u5df2\u66f4\u6362", icon: "success" });
+              const records = that.data.records.map(r => Number(r.id) === id ? Object.assign({}, r, { image_path: upload.path }) : r);
+              that.setData({ records });
+            } catch (err) {
+              wx.hideLoading();
+              console.error("[replace-image] failed", err);
+              wx.showToast({ title: "\u66f4\u6362\u5931\u8d25", icon: "none" });
+            }
+          }
+        });
+      }
+    });
+  },
+
   selectImage(e) {
     const id = Number(e.currentTarget.dataset.id);
     getApp().globalData.selectedRecordId = id;
