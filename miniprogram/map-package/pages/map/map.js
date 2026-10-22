@@ -46,12 +46,8 @@ Page({
 
   switchRegion(e) {
     const r = e.currentTarget.dataset.region;
-    if (!r || r === this.data.region) return;
-    this.setData({ region: r, selectedProvince: '', dishList: [] });
-    if (chart) {
-      chart.setOption({ series: [{ zoom: MIN_ZOOM, center: null }] }, false);
-    }
-    this.renderMap();
+    if (r === this.data.region) return;
+    this.setData({ region: r, selectedProvince: '', dishList: [] }, () => this.renderMap());
   },
 
   zoomIn() {
@@ -67,7 +63,7 @@ Page({
     const option = chart.getOption();
     const series = option.series && option.series[0];
     if (!series) return;
-    const current = series.zoom || 1;
+    const current = series.zoom || MIN_ZOOM;
     const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current * factor));
     if (next === current) return;
     // 不传 center：以当前视口中心缩放
@@ -98,14 +94,7 @@ Page({
       });
       this.byProvince = byProvince;
 
-      // 各省/各国是否有吃过的菜（visited）
-      this.visitedProvinces = {};
-      Object.keys(byProvince).forEach(prov => {
-        this.visitedProvinces[prov] = byProvince[prov].some(dish => visitedDishes.has(dish));
-      });
-
       this.renderMap();
-      this.bindClick();
       this.loaded = true;
     } catch (e) {
       wx.showToast({ title: '地图数据加载失败', icon: 'none' });
@@ -117,7 +106,7 @@ Page({
     const isEurope = this.data.region === 'europe';
     const data = [];
     Object.keys(this.byProvince).forEach(prov => {
-      if (!this.visitedProvinces[prov]) return;
+      if (!this.byProvince[prov].some(dish => this.visitedDishes.has(dish))) return;
       const name = isEurope ? prov : toRegionName(prov);
       data.push({ name, value: 1, itemStyle: { areaColor: VISITED_COLOR } });
     });
@@ -154,8 +143,6 @@ Page({
       } else {
         province = toFullName(params.name);
       }
-      // single 模式下 echarts 自动切换选中态；确保已选中
-      chart.dispatchAction({ type: 'select', seriesIndex: 0, name: params.name });
       const dishes = (this.byProvince[province] || []).map(name => ({ name, visited: this.visitedDishes.has(name) }));
       // visited 置顶
       dishes.sort((a, b) => (b.visited ? 1 : 0) - (a.visited ? 1 : 0));
