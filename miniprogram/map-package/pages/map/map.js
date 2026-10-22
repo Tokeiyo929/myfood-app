@@ -34,6 +34,8 @@ Page({
     region: 'china', // 'china' | 'europe'
   },
 
+  noop() {},
+
   onReady() {
     this.loadData();
   },
