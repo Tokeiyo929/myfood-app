@@ -9,9 +9,9 @@
   <view class="detail-body" wx:if="{{editId != null}}">
     <view class="detail-section">
       <view class="section-label">基本信息</view>
-      <van-field label="产品" value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
-      <van-field label="品牌" value="{{brandName}}" bindinput="onBrandName" placeholder="品牌" />
-      <van-field label="价格" value="{{price}}" type="digit" bindinput="onPrice" placeholder="价格" />
+      <van-field label="产品" model:value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
+      <van-field label="品牌" model:value="{{brandName}}" bindinput="onBrandName" placeholder="品牌" />
+      <van-field label="价格" model:value="{{price}}" type="digit" bindinput="onPrice" placeholder="价格" />
       <view class="repurchase-row">
         <view class="section-inline-label">复购</view>
         <text class="repurchase-val">{{currentRepurchase || 0}} 次</text>

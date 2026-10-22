@@ -155,7 +155,7 @@ Page({
     if (!rec) {
       const that = this;
       api.getFoodById(id).then(r => {
-        const loaded = (that.data.records || []).concat([r]);
+        const loaded = (that.data.records || []).filter(x => Number(x.id) !== Number(id)).concat([r]);
         that.setData({ records: loaded, scrollIntoId: 'img-' + id });
         that.fillDetail(r);
       }).catch(() => {
@@ -166,6 +166,8 @@ Page({
     this.fillDetail(rec);
   },
   fillDetail(rec) {
+
+    console.log('[detail] fillDetail id=' + rec.id + ' name=' + (rec.name == null ? 'NULL' : JSON.stringify(rec.name)) + ' brand=' + (rec.brand_name == null ? 'NULL' : JSON.stringify(rec.brand_name)));
     const scale = this.data.settings.flavor_scale;
     const flavorLevels = {};
     this.data.flavors.forEach(f => flavorLevels[f] = scale.default_level);
