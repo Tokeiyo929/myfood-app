@@ -1,5 +1,9 @@
 <view class="page">
   <view class="my-header">MyFood</view>
+  <view class="weather-entry" wx:if="{{weather}}">
+    <text class="weather-icon">🌤</text>
+    <text class="weather-text">{{weather.text}} {{weather.temp}}°C</text>
+  </view>
   <view class="map-entry" bindtap="gotoMap">世界地图 <text class="me-arrow">›</text></view>
   <view class="stat-card">
     <view class="stat-item">

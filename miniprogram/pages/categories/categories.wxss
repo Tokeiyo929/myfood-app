@@ -1,5 +1,10 @@
 .page { padding: 16px; padding-bottom: 120px; }
 .my-header { font-size: 22px; font-weight: 700; color: #66508f; margin-bottom: 16px; }
+.weather-entry { display: inline-flex; align-items: center; background: #fff; border-radius: 20px; padding: 6px 14px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.weather-icon { font-size: 18px; margin-right: 6px; }
+.weather-text { font-size: 14px; color: #66508f; font-weight: 600; }
+.map-entry { background: #fff; border-radius: 12px; padding: 14px; font-size: 15px; color: #333; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+.me-arrow { color: #bbb; }
 .stat-card { display: flex; justify-content: space-between; background: #fff; border-radius: 12px; padding: 18px 12px; margin-bottom: 16px; }
 .stat-item { flex: 1; text-align: center; }
 .stat-num { font-size: 22px; font-weight: 700; color: #66508f; }
