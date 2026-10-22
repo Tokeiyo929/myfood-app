@@ -6,7 +6,7 @@
 
   <view class="records">
     <view class="record" wx:for="{{records}}" wx:key="id">
-      <view class="record-card {{item.prefClass}} {{selectedId === item.id ? 'selected' : ''}}">
+      <view class="record-card {{item.prefClass}}">
         <view class="record-main" bindtap="selectRecord" data-id="{{item.id}}">
           <image wx:if="{{item.image_path}}" src="{{item.image_path}}" class="record-img" mode="aspectFill" />
           <view class="record-info">

@@ -101,9 +101,8 @@ Page({
   },
 
   selectRecord(e) {
-    const id = Number(e.currentTarget.dataset.id);
-    this.setData({ selectedId: id });
     getApp().globalData.selectedRecordId = id;
+    getApp().globalData.refreshDetail = true;
     wx.switchTab({ url: '/pages/detail/detail' });
   },
 
