@@ -21,8 +21,8 @@
   </view>
 </view>
 
-<view wx:if="{{commentingId != null}}" class="comment-mask" bindtap="closeComment"></view>
-<view wx:if="{{commentingId != null}}" class="comment-panel">
+<view wx:if="{{commentingId != null}}" class="comment-mask" bindtap="closeComment" catchtouchmove="noop"></view>
+<view wx:if="{{commentingId != null}}" class="comment-panel" catchtouchmove="noop">
   <view class="comment-title">添加评论<text class="comment-close" bindtap="closeComment">×</text></view>
   <scroll-view scroll-y class="comment-list"><view class="comment-line" wx:for="{{comments}}" wx:key="index">· {{item}}</view></scroll-view>
   <view class="comment-input-row"><input class="comment-input" value="{{commentInput}}" bindinput="onCommentInput" bindconfirm="saveComment" />
