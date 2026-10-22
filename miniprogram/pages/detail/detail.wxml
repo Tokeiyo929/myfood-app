@@ -66,7 +66,7 @@
       <view class="section-label">原料</view>
       <view class="ing-row">
         <van-field label="原料" value="{{ingredientSearch}}" bindinput="onIngredientSearch" placeholder="原料" class="ing-main" />
-        <van-field label="含量%" value="{{ingredientAmount}}" type="number" bindinput="onIngredientAmount" placeholder="%" class="amount-field" />
+        <van-field label="含量%" value="{{ingredientAmount}}" type="digit" bindinput="onIngredientAmount" placeholder="%" class="amount-field" />
       </view>
       <view class="ing-preview" wx:if="{{ingredientPreview}}" bindtap="confirmIngredient">＋ 确认添加：{{ingredientPreview.name}}{{ingredientPreview.amount != null ? ' (' + ingredientPreview.amount + '%)' : ''}}</view>
       <view class="chips">
