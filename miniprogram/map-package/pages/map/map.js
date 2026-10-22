@@ -1,5 +1,6 @@
 import * as echarts from '../../ec-canvas/echarts';
 import china from '../../mapdata/china';
+import europe from '../../mapdata/europe';
 const api = require('../../../utils/api');
 
 let chart = null;
@@ -27,6 +28,7 @@ Page({
     ec: { onInit: initChart },
     selectedProvince: '',
     dishList: [], // {name, visited}
+    region: 'china', // 'china' | 'europe'
   },
 
   onReady() {
@@ -35,6 +37,13 @@ Page({
 
   onShow() {
     if (this.loaded) this.loadData();
+  },
+
+  switchRegion(e) {
+    const r = e.currentTarget.dataset.region;
+    if (!r || r === this.data.region) return;
+    this.setData({ region: r, selectedProvince: '', dishList: [] });
+    this.renderMap();
   },
 
   async loadData() {
@@ -61,7 +70,7 @@ Page({
       });
       this.byProvince = byProvince;
 
-      // 各省是否有吃过的菜（visited）
+      // 各省/各国是否有吃过的菜（visited）
       this.visitedProvinces = {};
       Object.keys(byProvince).forEach(prov => {
         this.visitedProvinces[prov] = byProvince[prov].some(dish => visitedDishes.has(dish));
@@ -75,11 +84,22 @@ Page({
     }
   },
 
+  regionDisplayName(prov) {
+    // 中国省份显示原名；欧洲国家名本身就是中文国家名，直接匹配
+    if (this.data.region === 'europe') return prov;
+    return toRegionName(prov);
+  },
+
   renderMap() {
     if (!chart) return;
+    const isEurope = this.data.region === 'europe';
     const data = [];
     Object.keys(this.byProvince).forEach(prov => {
-      if (this.visitedProvinces[prov]) {
+      if (!this.visitedProvinces[prov]) return;
+      if (isEurope) {
+        // 欧洲模式下 parentcategory 直接是中文国家名
+        data.push({ name: prov, value: 1, itemStyle: { areaColor: VISITED_COLOR } });
+      } else {
         data.push({ name: toRegionName(prov), value: 1, itemStyle: { areaColor: VISITED_COLOR } });
       }
     });
@@ -87,7 +107,7 @@ Page({
       tooltip: { show: false },
       series: [{
         type: 'map',
-        map: 'china',
+        map: isEurope ? 'europe' : 'china',
         roam: true,
         scaleLimit: { min: 0.5, max: 10 },
         selectedMode: false,
@@ -96,6 +116,7 @@ Page({
         data,
       }],
     }, true);
+    this.bindClick();
   },
 
   bindClick() {
@@ -103,7 +124,12 @@ Page({
     chart.off('click');
     chart.on('click', params => {
       if (!params || !params.name) return;
-      const province = toFullName(params.name);
+      let province;
+      if (this.data.region === 'europe') {
+        province = params.name; // 已是中文国家名
+      } else {
+        province = toFullName(params.name);
+      }
       const dishes = (this.byProvince[province] || []).map(name => ({ name, visited: this.visitedDishes.has(name) }));
       // visited 置顶
       dishes.sort((a, b) => (b.visited ? 1 : 0) - (a.visited ? 1 : 0));
@@ -116,5 +142,6 @@ function initChart(canvas, width, height, dpr) {
   chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr });
   canvas.setChart(chart);
   echarts.registerMap('china', china);
+  echarts.registerMap('europe', europe);
   return chart;
 }

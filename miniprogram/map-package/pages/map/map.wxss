@@ -1,4 +1,7 @@
 .page { padding: 12px; padding-bottom: 120px; }
+.region-switch { display: flex; margin-bottom: 10px; background: #f0edf6; border-radius: 10px; padding: 4px; }
+.rs-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 14px; color: #888; border-radius: 8px; }
+.rs-btn.active { background: #66508f; color: #fff; font-weight: 600; }
 .map-wrap { width: 100%; height: 420px; background: #fff; border-radius: 12px; overflow: hidden; }
 .dish-wrap { margin-top: 12px; }
 .dw-title { font-size: 15px; font-weight: 600; color: #66508f; margin-bottom: 8px; }

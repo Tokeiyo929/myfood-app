@@ -1,4 +1,8 @@
 <view class="page">
+  <view class="region-switch">
+    <view class="rs-btn {{region === 'china' ? 'active' : ''}}" data-region="china" bindtap="switchRegion">中国地图</view>
+    <view class="rs-btn {{region === 'europe' ? 'active' : ''}}" data-region="europe" bindtap="switchRegion">欧洲地图</view>
+  </view>
   <view class="map-wrap">
     <ec-canvas id="map" canvas-id="map" ec="{{ec}}" />
   </view>
