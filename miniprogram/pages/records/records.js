@@ -4,9 +4,7 @@ let plugin = null;
 
 try {
   plugin = requirePlugin('WechatSI');
-} catch (e) {
-  console.warn('WechatSI plugin not available', e);
-}
+} catch {}
 
 Page({
   data: {
@@ -43,7 +41,6 @@ Page({
       recorder = plugin.getRecordRecognitionManager();
       const that = this;
       recorder.onStop = function(res) {
-        console.log("[voice] onStop", JSON.stringify(res));
         if (!that.data.recording) return;
         const text = res.result || '';
         that.setData({ recording: false });
@@ -52,33 +49,20 @@ Page({
           that.setData({ commentInput: cur ? cur + text : text });
         }
       };
-      recorder.onStart = function() {
-        console.log("[voice] recognition started");
-      };
       recorder.onError = function(res) {
-        console.error("[voice] onError", JSON.stringify(res));
         that.setData({ recording: false });
         wx.showToast({ title: res.msg || '语音识别失败', icon: 'none' });
       };
-    } catch (e) {
-      console.warn('init recorder failed', e);
-    }
+    } catch {}
   },
 
   startRecord() {
-    console.log("[voice] startRecord pressed, recorder=", !!recorder);
-    if (!recorder) {
-      console.warn("[voice] recorder null, re-init");
-      try { plugin = plugin || requirePlugin("WechatSI"); } catch (e) {}
-      this.initRecorder();
-    }
+    if (!recorder) this.initRecorder();
     if (!recorder) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
     this.setData({ recording: true });
     try {
       recorder.start({ duration: 30000, lang: 'zh_CN' });
-      console.log("[voice] start() called ok");
     } catch (e) {
-      console.error("[voice] start threw", e);
       this.setData({ recording: false });
     }
   },

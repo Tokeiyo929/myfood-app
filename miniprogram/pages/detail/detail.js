@@ -44,47 +44,36 @@ Page({
   initVoice() {
     try {
       const plugin = requirePlugin("WechatSI");
-      console.log("[voice] plugin loaded");
       const manager = plugin.getRecordRecognitionManager();
       const that = this;
 
-      manager.onStart = function () {
-        console.log("[voice] recognition started");
-      };
       manager.onStop = function (res) {
-        console.log("[voice] onStop", JSON.stringify(res));
         const text = (res && res.result) || "";
         if (text) that.setData({ commentInput: text });
         else wx.showToast({ title: "未识别到内容", icon: "none" });
       };
       manager.onError = function (res) {
-        console.error("[voice] onError", JSON.stringify(res));
         wx.showToast({ title: (res && res.msg) || "语音识别失败", icon: "none" });
       };
       this.recorder = manager;
-      console.log("[voice] manager ready");
     } catch (e) {
-      console.error("[voice] init failed", e);
       wx.showToast({ title: "语音组件不可用", icon: "none" });
     }
   },
 
   onVoiceStart() {
-    console.log("[voice] start pressed, recorder=", !!this.recorder);
     if (!this.recorder) { this.initVoice(); }
     if (!this.recorder) return;
     try {
       this.recorder.start({ duration: 30000, lang: "zh_CN" });
-      console.log("[voice] start() called ok");
     } catch (e) {
-      console.error("[voice] start threw", e);
+      wx.showToast({ title: "语音识别失败", icon: "none" });
     }
   },
 
   onVoiceEnd() {
-    console.log("[voice] end pressed, recorder=", !!this.recorder);
     if (!this.recorder) return;
-    try { this.recorder.stop(); } catch (e) { console.error("[voice] stop threw", e); }
+    try { this.recorder.stop(); } catch {}
   },
 
 
@@ -166,14 +155,11 @@ Page({
     this.fillDetail(rec);
   },
   fillDetail(rec) {
-
-    console.log('[detail] fillDetail id=' + rec.id + ' name=' + (rec.name == null ? 'NULL' : JSON.stringify(rec.name)) + ' brand=' + (rec.brand_name == null ? 'NULL' : JSON.stringify(rec.brand_name)));
     const scale = this.data.settings.flavor_scale;
     const flavorLevels = {};
     this.data.flavors.forEach(f => flavorLevels[f] = scale.default_level);
     (rec.flavors || []).forEach(f => { if (f && f.name) flavorLevels[f.name] = f.level; });
-    const sorted = [...this.data.preferenceOptions].sort((a, b) => a.level - b.level);
-    let pref = sorted.find(p => p.value === rec.preference) || this.data.settings.preferences.good;
+    const pref = this.data.preferenceOptions.find(p => p.value === rec.preference) || this.data.settings.preferences.good;
     this.setData({
       editId: rec.id,
       dishName: rec.name || '',
@@ -243,7 +229,6 @@ Page({
               that.setData({ records });
             } catch (err) {
               wx.hideLoading();
-              console.error("[replace-image] failed", err);
               wx.showToast({ title: "\u66f4\u6362\u5931\u8d25", icon: "none" });
             }
           }
