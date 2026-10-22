@@ -14,11 +14,6 @@
     "navigationBarTitleText": "MyFood",
     "navigationBarTextStyle": "white"
   },
-  "permission": {
-    "scope.userLocation": {
-      "desc": "用于显示你所在位置的今日天气"
-    }
-  },
   "tabBar": {
     "custom": true,
     "color": "#756e7d",
@@ -26,25 +21,25 @@
     "list": [
       {
         "pagePath": "pages/categories/categories",
-        "text": "产品类别",
+        "text": "\u4ea7\u54c1\u7c7b\u522b",
         "iconPath": "images/category.png",
         "selectedIconPath": "images/category-active.png"
       },
       {
         "pagePath": "pages/history/history",
-        "text": "历史记录",
+        "text": "\u5386\u53f2\u8bb0\u5f55",
         "iconPath": "images/history.png",
         "selectedIconPath": "images/history-active.png"
       },
       {
         "pagePath": "pages/records/records",
-        "text": "记录",
+        "text": "\u8bb0\u5f55",
         "iconPath": "images/record.png",
         "selectedIconPath": "images/record-active.png"
       },
       {
         "pagePath": "pages/detail/detail",
-        "text": "详情",
+        "text": "\u8be6\u60c5",
         "iconPath": "images/detail.png",
         "selectedIconPath": "images/detail-active.png"
       }
