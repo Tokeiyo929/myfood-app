@@ -112,19 +112,28 @@ Page({
     }
   },
 
-  renderMap() {
-    if (!chart) return;
+  // 重建 data：visited 紫色，选中项深紫
+  buildMapData() {
     const isEurope = this.data.region === 'europe';
+    const selected = this.data.selectedProvince;
     const data = [];
     Object.keys(this.byProvince).forEach(prov => {
       if (!this.visitedProvinces[prov]) return;
-      if (isEurope) {
-        // 欧洲模式下 parentcategory 直接是中文国家名
-        data.push({ name: prov, value: 1, itemStyle: { areaColor: VISITED_COLOR } });
+      const name = isEurope ? prov : toRegionName(prov);
+      const item = { name, value: 1 };
+      if (selected && prov === selected) {
+        item.itemStyle = { areaColor: SELECT_COLOR };
       } else {
-        data.push({ name: toRegionName(prov), value: 1, itemStyle: { areaColor: VISITED_COLOR } });
+        item.itemStyle = { areaColor: VISITED_COLOR };
       }
+      data.push(item);
     });
+    return data;
+  },
+
+  renderMap() {
+    if (!chart) return;
+    const isEurope = this.data.region === 'europe';
     chart.setOption({
       tooltip: { show: false },
       series: [{
@@ -136,10 +145,16 @@ Page({
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
         // 禁用 hover 高亮：拖动经过区域时不再触发整画布重绘（拖动卡顿主因）
         emphasis: { disabled: true },
-        data,
+        data: this.buildMapData(),
       }],
     }, true);
     this.bindClick();
+  },
+
+  // 点击后只更新 data 的选中色，不整图重建
+  updateSelection() {
+    if (!chart) return;
+    chart.setOption({ series: [{ data: this.buildMapData() }] });
   },
 
   bindClick() {
@@ -156,7 +171,9 @@ Page({
       const dishes = (this.byProvince[province] || []).map(name => ({ name, visited: this.visitedDishes.has(name) }));
       // visited 置顶
       dishes.sort((a, b) => (b.visited ? 1 : 0) - (a.visited ? 1 : 0));
-      this.setData({ selectedProvince: province, dishList: dishes });
+      this.setData({ selectedProvince: province, dishList: dishes }, () => {
+        this.updateSelection();
+      });
     });
   },
 });
