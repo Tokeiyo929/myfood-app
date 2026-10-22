@@ -5,6 +5,10 @@
   </view>
   <view class="map-wrap">
     <ec-canvas id="map" canvas-id="map" ec="{{ec}}" />
+    <view class="zoom-ctrl">
+      <view class="zoom-btn" bindtap="zoomIn">＋</view>
+      <view class="zoom-btn" bindtap="zoomOut">－</view>
+    </view>
   </view>
   <view class="dish-wrap" wx:if="{{selectedProvince}}">
     <view class="dw-title">{{selectedProvince}} 的特色美食</view>

@@ -22,6 +22,7 @@ function toRegionName(full) {
 
 const VISITED_COLOR = '#b39ddb';
 const SELECT_COLOR = '#66508f';
+const ZOOM_STEP = 1.4;
 
 Page({
   data: {
@@ -43,7 +44,29 @@ Page({
     const r = e.currentTarget.dataset.region;
     if (!r || r === this.data.region) return;
     this.setData({ region: r, selectedProvince: '', dishList: [] });
+    if (chart) {
+      chart.setOption({ series: [{ zoom: 1, center: null }] }, false);
+    }
     this.renderMap();
+  },
+
+  zoomIn() {
+    this.zoomBy(ZOOM_STEP);
+  },
+
+  zoomOut() {
+    this.zoomBy(1 / ZOOM_STEP);
+  },
+
+  zoomBy(factor) {
+    if (!chart) return;
+    const option = chart.getOption();
+    const series = option.series && option.series[0];
+    if (!series) return;
+    const current = series.zoom || 1;
+    // 以当前屏幕中心缩放：不传 center，echarts 默认以当前中心缩放
+    const next = Math.min(10, Math.max(0.5, current * factor));
+    chart.setOption({ series: [{ zoom: next }] });
   },
 
   async loadData() {
@@ -84,12 +107,6 @@ Page({
     }
   },
 
-  regionDisplayName(prov) {
-    // 中国省份显示原名；欧洲国家名本身就是中文国家名，直接匹配
-    if (this.data.region === 'europe') return prov;
-    return toRegionName(prov);
-  },
-
   renderMap() {
     if (!chart) return;
     const isEurope = this.data.region === 'europe';
@@ -108,7 +125,7 @@ Page({
       series: [{
         type: 'map',
         map: isEurope ? 'europe' : 'china',
-        roam: true,
+        roam: 'move', // 只允许拖动平移，禁用双指/滚轮缩放
         scaleLimit: { min: 0.5, max: 10 },
         selectedMode: false,
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
