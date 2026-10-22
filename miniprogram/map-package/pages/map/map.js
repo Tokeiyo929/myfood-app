@@ -112,28 +112,15 @@ Page({
     }
   },
 
-  // 重建 data：visited 紫色，选中项深紫
-  buildMapData() {
+  renderMap() {
+    if (!chart) return;
     const isEurope = this.data.region === 'europe';
-    const selected = this.data.selectedProvince;
     const data = [];
     Object.keys(this.byProvince).forEach(prov => {
       if (!this.visitedProvinces[prov]) return;
       const name = isEurope ? prov : toRegionName(prov);
-      const item = { name, value: 1 };
-      if (selected && prov === selected) {
-        item.itemStyle = { areaColor: SELECT_COLOR };
-      } else {
-        item.itemStyle = { areaColor: VISITED_COLOR };
-      }
-      data.push(item);
+      data.push({ name, value: 1, itemStyle: { areaColor: VISITED_COLOR } });
     });
-    return data;
-  },
-
-  renderMap() {
-    if (!chart) return;
-    const isEurope = this.data.region === 'europe';
     chart.setOption({
       tooltip: { show: false },
       series: [{
@@ -141,20 +128,19 @@ Page({
         map: isEurope ? 'europe' : 'china',
         roam: 'move', // 只允许拖动平移，禁用双指/滚轮缩放
         scaleLimit: { min: MIN_ZOOM, max: MAX_ZOOM },
-        selectedMode: false,
+        selectedMode: 'single', // 原生选中态：点击高亮，与 emphasis 无关
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
         // 禁用 hover 高亮：拖动经过区域时不再触发整画布重绘（拖动卡顿主因）
         emphasis: { disabled: true },
-        data: this.buildMapData(),
+        // 选中态着色：选中区域染深紫
+        select: {
+          itemStyle: { areaColor: SELECT_COLOR },
+          label: { show: false },
+        },
+        data,
       }],
     }, true);
     this.bindClick();
-  },
-
-  // 点击后只更新 data 的选中色，不整图重建
-  updateSelection() {
-    if (!chart) return;
-    chart.setOption({ series: [{ data: this.buildMapData() }] });
   },
 
   bindClick() {
@@ -168,12 +154,12 @@ Page({
       } else {
         province = toFullName(params.name);
       }
+      // single 模式下 echarts 自动切换选中态；确保已选中
+      chart.dispatchAction({ type: 'select', seriesIndex: 0, name: params.name });
       const dishes = (this.byProvince[province] || []).map(name => ({ name, visited: this.visitedDishes.has(name) }));
       // visited 置顶
       dishes.sort((a, b) => (b.visited ? 1 : 0) - (a.visited ? 1 : 0));
-      this.setData({ selectedProvince: province, dishList: dishes }, () => {
-        this.updateSelection();
-      });
+      this.setData({ selectedProvince: province, dishList: dishes });
     });
   },
 });
