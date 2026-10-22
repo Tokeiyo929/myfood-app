@@ -23,6 +23,8 @@ function toRegionName(full) {
 const VISITED_COLOR = '#b39ddb';
 const SELECT_COLOR = '#66508f';
 const ZOOM_STEP = 1.4;
+const MIN_ZOOM = 1; // 默认倍率即铺满视窗（echarts 自带留白），不允许更小
+const MAX_ZOOM = 10;
 
 Page({
   data: {
@@ -45,7 +47,7 @@ Page({
     if (!r || r === this.data.region) return;
     this.setData({ region: r, selectedProvince: '', dishList: [] });
     if (chart) {
-      chart.setOption({ series: [{ zoom: 1, center: null }] }, false);
+      chart.setOption({ series: [{ zoom: MIN_ZOOM, center: null }] }, false);
     }
     this.renderMap();
   },
@@ -64,8 +66,9 @@ Page({
     const series = option.series && option.series[0];
     if (!series) return;
     const current = series.zoom || 1;
-    // 以当前屏幕中心缩放：不传 center，echarts 默认以当前中心缩放
-    const next = Math.min(10, Math.max(0.5, current * factor));
+    const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, current * factor));
+    if (next === current) return;
+    // 不传 center：以当前视口中心缩放
     chart.setOption({ series: [{ zoom: next }] });
   },
 
@@ -126,10 +129,11 @@ Page({
         type: 'map',
         map: isEurope ? 'europe' : 'china',
         roam: 'move', // 只允许拖动平移，禁用双指/滚轮缩放
-        scaleLimit: { min: 0.5, max: 10 },
+        scaleLimit: { min: MIN_ZOOM, max: MAX_ZOOM },
         selectedMode: false,
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
-        emphasis: { itemStyle: { areaColor: SELECT_COLOR }, label: { show: false } },
+        // 禁用 hover 高亮：拖动经过区域时不再触发整画布重绘（拖动卡顿主因）
+        emphasis: { disabled: true },
         data,
       }],
     }, true);
@@ -156,7 +160,9 @@ Page({
 });
 
 function initChart(canvas, width, height, dpr) {
-  chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr });
+  // dpr 上限 2：iPhone dpr=3 时画布像素量翻倍以上，拖动每帧重绘明显卡顿
+  const safeDpr = Math.min(dpr, 2);
+  chart = echarts.init(canvas, null, { width, height, devicePixelRatio: safeDpr });
   canvas.setChart(chart);
   echarts.registerMap('china', china);
   echarts.registerMap('europe', europe);
