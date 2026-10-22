@@ -40,8 +40,12 @@ Page({
     try {
       recorder = plugin.getRecordRecognitionManager();
       const that = this;
+      recorder.onStart = function() {
+        console.log('[voice] onStart');
+        that.setData({ recording: true });
+      };
       recorder.onStop = function(res) {
-        if (!that.data.recording) return;
+        console.log('[voice] onStop', JSON.stringify(res));
         const text = res.result || '';
         that.setData({ recording: false });
         if (text) {
@@ -50,8 +54,13 @@ Page({
         }
       };
       recorder.onError = function(res) {
+        console.log('[voice] onError', JSON.stringify(res));
         that.setData({ recording: false });
         wx.showToast({ title: res.msg || '语音识别失败', icon: 'none' });
+      };
+      recorder.onEnd = function() {
+        console.log('[voice] onEnd');
+        that.setData({ recording: false });
       };
     } catch {}
   },
@@ -59,17 +68,19 @@ Page({
   startRecord() {
     if (!recorder) this.initRecorder();
     if (!recorder) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
-    this.setData({ recording: true });
+    // recording 状态由 onStart 回调驱动，避免松手时按钮态不同步
     try {
       recorder.start({ duration: 30000, lang: 'zh_CN' });
     } catch (e) {
+      console.log('[voice] start exception', e);
       this.setData({ recording: false });
     }
   },
 
   stopRecord() {
-    if (!recorder) return;
-    try { recorder.stop(); } catch (e) { this.setData({ recording: false }); }
+    try { if (recorder) recorder.stop(); } catch (e) { console.log('[voice] stop exception', e); }
+    // 无论插件回调是否及时到达，先复位按钮态
+    this.setData({ recording: false });
   },
 
   async loadConfig() {
