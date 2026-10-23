@@ -20,10 +20,9 @@
 .ocr-hint { font-size: 12px; color: #999; margin-bottom: 8px; }
 .ocr-clear { color: #66508f; margin-left: 8px; }
 .ocr-img-wrap { max-height: 55vh; }
-.ocr-img-box { position: relative; margin: 0 auto; }
-.ocr-img { display: block; }
-.ocr-char { position: absolute; box-sizing: border-box; border: 1px solid rgba(102,80,143,0.25); }
-.ocr-char.picked { background: rgba(102,80,143,0.45); border: 1px solid #66508f; }
+.ocr-chars { display: flex; flex-wrap: wrap; }
+.ocr-char { font-size: 16px; line-height: 1; padding: 10px 8px; margin: 2px; border-radius: 6px; background: #f5f2fa; color: #333; border: 1px solid transparent; }
+.ocr-char.picked { background: #66508f; color: #fff; border-color: #66508f; }
 .detail-section { margin-bottom: 4px; }
 .cat-field { width: 100%; }
 .suggestions { display: flex; flex-wrap: wrap; padding: 2px 0; }

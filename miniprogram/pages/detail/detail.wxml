@@ -96,12 +96,10 @@
     </view>
     <view class="ocr-hint">已选：{{ocrBuiltText || '（空）'}} <text class="ocr-clear" bindtap="clearOcrBuilt" wx:if="{{ocrBuiltText}}">清空</text></view>
     <scroll-view scroll-y class="ocr-img-wrap">
-      <view class="ocr-img-box" style="width: {{ocrImgW}}px; height: {{ocrImgH}}px;">
-        <image src="{{ocrImagePath}}" class="ocr-img" style="width: {{ocrImgW}}px; height: {{ocrImgH}}px;" />
-        <view wx:for="{{ocrItems}}" wx:key="key"
+      <view class="ocr-chars">
+        <text wx:for="{{ocrItems}}" wx:key="key"
           class="ocr-char {{ocrPicked[item.key] ? 'picked' : ''}}"
-          style="left: {{item.x * ocrScale}}px; top: {{item.y * ocrScale}}px; width: {{item.w * ocrScale}}px; height: {{item.h * ocrScale}}px;"
-          data-key="{{item.key}}" catchtouchstart="ocrTouchStart" catchtouchmove="ocrTouchMove" catchtouchend="ocrTouchEnd"></view>
+          data-key="{{item.key}}" catchtouchstart="ocrTouchStart" catchtouchmove="ocrTouchMove" catchtouchend="ocrTouchEnd">{{item.ch}}</text>
       </view>
     </scroll-view>
   </view>
