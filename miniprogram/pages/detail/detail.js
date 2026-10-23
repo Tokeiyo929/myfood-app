@@ -436,7 +436,7 @@ Page({
         wx.serviceMarket.invokeService({
           service: 'wx79ac3de8be320b71',
           api: 'OcrAllInOne',
-          data: { img_url: { type: 'filePath', filePath: path }, data_type: 3, ocr_type: 8 },
+          data: { img_url: new wx.serviceMarket.CDN({ type: 'filePath', filePath: path }), data_type: 3, ocr_type: 8 },
         }).then(r => {
               wx.hideLoading();
               const resData = (r && r.data) || r;
