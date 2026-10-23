@@ -30,7 +30,7 @@
       <view class="section-label">味道与偏好</view>
       <view class="flavor-pref-row">
         <view class="flavor-box">
-          <view class="wheel-wrap">
+          <view class="wheel-wrap" wx:if="{{!ocrOverlay}}">
             <view class="reset-btn" bindtap="resetFlavors">↻</view>
             <canvas canvas-id="flavorWheel" id="flavorWheel" class="flavor-canvas" width="180" height="180" catchtouchstart="onWheelTouch" catchtouchmove="onWheelMove" />
           </view>
