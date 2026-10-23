@@ -38,7 +38,7 @@ Page({
   },
 
   initRecorder() {
-    if (!plugin) return;
+    if (!plugin || this.data.recording) return;
     try {
       recorder = plugin.getRecordRecognitionManager();
       const that = this;
@@ -65,7 +65,7 @@ Page({
   },
 
   startRecord() {
-    if (!recorder) this.initRecorder();
+    this.initRecorder();
     if (!recorder) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
     // recording 状态由 onStart 回调驱动，避免松手时按钮态不同步
     try {
