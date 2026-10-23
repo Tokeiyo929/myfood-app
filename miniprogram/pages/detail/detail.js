@@ -37,6 +37,12 @@ Page({
     ocrOverlay: false,
     ocrItems: [],
     ocrTarget: 'name',
+    ocrImagePath: '',
+    ocrImgW: 0,
+    ocrImgH: 0,
+    ocrScale: 1,
+    ocrPicked: {},
+    ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' }
   },
 
   onLoad() {
@@ -441,12 +447,29 @@ Page({
               wx.hideLoading();
               const resData = (r && r.data) || r;
               const comm = resData && resData.ocr_comm_res;
-              const items = ((comm && comm.items) || [])
-                .filter(it => it && it.text && String(it.text).trim())
-                .map(it => ({ text: String(it.text).trim(), y: (it.pos && it.pos.left_top && it.pos.left_top.y) || 0, x: (it.pos && it.pos.left_top && it.pos.left_top.x) || 0 }))
-                .sort((a, b) => (a.y - b.y) || (a.x - b.x));
+              const items = [];
+              ((comm && comm.items) || []).forEach(it => {
+                const text = it && it.text ? String(it.text).trim() : '';
+                if (!text || !it.pos) return;
+                const chars = Array.from(text);
+                const p = it.pos;
+                const x0 = p.left_top.x, y0 = p.left_top.y;
+                const w = p.right_bottom.x - x0, h = p.right_bottom.y - y0;
+                chars.forEach((ch, ci) => {
+                  items.push({ ch, key: items.length, x: x0 + w * ci / chars.length, y: y0, w: w / chars.length, h });
+                });
+              });
               if (!items.length) { wx.showToast({ title: '未识别到文字', icon: 'none' }); return; }
-              that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name' });
+              wx.getImageInfo({
+                src: path,
+                success(info) {
+                  const scale = Math.min(1, 360 / info.width);
+                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrImgW: Math.round(info.width * scale), ocrImgH: Math.round(info.height * scale), ocrScale: scale, ocrPicked: {}, ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' } });
+                },
+                fail() {
+                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrPicked: {}, ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' } });
+                }
+              });
             }).catch(err => {
               wx.hideLoading();
               console.error('[ocr] fail', err);
@@ -455,28 +478,47 @@ Page({
       }
     });
   },
-  closeOcr() { this.setData({ ocrOverlay: false, ocrItems: [] }); },
+  closeOcr() {
+    this.applyOcrBuilt(() => {
+      this.setData({ ocrOverlay: false, ocrItems: [], ocrImagePath: '', ocrPicked: {}, ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' } });
+    });
+  },
+  applyOcrBuilt(done) {
+    const b = this.data.ocrBuilt || {};
+    const patch = {};
+    if (b.name) patch.dishName = b.name;
+    if (b.brand) patch.brandName = b.brand;
+    if (b.amount) patch.ingredientAmount = b.amount;
+    if (b.ingredient) {
+      patch.ingredientSearch = b.ingredient;
+      this.setData(patch);
+      this.updateIngredientPreview();
+      if (done) done();
+      return;
+    }
+    if (Object.keys(patch).length) this.setData(patch);
+    if (done) done();
+  },
   setOcrTarget(e) {
+    this.applyOcrBuilt();
     this.setData({ ocrTarget: e.currentTarget.dataset.t });
   },
-  pickOcrText(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const item = this.data.ocrItems[idx];
+  pickOcrChar(e) {
+    const key = e.currentTarget.dataset.key;
+    const item = this.data.ocrItems.find(it => it.key === key);
     if (!item) return;
     const target = this.data.ocrTarget;
-    if (target === 'name') {
-      this.setData({ dishName: item.text });
-    } else if (target === 'brand') {
-      this.setData({ brandName: item.text });
-    } else if (target === 'amount') {
-      this.setData({ ingredientAmount: item.text });
-    } else if (target === 'ingredient') {
-      this.setData({ ingredientSearch: item.text });
-      this.updateIngredientPreview();
-    }
-    const items = this.data.ocrItems.filter((_, i) => i !== idx);
-    this.setData({ ocrItems: items });
-    if (!items.length) this.closeOcr();
+    const built = Object.assign({}, this.data.ocrBuilt);
+    built[target] = (built[target] || '') + item.ch;
+    const picked = Object.assign({}, this.data.ocrPicked);
+    picked[key] = true;
+    this.setData({ ocrBuilt: built, ocrPicked: picked });
+  },
+  clearOcrBuilt() {
+    const target = this.data.ocrTarget;
+    const built = Object.assign({}, this.data.ocrBuilt);
+    built[target] = '';
+    this.setData({ ocrBuilt: built });
   },
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },

@@ -18,8 +18,12 @@
 .ocr-target { flex: 1; text-align: center; font-size: 13px; padding: 8px 0; border-radius: 8px; background: #f0f0f0; color: #666; }
 .ocr-target.active { background: #66508f; color: #fff; }
 .ocr-hint { font-size: 12px; color: #999; margin-bottom: 8px; }
-.ocr-list { max-height: 50vh; }
-.ocr-item { padding: 12px 8px; font-size: 14px; color: #333; border-bottom: 1px solid #f0f0f0; }
+.ocr-clear { color: #66508f; margin-left: 8px; }
+.ocr-img-wrap { max-height: 55vh; }
+.ocr-img-box { position: relative; margin: 0 auto; }
+.ocr-img { display: block; }
+.ocr-char { position: absolute; box-sizing: border-box; border: 1px solid rgba(102,80,143,0.25); }
+.ocr-char.picked { background: rgba(102,80,143,0.45); border: 1px solid #66508f; }
 .detail-section { margin-bottom: 4px; }
 .cat-field { width: 100%; }
 .suggestions { display: flex; flex-wrap: wrap; padding: 2px 0; }
