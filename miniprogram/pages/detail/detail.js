@@ -429,7 +429,6 @@ Page({
       count: 1,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
-      sizeType: ['compressed'],
       success(res) {
         const path = res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath;
         if (!path) return;
