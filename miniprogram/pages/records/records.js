@@ -16,6 +16,7 @@ Page({
     commentInput: '',
     comments: [],
     recording: false,
+    voiceText: '',
   },
 
   onLoad() {
@@ -38,16 +39,19 @@ Page({
   },
 
   initRecorder() {
-    if (!plugin || this.data.recording) return;
+    if (!plugin) return;
     try {
       recorder = plugin.getRecordRecognitionManager();
       const that = this;
       recorder.onStart = function() {
-        that.setData({ recording: true });
+        that.setData({ recording: true, voiceText: '' });
+      };
+      recorder.onRecognize = function(res) {
+        if (res && res.result) that.setData({ voiceText: res.result });
       };
       recorder.onStop = function(res) {
         if (that.data.commentingId == null) return;
-        const text = (res && res.result) || '';
+        const text = (res && res.result) || that.data.voiceText || '';
         that.setData({ recording: false });
         if (text) {
           const cur = that.data.commentInput;
@@ -68,6 +72,7 @@ Page({
     this.initRecorder();
     if (!recorder) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
     // recording 状态由 onStart 回调驱动，避免松手时按钮态不同步
+    this.setData({ voiceText: '' });
     try {
       recorder.start({ duration: 30000, lang: 'zh_CN' });
     } catch (e) {
@@ -76,6 +81,7 @@ Page({
   },
 
   stopRecord() {
+    if (!this.data.recording) return;
     try { if (recorder) recorder.stop(); } catch (e) {}
     // 无论插件回调是否及时到达，先复位按钮态
     this.setData({ recording: false });
