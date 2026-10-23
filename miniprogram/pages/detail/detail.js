@@ -482,7 +482,9 @@ Page({
   },
   closeOcr() {
     this.applyOcrBuilt(() => {
-      this.setData({ ocrOverlay: false, ocrItems: [], ocrImagePath: '', ocrPicked: {}, ocrBuiltText: '', ocrStrokeMode: null });
+      this.setData({ ocrOverlay: false, ocrItems: [], ocrImagePath: '', ocrPicked: {}, ocrBuiltText: '', ocrStrokeMode: null }, () => {
+        if (this.data.flavors.length) this.drawWheel();
+      });
     });
   },
   applyOcrBuilt(done) {
@@ -492,7 +494,6 @@ Page({
     if (!text) { if (done) done(); return; }
     if (target === 'name') patch.dishName = text;
     else if (target === 'brand') patch.brandName = text;
-    else if (target === 'amount') patch.ingredientAmount = text;
     else if (target === 'ingredient') {
       patch.ingredientSearch = text;
       this.setData(patch);
@@ -526,31 +527,38 @@ Page({
     const mode = this.data.ocrPicked[key] ? 'off' : 'on';
     this.setData({ ocrStrokeMode: mode });
     this.ocrSetChar(key, mode === 'on');
+    const that = this;
+    wx.createSelectorQuery().selectAll('.ocr-char').boundingClientRect(function(rects) {
+      that.ocrRects = rects || [];
+    }).exec();
   },
   ocrTouchMove(e) {
     const mode = this.data.ocrStrokeMode;
     if (!mode) return;
     const touch = e.touches && e.touches[0];
-    if (!touch) return;
-    // hit-test chars under finger
-    const that = this;
-    wx.createSelectorQuery().select('.ocr-img-box').boundingClientRect(function(rect) {
-      if (!rect) return;
-      const x = touch.clientX - rect.left, y = touch.clientY - rect.top;
-      const items = that.data.ocrItems;
-      for (let i = 0; i < items.length; i++) {
-        const it = items[i];
-        const itx = it.x * that.data.ocrScale, ity = it.y * that.data.ocrScale;
-        const itw = it.w * that.data.ocrScale, ith = it.h * that.data.ocrScale;
-        if (x >= itx && x <= itx + itw && y >= ity && y <= ity + ith) {
-          that.ocrSetChar(it.key, mode === 'on');
-          break;
-        }
+    if (!touch || !this.ocrRects) return;
+    const rects = this.ocrRects;
+    for (let i = 0; i < rects.length; i++) {
+      const r = rects[i];
+      if (touch.clientX >= r.left && touch.clientX <= r.right && touch.clientY >= r.top && touch.clientY <= r.bottom) {
+        this.ocrSetChar(this.data.ocrItems[i].key, mode === 'on');
+        break;
       }
-    }).exec();
+    }
   },
   ocrTouchEnd() {
     this.setData({ ocrStrokeMode: null });
+  },
+  ocrTapChar(e) {
+    const key = e.currentTarget.dataset.key;
+    if (key == null) return;
+    this.ocrSetChar(key, !this.data.ocrPicked[key]);
+  },
+  addToOcrField() {
+    const that = this;
+    this.applyOcrBuilt(() => {
+      that.setData({ ocrPicked: {}, ocrBuiltText: '' });
+    });
   },
   clearOcrBuilt() {
     this.setData({ ocrPicked: {}, ocrBuiltText: '' });

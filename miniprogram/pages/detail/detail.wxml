@@ -92,14 +92,13 @@
       <view class="ocr-target {{ocrTarget === 'name' ? 'active' : ''}}" data-t="name" bindtap="setOcrTarget">产品名称</view>
       <view class="ocr-target {{ocrTarget === 'brand' ? 'active' : ''}}" data-t="brand" bindtap="setOcrTarget">品牌名</view>
       <view class="ocr-target {{ocrTarget === 'ingredient' ? 'active' : ''}}" data-t="ingredient" bindtap="setOcrTarget">原料</view>
-      <view class="ocr-target {{ocrTarget === 'amount' ? 'active' : ''}}" data-t="amount" bindtap="setOcrTarget">含量</view>
     </view>
-    <view class="ocr-hint">已选：{{ocrBuiltText || '（空）'}} <text class="ocr-clear" bindtap="clearOcrBuilt" wx:if="{{ocrBuiltText}}">清空</text></view>
+    <view class="ocr-hint">已选：{{ocrBuiltText || '（空）'}} <text class="ocr-add" bindtap="addToOcrField" wx:if="{{ocrBuiltText}}">＋添加</text><text class="ocr-clear" bindtap="clearOcrBuilt" wx:if="{{ocrBuiltText}}">清空</text></view>
     <scroll-view scroll-y class="ocr-img-wrap">
       <view class="ocr-chars">
-        <text wx:for="{{ocrItems}}" wx:key="key"
+        <view wx:for="{{ocrItems}}" wx:key="key"
           class="ocr-char {{ocrPicked[item.key] ? 'picked' : ''}}"
-          data-key="{{item.key}}" catchtouchstart="ocrTouchStart" catchtouchmove="ocrTouchMove" catchtouchend="ocrTouchEnd">{{item.ch}}</text>
+          data-key="{{item.key}}" bindtouchstart="ocrTouchStart" bindtouchmove="ocrTouchMove" bindtouchend="ocrTouchEnd" bindtap="ocrTapChar">{{item.ch}}</view>
       </view>
     </scroll-view>
   </view>
