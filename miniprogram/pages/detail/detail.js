@@ -42,6 +42,8 @@ Page({
     ocrImgH: 0,
     ocrScale: 1,
     ocrPicked: {},
+    ocrStrokeMode: null,
+    ocrBuiltText: '',
     ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' }
   },
 
@@ -464,10 +466,10 @@ Page({
                 src: path,
                 success(info) {
                   const scale = Math.min(1, 360 / info.width);
-                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrImgW: Math.round(info.width * scale), ocrImgH: Math.round(info.height * scale), ocrScale: scale, ocrPicked: {}, ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' } });
+                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrImgW: Math.round(info.width * scale), ocrImgH: Math.round(info.height * scale), ocrScale: scale, ocrPicked: {}, ocrBuiltText: '' });
                 },
                 fail() {
-                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrPicked: {}, ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' } });
+                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrPicked: {}, ocrBuiltText: '' });
                 }
               });
             }).catch(err => {
@@ -480,17 +482,19 @@ Page({
   },
   closeOcr() {
     this.applyOcrBuilt(() => {
-      this.setData({ ocrOverlay: false, ocrItems: [], ocrImagePath: '', ocrPicked: {}, ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' } });
+      this.setData({ ocrOverlay: false, ocrItems: [], ocrImagePath: '', ocrPicked: {}, ocrBuiltText: '', ocrStrokeMode: null });
     });
   },
   applyOcrBuilt(done) {
-    const b = this.data.ocrBuilt || {};
+    const text = (this.data.ocrBuiltText || '').trim();
+    const target = this.data.ocrTarget;
     const patch = {};
-    if (b.name) patch.dishName = b.name;
-    if (b.brand) patch.brandName = b.brand;
-    if (b.amount) patch.ingredientAmount = b.amount;
-    if (b.ingredient) {
-      patch.ingredientSearch = b.ingredient;
+    if (!text) { if (done) done(); return; }
+    if (target === 'name') patch.dishName = text;
+    else if (target === 'brand') patch.brandName = text;
+    else if (target === 'amount') patch.ingredientAmount = text;
+    else if (target === 'ingredient') {
+      patch.ingredientSearch = text;
       this.setData(patch);
       this.updateIngredientPreview();
       if (done) done();
@@ -500,25 +504,56 @@ Page({
     if (done) done();
   },
   setOcrTarget(e) {
-    this.applyOcrBuilt();
-    this.setData({ ocrTarget: e.currentTarget.dataset.t });
+    const that = this;
+    this.applyOcrBuilt(() => {
+      that.setData({ ocrTarget: e.currentTarget.dataset.t, ocrPicked: {}, ocrBuiltText: '' });
+    });
   },
-  pickOcrChar(e) {
-    const key = e.currentTarget.dataset.key;
-    const item = this.data.ocrItems.find(it => it.key === key);
-    if (!item) return;
+  ocrBuiltText() {
     const target = this.data.ocrTarget;
-    const built = Object.assign({}, this.data.ocrBuilt);
-    built[target] = (built[target] || '') + item.ch;
+    const items = this.data.ocrItems;
+    const picked = this.data.ocrPicked;
+    return items.filter(it => picked[it.key]).map(it => it.ch).join('');
+  },
+  ocrSetChar(key, on) {
     const picked = Object.assign({}, this.data.ocrPicked);
-    picked[key] = true;
-    this.setData({ ocrBuilt: built, ocrPicked: picked });
+    if (on) picked[key] = true; else delete picked[key];
+    this.setData({ ocrPicked: picked, ocrBuiltText: this.ocrBuiltText() });
+  },
+  ocrTouchStart(e) {
+    const key = e.currentTarget.dataset.key;
+    if (key == null) return;
+    const mode = this.data.ocrPicked[key] ? 'off' : 'on';
+    this.setData({ ocrStrokeMode: mode });
+    this.ocrSetChar(key, mode === 'on');
+  },
+  ocrTouchMove(e) {
+    const mode = this.data.ocrStrokeMode;
+    if (!mode) return;
+    const touch = e.touches && e.touches[0];
+    if (!touch) return;
+    // hit-test chars under finger
+    const that = this;
+    wx.createSelectorQuery().select('.ocr-img-box').boundingClientRect(function(rect) {
+      if (!rect) return;
+      const x = touch.clientX - rect.left, y = touch.clientY - rect.top;
+      const items = that.data.ocrItems;
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        const itx = it.x * that.data.ocrScale, ity = it.y * that.data.ocrScale;
+        const itw = it.w * that.data.ocrScale, ith = it.h * that.data.ocrScale;
+        if (x >= itx && x <= itx + itw && y >= ity && y <= ity + ith) {
+          that.ocrSetChar(it.key, mode === 'on');
+          break;
+        }
+      }
+    }).exec();
+  },
+  ocrTouchEnd() {
+    this.setData({ ocrStrokeMode: null });
   },
   clearOcrBuilt() {
-    const target = this.data.ocrTarget;
-    const built = Object.assign({}, this.data.ocrBuilt);
-    built[target] = '';
-    this.setData({ ocrBuilt: built });
+    this.setData({ ocrPicked: {}, ocrBuiltText: '' });
   },
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
