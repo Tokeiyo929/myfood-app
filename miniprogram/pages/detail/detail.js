@@ -37,14 +37,9 @@ Page({
     ocrOverlay: false,
     ocrItems: [],
     ocrTarget: 'name',
-    ocrImagePath: '',
-    ocrImgW: 0,
-    ocrImgH: 0,
-    ocrScale: 1,
     ocrPicked: {},
     ocrStrokeMode: null,
     ocrBuiltText: '',
-    ocrBuilt: { name: '', brand: '', ingredient: '', amount: '' }
   },
 
   onLoad() {
@@ -452,37 +447,21 @@ Page({
               const items = [];
               ((comm && comm.items) || []).forEach(it => {
                 const text = it && it.text ? String(it.text).trim() : '';
-                if (!text || !it.pos) return;
-                const chars = Array.from(text);
-                const p = it.pos;
-                const x0 = p.left_top.x, y0 = p.left_top.y;
-                const w = p.right_bottom.x - x0, h = p.right_bottom.y - y0;
-                chars.forEach((ch, ci) => {
-                  items.push({ ch, key: items.length, x: x0 + w * ci / chars.length, y: y0, w: w / chars.length, h });
-                });
+                if (!text) return;
+                Array.from(text).forEach(ch => items.push({ ch, key: items.length }));
               });
               if (!items.length) { wx.showToast({ title: '未识别到文字', icon: 'none' }); return; }
-              wx.getImageInfo({
-                src: path,
-                success(info) {
-                  const scale = Math.min(1, 360 / info.width);
-                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrImgW: Math.round(info.width * scale), ocrImgH: Math.round(info.height * scale), ocrScale: scale, ocrPicked: {}, ocrBuiltText: '' });
-                },
-                fail() {
-                  that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrImagePath: path, ocrPicked: {}, ocrBuiltText: '' });
-                }
-              });
+              that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrPicked: {}, ocrBuiltText: '' });
             }).catch(err => {
               wx.hideLoading();
-              console.error('[ocr] fail', err);
-            wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
-          });
+              wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
+            });
       }
     });
   },
   closeOcr() {
     this.applyOcrBuilt(() => {
-      this.setData({ ocrOverlay: false, ocrItems: [], ocrImagePath: '', ocrPicked: {}, ocrBuiltText: '', ocrStrokeMode: null }, () => {
+      this.setData({ ocrOverlay: false, ocrItems: [], ocrPicked: {}, ocrBuiltText: '', ocrStrokeMode: null }, () => {
         if (this.data.flavors.length) this.drawWheel();
       });
     });
@@ -505,13 +484,11 @@ Page({
     if (done) done();
   },
   setOcrTarget(e) {
-    const that = this;
     this.applyOcrBuilt(() => {
-      that.setData({ ocrTarget: e.currentTarget.dataset.t, ocrPicked: {}, ocrBuiltText: '' });
+      this.setData({ ocrTarget: e.currentTarget.dataset.t, ocrPicked: {}, ocrBuiltText: '' });
     });
   },
   ocrBuiltText() {
-    const target = this.data.ocrTarget;
     const items = this.data.ocrItems;
     const picked = this.data.ocrPicked;
     return items.filter(it => picked[it.key]).map(it => it.ch).join('');
@@ -549,15 +526,9 @@ Page({
   ocrTouchEnd() {
     this.setData({ ocrStrokeMode: null });
   },
-  ocrTapChar(e) {
-    const key = e.currentTarget.dataset.key;
-    if (key == null) return;
-    this.ocrSetChar(key, !this.data.ocrPicked[key]);
-  },
   addToOcrField() {
-    const that = this;
     this.applyOcrBuilt(() => {
-      that.setData({ ocrPicked: {}, ocrBuiltText: '' });
+      this.setData({ ocrPicked: {}, ocrBuiltText: '' });
     });
   },
   clearOcrBuilt() {

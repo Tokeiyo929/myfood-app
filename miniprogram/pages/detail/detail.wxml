@@ -98,7 +98,7 @@
       <view class="ocr-chars">
         <view wx:for="{{ocrItems}}" wx:key="key"
           class="ocr-char {{ocrPicked[item.key] ? 'picked' : ''}}"
-          data-key="{{item.key}}" bindtouchstart="ocrTouchStart" bindtouchmove="ocrTouchMove" bindtouchend="ocrTouchEnd" bindtap="ocrTapChar">{{item.ch}}</view>
+          data-key="{{item.key}}" catchtouchstart="ocrTouchStart" catchtouchmove="ocrTouchMove" catchtouchend="ocrTouchEnd">{{item.ch}}</view>
       </view>
     </scroll-view>
   </view>

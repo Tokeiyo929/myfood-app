@@ -43,12 +43,11 @@ Page({
       recorder = plugin.getRecordRecognitionManager();
       const that = this;
       recorder.onStart = function() {
-        console.log('[voice] onStart');
         that.setData({ recording: true });
       };
       recorder.onStop = function(res) {
-        console.log('[voice] onStop', JSON.stringify(res));
-        const text = res.result || '';
+        if (that.data.commentingId == null) return;
+        const text = (res && res.result) || '';
         that.setData({ recording: false });
         if (text) {
           const cur = that.data.commentInput;
@@ -56,12 +55,10 @@ Page({
         }
       };
       recorder.onError = function(res) {
-        console.log('[voice] onError', JSON.stringify(res));
         that.setData({ recording: false });
         wx.showToast({ title: res.msg || '语音识别失败', icon: 'none' });
       };
       recorder.onEnd = function() {
-        console.log('[voice] onEnd');
         that.setData({ recording: false });
       };
     } catch {}
@@ -74,13 +71,12 @@ Page({
     try {
       recorder.start({ duration: 30000, lang: 'zh_CN' });
     } catch (e) {
-      console.log('[voice] start exception', e);
       this.setData({ recording: false });
     }
   },
 
   stopRecord() {
-    try { if (recorder) recorder.stop(); } catch (e) { console.log('[voice] stop exception', e); }
+    try { if (recorder) recorder.stop(); } catch (e) {}
     // 无论插件回调是否及时到达，先复位按钮态
     this.setData({ recording: false });
   },
