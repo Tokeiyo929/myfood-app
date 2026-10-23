@@ -8,7 +8,7 @@
 
   <view class="detail-body" wx:if="{{editId != null}}">
     <view class="detail-section">
-      <view class="section-label">基本信息</view>
+      <view class="section-label-row"><view class="section-label">基本信息</view><view class="ocr-btn" bindtap="startOcr">📷 OCR识别</view></view>
       <van-field label="产品" model:value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
       <van-field label="品牌" model:value="{{brandName}}" bindinput="onBrandName" placeholder="品牌" />
       <van-field label="价格" model:value="{{price}}" type="digit" bindinput="onPrice" placeholder="价格" />
@@ -81,4 +81,22 @@
   </view>
 
   <view class="detail-empty" wx:if="{{editId == null}}"><van-empty description="请在历史记录中选择一条记录" /></view>
+</view>
+<view class="ocr-overlay" wx:if="{{ocrOverlay}}" catchtouchmove="noop">
+  <view class="ocr-panel">
+    <view class="ocr-head">
+      <text class="ocr-title">点选文字填入</text>
+      <text class="ocr-close" bindtap="closeOcr">×</text>
+    </view>
+    <view class="ocr-targets">
+      <view class="ocr-target {{ocrTarget === 'name' ? 'active' : ''}}" data-t="name" bindtap="setOcrTarget">产品名称</view>
+      <view class="ocr-target {{ocrTarget === 'brand' ? 'active' : ''}}" data-t="brand" bindtap="setOcrTarget">品牌名</view>
+      <view class="ocr-target {{ocrTarget === 'ingredient' ? 'active' : ''}}" data-t="ingredient" bindtap="setOcrTarget">原料</view>
+      <view class="ocr-target {{ocrTarget === 'amount' ? 'active' : ''}}" data-t="amount" bindtap="setOcrTarget">含量</view>
+    </view>
+    <view class="ocr-hint">当前填入：{{ocrTarget === 'name' ? '产品名称' : ocrTarget === 'brand' ? '品牌名' : ocrTarget === 'ingredient' ? '原料' : '含量'}}</view>
+    <scroll-view scroll-y class="ocr-list">
+      <view class="ocr-item" wx:for="{{ocrItems}}" wx:key="index" data-idx="{{index}}" bindtap="pickOcrText">{{item.text}}</view>
+    </scroll-view>
+  </view>
 </view>

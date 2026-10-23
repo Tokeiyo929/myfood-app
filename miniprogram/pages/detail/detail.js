@@ -34,6 +34,9 @@ Page({
     prefPercent: 0,
     prefBottom: 0,
     editingCommentIndex: null,
+    ocrOverlay: false,
+    ocrItems: [],
+    ocrTarget: 'name',
   },
 
   onLoad() {
@@ -420,6 +423,69 @@ Page({
     });
   },
 
+  startOcr() {
+    const that = this;
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'],
+      success(res) {
+        const path = res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath;
+        if (!path) return;
+        wx.showLoading({ title: '识别中' });
+        wx.getFileSystemManager().readFile({
+          filePath: path,
+          encoding: 'base64',
+          success(f) {
+            wx.serviceMarket.invokeService({
+              service: 'wx79ac3de8be320b71',
+              api: 'OcrAllInOne',
+              data: { img_data: f.data, data_type: 2, ocr_type: 8 },
+            }).then(r => {
+              wx.hideLoading();
+              const resData = (r && r.data) || r;
+              const comm = resData && resData.ocr_comm_res;
+              const items = ((comm && comm.items) || [])
+                .filter(it => it && it.text && String(it.text).trim())
+                .map(it => ({ text: String(it.text).trim(), y: (it.pos && it.pos.left_top && it.pos.left_top.y) || 0, x: (it.pos && it.pos.left_top && it.pos.left_top.x) || 0 }))
+                .sort((a, b) => (a.y - b.y) || (a.x - b.x));
+              if (!items.length) { wx.showToast({ title: '未识别到文字', icon: 'none' }); return; }
+              that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name' });
+            }).catch(err => {
+              wx.hideLoading();
+              console.error('[ocr] fail', err);
+              wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
+            });
+          },
+          fail() { wx.hideLoading(); wx.showToast({ title: '读取图片失败', icon: 'none' }); }
+        });
+      }
+    });
+  },
+  closeOcr() { this.setData({ ocrOverlay: false, ocrItems: [] }); },
+  setOcrTarget(e) {
+    this.setData({ ocrTarget: e.currentTarget.dataset.t });
+  },
+  pickOcrText(e) {
+    const idx = e.currentTarget.dataset.idx;
+    const item = this.data.ocrItems[idx];
+    if (!item) return;
+    const target = this.data.ocrTarget;
+    if (target === 'name') {
+      this.setData({ dishName: item.text });
+    } else if (target === 'brand') {
+      this.setData({ brandName: item.text });
+    } else if (target === 'amount') {
+      this.setData({ ingredientAmount: item.text });
+    } else if (target === 'ingredient') {
+      this.setData({ ingredientSearch: item.text });
+      this.updateIngredientPreview();
+    }
+    const items = this.data.ocrItems.filter((_, i) => i !== idx);
+    this.setData({ ocrItems: items });
+    if (!items.length) this.closeOcr();
+  },
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
