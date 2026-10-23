@@ -434,15 +434,11 @@ Page({
         const path = res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath;
         if (!path) return;
         wx.showLoading({ title: '识别中' });
-        wx.getFileSystemManager().readFile({
-          filePath: path,
-          encoding: 'base64',
-          success(f) {
-            wx.serviceMarket.invokeService({
-              service: 'wx79ac3de8be320b71',
-              api: 'OcrAllInOne',
-              data: { img_data: f.data, data_type: 2, ocr_type: 8 },
-            }).then(r => {
+        wx.serviceMarket.invokeService({
+          service: 'wx79ac3de8be320b71',
+          api: 'OcrAllInOne',
+          data: { img_url: { type: 'filePath', filePath: path }, data_type: 3, ocr_type: 8 },
+        }).then(r => {
               wx.hideLoading();
               const resData = (r && r.data) || r;
               const comm = resData && resData.ocr_comm_res;
@@ -455,11 +451,8 @@ Page({
             }).catch(err => {
               wx.hideLoading();
               console.error('[ocr] fail', err);
-              wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
-            });
-          },
-          fail() { wx.hideLoading(); wx.showToast({ title: '读取图片失败', icon: 'none' }); }
-        });
+            wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
+          });
       }
     });
   },
