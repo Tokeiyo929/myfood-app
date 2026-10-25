@@ -601,7 +601,7 @@ Page({
   },
   async confirmIngredient(nameOverride) {
     let name, amount;
-    if (nameOverride) {
+    if (typeof nameOverride === 'string' && nameOverride) {
       name = nameOverride;
       amount = null;
     } else {
