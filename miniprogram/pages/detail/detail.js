@@ -93,6 +93,17 @@ Page({
   onShow() {
     this.setTab();
     const app = getApp();
+    if (app.globalData.cameraReturnPage === 'replace' && app.globalData.cameraImagePath) {
+      const path = app.globalData.cameraImagePath;
+      const rid = app.globalData.cameraReplaceId;
+      app.globalData.cameraImagePath = null;
+      app.globalData.cameraReturnPage = null;
+      app.globalData.cameraReplaceId = null;
+      this.uploadReplace(rid, path);
+    } else if (app.globalData.cameraReturnPage === 'replace') {
+      app.globalData.cameraReturnPage = null;
+      app.globalData.cameraReplaceId = null;
+    }
     if (app.globalData.cameraReturnPage === 'ocr' && app.globalData.cameraImagePath) {
       const path = app.globalData.cameraImagePath;
       app.globalData.cameraImagePath = null;
@@ -221,6 +232,25 @@ Page({
     return base;
   },
 
+  async uploadReplace(id, path) {
+    const that = this;
+    if (!path) return;
+    wx.showLoading({ title: "\u4e0a\u4f20\u4e2d" });
+    try {
+      const upload = await api.compressAndUpload(path, that.data.settings.image, Date.now());
+      await api.updateFoodDetails(id, { image_path: upload.path, image_metadata: upload.metadata || {} });
+      wx.hideLoading();
+      wx.showToast({ title: "\u5df2\u66f4\u6362", icon: "success" });
+      const records = that.data.records.map(r => Number(r.id) === id ? Object.assign({}, r, { image_path: upload.path, image_metadata: upload.metadata || {} }) : r);
+      that.setData({ records });
+      try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (e) {}
+    } catch (e) {
+      wx.hideLoading();
+      wx.showToast({ title: (e && e.message) || "\u66f4\u6362\u5931\u8d25", icon: "none" });
+      try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (err) {}
+    }
+  },
+
   replaceImage(e) {
     const id = Number(e.currentTarget.dataset.id);
     const rec = this.data.records.find(r => Number(r.id) === id);
@@ -229,7 +259,14 @@ Page({
     wx.showActionSheet({
       itemList: ["\u4ece\u76f8\u518c\u9009\u62e9", "\u62cd\u7167"],
       success(res) {
-        const sourceType = res.tapIndex === 1 ? ["camera"] : ["album"];
+        if (res.tapIndex === 1) {
+          getApp().globalData.cameraImagePath = null;
+          getApp().globalData.cameraReturnPage = 'replace';
+          getApp().globalData.cameraReplaceId = id;
+          wx.navigateTo({ url: '/pages/camera/camera' });
+          return;
+        }
+        const sourceType = ["album"];
         wx.chooseImage({
           count: 1,
           sizeType: ["compressed"],
