@@ -504,9 +504,7 @@ Page({
     if (target === 'name') patch.dishName = text;
     else if (target === 'brand') patch.brandName = text;
     else if (target === 'ingredient') {
-      patch.ingredientSearch = text;
-      this.setData(patch);
-      this.updateIngredientPreview();
+      this.confirmIngredient(text);
       if (done) done();
       return;
     }
@@ -601,13 +599,21 @@ Page({
     this.setData({ ingredientSearch: e.detail });
     this.updateIngredientPreview();
   },
-  async confirmIngredient() {
-    const preview = this.data.ingredientPreview;
-    if (!preview || !preview.name) return;
+  async confirmIngredient(nameOverride) {
+    let name, amount;
+    if (nameOverride) {
+      name = nameOverride;
+      amount = null;
+    } else {
+      const preview = this.data.ingredientPreview;
+      if (!preview || !preview.name) return;
+      name = preview.name;
+      amount = preview.amount;
+    }
     try {
-      await api.addIngredient(preview.name);
+      await api.addIngredient(name);
       this.setData({
-        ingredients: this.data.ingredients.concat([preview]),
+        ingredients: this.data.ingredients.concat([{ name, amount }]),
         ingredientSearch: "",
         ingredientAmount: "",
         ingredientPreview: null,
