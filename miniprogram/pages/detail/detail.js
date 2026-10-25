@@ -526,7 +526,9 @@ Page({
   ocrSetChar(key, on) {
     const picked = Object.assign({}, this.data.ocrPicked);
     if (on) picked[key] = true; else delete picked[key];
-    this.setData({ ocrPicked: picked, ocrBuiltText: this.ocrBuiltText() });
+    const items = this.data.ocrItems;
+    const text = items.filter(it => picked[it.key]).map(it => it.ch).join('');
+    this.setData({ ocrPicked: picked, ocrBuiltText: text });
   },
   ocrTouchStart(e) {
     const key = e.currentTarget.dataset.key;
