@@ -49,8 +49,13 @@ function formatTakenAt(value) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
+    function cleanup(p) {
+      if (!p) return;
+      try { wx.getFileSystemManager().unlink({ filePath: p, fail() {} }); } catch (e) {}
+    }
     function finishUpload(resPath) {
       uploadImage(resPath).then(function (r) {
+        cleanup(resPath === filePath ? null : resPath);
         var meta = r.metadata || {};
         if (takenAt && !meta.taken_at) meta.taken_at = formatTakenAt(takenAt);
         wx.getLocation({
@@ -66,7 +71,7 @@ function compressAndUpload(filePath, imageConfig, takenAt) {
             resolve(r);
           }
         });
-      }).catch(reject);
+      }).catch(function (err) { cleanup(resPath === filePath ? null : resPath); reject(err); });
     }
     wx.getImageInfo({ src: filePath, success: function (info) {
       var maxDimension = Number(imageConfig.max_dimension);
