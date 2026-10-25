@@ -11,7 +11,8 @@
       <view class="section-label-row"><view class="section-label">基本信息</view><view class="ocr-btn" bindtap="startOcr">📷 OCR识别</view></view>
       <van-field label="产品" model:value="{{dishName}}" bindinput="onDishName" placeholder="产品名称" />
       <van-field label="品牌" model:value="{{brandName}}" bindinput="onBrandName" placeholder="品牌" />
-      <van-field label="价格" model:value="{{price}}" type="digit" bindinput="onPrice" placeholder="价格" />
+      <van-field label="原价" model:value="{{priceOrig}}" type="digit" bindinput="onPriceOrig" placeholder="原价" />
+      <van-field label="折扣价" model:value="{{priceDisc}}" type="digit" bindinput="onPriceDisc" placeholder="选填" />
       <view class="worth-row">
         <view class="section-inline-label">值不值得</view>
         <view class="worth-opts">

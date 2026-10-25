@@ -16,7 +16,8 @@ Page({
     commentInput: '',
     dishName: '',
     brandName: '',
-    price: '',
+    priceOrig: '',
+    priceDisc: '',
     currentRepurchase: 0,
     worthIt: '',
     ingredientSearch: '',
@@ -179,7 +180,8 @@ Page({
       editId: rec.id,
       dishName: rec.name || '',
       brandName: rec.brand_name || '',
-      price: rec.price == null ? '' : String(rec.price),
+      priceOrig: rec.price && rec.price.length ? String(rec.price[0]) : '',
+      priceDisc: rec.price && rec.price.length > 1 && rec.price[1] != null ? String(rec.price[1]) : '',
       currentRepurchase: rec.repurchase || 0,
       worthIt: rec.worth_it || '',
       prevRecordLabel: this.prevRecordLabel(rec.modify_at || []),
@@ -567,7 +569,8 @@ Page({
   onWorthIt(e) { this.setData({ worthIt: e.currentTarget.dataset.v === this.data.worthIt ? '' : e.currentTarget.dataset.v }); },
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
-  onPrice(e) { this.setData({ price: e.detail }); },
+  onPriceOrig(e) { this.setData({ priceOrig: e.detail }); },
+  onPriceDisc(e) { this.setData({ priceDisc: e.detail }); },
   onIngredientAmount(e) {
     const amount = e.detail;
     this.setData({ ingredientAmount: amount });
@@ -672,10 +675,15 @@ Page({
     const flavors = Object.keys(this.data.flavorLevels)
       .filter(f => this.data.flavorLevels[f] > config.flavor_scale.min_level)
       .map(f => ({ name: f, level: this.data.flavorLevels[f] }));
-    const price = this.data.price === '' ? null : Number(this.data.price);
-    if (price !== null && (!Number.isFinite(price) || price < 0)) {
-      wx.showToast({ title: '价格无效', icon: 'none' });
-      return;
+    let price = null;
+    if (this.data.priceOrig !== '') {
+      const orig = Number(this.data.priceOrig);
+      const disc = this.data.priceDisc === '' ? null : Number(this.data.priceDisc);
+      if (!Number.isFinite(orig) || orig < 0 || (disc !== null && (!Number.isFinite(disc) || disc < 0))) {
+        wx.showToast({ title: '价格无效', icon: 'none' });
+        return;
+      }
+      price = [orig, disc];
     }
     const fields = {
       name: this.data.dishName,
