@@ -115,6 +115,10 @@ Page({
 
   takePhoto() { this.pickImage(["camera"]); },
 
+  removeTempFile(path) {
+    if (!path) return;
+    try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (e) {}
+  },
   pickImage(sourceType) {
     const that = this;
     wx.chooseImage({ count: 1, sizeType: ["compressed"], sourceType, success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path, Date.now()); } });
@@ -143,11 +147,13 @@ Page({
       await api.submitFood(record);
       wx.hideLoading();
       wx.showToast({ title: '已保存', icon: 'success' });
+      this.removeTempFile(path);
       this.setData({ fileList: [], uploading: false });
       getApp().globalData.refreshList = true;
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
+      this.removeTempFile(path);
       this.setData({ uploading: false });
       wx.showToast({ title: e.message || '保存失败', icon: 'none' });
     }

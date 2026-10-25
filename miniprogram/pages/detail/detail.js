@@ -428,6 +428,10 @@ Page({
     });
   },
 
+  removeTempFile(path) {
+    if (!path) return;
+    try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (e) {}
+  },
   startOcr() {
     const that = this;
     wx.chooseMedia({
@@ -452,10 +456,12 @@ Page({
                 if (!text) return;
                 Array.from(text).forEach(ch => items.push({ ch, key: items.length }));
               });
-              if (!items.length) { wx.showToast({ title: '未识别到文字', icon: 'none' }); return; }
+              if (!items.length) { that.removeTempFile(path); wx.showToast({ title: '未识别到文字', icon: 'none' }); return; }
+              that.removeTempFile(path);
               that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrPicked: {}, ocrBuiltText: '' });
             }).catch(err => {
               wx.hideLoading();
+              that.removeTempFile(path);
               wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
             });
       }
