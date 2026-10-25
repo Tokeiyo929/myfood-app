@@ -92,6 +92,14 @@ Page({
   onShow() {
     this.setTab();
     const app = getApp();
+    if (app.globalData.cameraReturnPage === 'ocr' && app.globalData.cameraImagePath) {
+      const path = app.globalData.cameraImagePath;
+      app.globalData.cameraImagePath = null;
+      app.globalData.cameraReturnPage = null;
+      this.runOcr(path);
+    } else if (app.globalData.cameraReturnPage === 'ocr') {
+      app.globalData.cameraReturnPage = null;
+    }
     const gid = app.globalData.selectedRecordId;
     let reload = app.globalData.refreshDetail;
     if (gid && gid !== this.data.selectedId) {
@@ -432,16 +440,9 @@ Page({
     if (!path) return;
     try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (e) {}
   },
-  startOcr() {
+  runOcr(path) {
     const that = this;
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      success(res) {
-        const path = res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath;
-        if (!path) return;
-        wx.showLoading({ title: '识别中' });
+    wx.showLoading({ title: '识别中' });
         wx.serviceMarket.invokeService({
           service: 'wx79ac3de8be320b71',
           api: 'OcrAllInOne',
@@ -463,7 +464,28 @@ Page({
               wx.hideLoading();
               that.removeTempFile(path);
               wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
-            });
+          });
+  },
+  startOcr() {
+    const that = this;
+    wx.showActionSheet({
+      itemList: ['从相册选择', '拍照'],
+      success(res) {
+        if (res.tapIndex === 1) {
+          getApp().globalData.cameraImagePath = null;
+          getApp().globalData.cameraReturnPage = 'ocr';
+          wx.navigateTo({ url: '/pages/camera/camera' });
+        } else {
+          wx.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            sourceType: ['album'],
+            success(res) {
+              const path = res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath;
+              if (path) that.runOcr(path);
+            }
+          });
+        }
       }
     });
   },

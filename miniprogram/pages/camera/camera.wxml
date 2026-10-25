@@ -1,0 +1,8 @@
+<view class="camera-page">
+  <camera class="camera" device-position="back" flash="{{flash}}" resolution="high" />
+  <view class="controls">
+    <view class="ctrl-btn" bindtap="cancel">取消</view>
+    <view class="shutter" bindtap="takePhoto"></view>
+    <view class="ctrl-btn {{flash === 'torch' ? 'flash-on' : ''}}" bindtap="toggleFlash">⚡</view>
+  </view>
+</view>

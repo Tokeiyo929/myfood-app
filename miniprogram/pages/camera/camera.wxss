@@ -1,0 +1,6 @@
+.camera-page { width: 100%; height: 100vh; background: #000; display: flex; flex-direction: column; }
+.camera { flex: 1; width: 100%; }
+.controls { height: 140px; display: flex; align-items: center; justify-content: space-around; background: #000; }
+.ctrl-btn { color: #fff; font-size: 16px; padding: 10px; }
+.flash-on { color: #ffd700; }
+.shutter { width: 72px; height: 72px; border-radius: 50%; background: #fff; border: 6px solid rgba(255,255,255,0.4); box-sizing: border-box; }

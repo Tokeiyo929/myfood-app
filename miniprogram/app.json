@@ -6,7 +6,8 @@
     "pages/index/index",
     "pages/categories/categories",
     "pages/history/history",
-    "pages/detail/detail"
+    "pages/detail/detail",
+    "pages/camera/camera"
   ],
   "window": {
     "backgroundTextStyle": "dark",

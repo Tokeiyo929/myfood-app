@@ -33,7 +33,17 @@ Page({
       this.getTabBar().setData({ selected: 2 });
     }
   },
-  onShow() { this.setTab(); const app = getApp(); if (app.globalData.refreshList) { app.globalData.refreshList = false; this.loadToday(); } else if (!this.data.todayLoaded) { this.loadToday(); } },
+  onShow() {
+    this.setTab();
+    const app = getApp();
+    if (app.globalData.cameraImagePath) {
+      const path = app.globalData.cameraImagePath;
+      app.globalData.cameraImagePath = null;
+      this.setData({ fileList: [{ url: path }] });
+      this.saveQuick(path, Date.now());
+    }
+    if (app.globalData.refreshList) { app.globalData.refreshList = false; this.loadToday(); } else if (!this.data.todayLoaded) { this.loadToday(); }
+  },
   onUnload() {
     if (recorder) { try { recorder.stop(); } catch (e) {} }
   },
@@ -113,7 +123,10 @@ Page({
 
   chooseImage() { this.pickImage(["album"]); },
 
-  takePhoto() { this.pickImage(["camera"]); },
+  takePhoto() {
+    getApp().globalData.cameraImagePath = null;
+    wx.navigateTo({ url: '/pages/camera/camera' });
+  },
 
   removeTempFile(path) {
     if (!path) return;
