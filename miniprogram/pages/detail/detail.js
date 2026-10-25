@@ -18,6 +18,7 @@ Page({
     brandName: '',
     price: '',
     currentRepurchase: 0,
+    worthIt: '',
     ingredientSearch: '',
     ingredientAmount: '',
     ingredientPreview: null,
@@ -172,6 +173,7 @@ Page({
       brandName: rec.brand_name || '',
       price: rec.price == null ? '' : String(rec.price),
       currentRepurchase: rec.repurchase || 0,
+      worthIt: rec.worth_it || '',
       prevRecordLabel: this.prevRecordLabel(rec.modify_at || []),
       selectedCategory: (rec.categories && rec.categories[0]) || '',
       categorySearch: '',
@@ -534,6 +536,7 @@ Page({
   clearOcrBuilt() {
     this.setData({ ocrPicked: {}, ocrBuiltText: '' });
   },
+  onWorthIt(e) { this.setData({ worthIt: e.currentTarget.dataset.v === this.data.worthIt ? '' : e.currentTarget.dataset.v }); },
   onDishName(e) { this.setData({ dishName: e.detail }); },
   onBrandName(e) { this.setData({ brandName: e.detail }); },
   onPrice(e) { this.setData({ price: e.detail }); },
@@ -646,6 +649,7 @@ Page({
       ingredients: this.data.ingredients,
       flavors,
       preference: this.data.preference,
+      worth_it: this.data.worthIt === '' ? null : this.data.worthIt === 'yes',
       comment,
     };
     wx.showLoading({ title: '保存中' });
