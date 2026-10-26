@@ -191,7 +191,7 @@ Page({
       editId: rec.id,
       dishName: rec.name || '',
       brandName: rec.brand_name || '',
-      priceOrig: rec.price && rec.price.length ? String(rec.price[0]) : '',
+      priceOrig: rec.price && rec.price.length && rec.price[0] != null ? String(rec.price[0]) : '',
       priceDisc: rec.price && rec.price.length > 1 && rec.price[1] != null ? String(rec.price[1]) : '',
       currentRepurchase: rec.repurchase || 0,
       worthIt: rec.worth_it || '',
@@ -722,10 +722,10 @@ Page({
       .filter(f => this.data.flavorLevels[f] > config.flavor_scale.min_level)
       .map(f => ({ name: f, level: this.data.flavorLevels[f] }));
     let price = null;
-    if (this.data.priceOrig !== '') {
-      const orig = Number(this.data.priceOrig);
+    if (this.data.priceOrig !== '' || this.data.priceDisc !== '') {
+      const orig = this.data.priceOrig === '' ? null : Number(this.data.priceOrig);
       const disc = this.data.priceDisc === '' ? null : Number(this.data.priceDisc);
-      if (!Number.isFinite(orig) || orig < 0 || (disc !== null && (!Number.isFinite(disc) || disc < 0))) {
+      if ((orig !== null && (!Number.isFinite(orig) || orig < 0)) || (disc !== null && (!Number.isFinite(disc) || disc < 0))) {
         wx.showToast({ title: '价格无效', icon: 'none' });
         return;
       }
