@@ -1,6 +1,7 @@
 import * as echarts from '../../ec-canvas/echarts';
 import china from '../../mapdata/china';
 import europe from '../../mapdata/europe';
+import fuzhou from '../../mapdata/fuzhou';
 const api = require('../../../utils/api');
 
 let chart = null;
@@ -31,7 +32,7 @@ Page({
     ec: { onInit: initChart },
     selectedProvince: '',
     dishList: [], // {name, visited}
-    region: 'china', // 'china' | 'europe'
+    region: 'china', // 'china' | 'europe' | 'fuzhou'
   },
 
   noop() {},
@@ -101,7 +102,7 @@ Page({
     }
   },
 
-  renderMap() {
+  renderRegionMap() {
     if (!chart) return;
     const isEurope = this.data.region === 'europe';
     const data = [];
@@ -132,6 +133,28 @@ Page({
     this.bindClick();
   },
 
+  renderMap() {
+    if (!chart) return;
+    if (this.data.region === 'fuzhou') {
+      chart.setOption({
+        tooltip: { show: false },
+        series: [{
+          type: 'map',
+          map: 'fuzhou',
+          roam: 'move',
+          scaleLimit: { min: MIN_ZOOM, max: MAX_ZOOM },
+          selectedMode: 'none',
+          itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
+          emphasis: { disabled: true },
+          label: { show: true, fontSize: 9, color: '#756e7d' },
+          data: [],
+        }],
+      }, true);
+      return;
+    }
+    this.renderRegionMap();
+  },
+
   bindClick() {
     if (!chart) return;
     chart.off('click');
@@ -158,5 +181,6 @@ function initChart(canvas, width, height, dpr) {
   canvas.setChart(chart);
   echarts.registerMap('china', china);
   echarts.registerMap('europe', europe);
+  echarts.registerMap('fuzhou', fuzhou);
   return chart;
 }
