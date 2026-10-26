@@ -547,6 +547,10 @@ Page({
   ocrTouchStart(e) {
     const key = e.currentTarget.dataset.key;
     if (key == null) return;
+    const touch = e.touches && e.touches[0];
+    this.ocrStartX = touch ? touch.clientX : 0;
+    this.ocrStartY = touch ? touch.clientY : 0;
+    this.ocrAxis = null;
     const mode = this.data.ocrPicked[key] ? 'off' : 'on';
     this.setData({ ocrStrokeMode: mode });
     this.ocrSetChar(key, mode === 'on');
@@ -560,6 +564,16 @@ Page({
     if (!mode) return;
     const touch = e.touches && e.touches[0];
     if (!touch || !this.ocrRects) return;
+    if (!this.ocrAxis) {
+      const dx = Math.abs(touch.clientX - this.ocrStartX);
+      const dy = Math.abs(touch.clientY - this.ocrStartY);
+      if (dx < 10 && dy < 10) return;
+      if (dy > dx * 2) {
+        this.setData({ ocrStrokeMode: null });
+        return;
+      }
+      this.ocrAxis = 'x';
+    }
     const rects = this.ocrRects;
     for (let i = 0; i < rects.length; i++) {
       const r = rects[i];
@@ -570,6 +584,7 @@ Page({
     }
   },
   ocrTouchEnd() {
+    this.ocrAxis = null;
     this.setData({ ocrStrokeMode: null });
   },
   addToOcrField() {
