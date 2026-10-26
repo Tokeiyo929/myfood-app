@@ -104,6 +104,12 @@ Page({
     }
   },
 
+  renderMap() {
+    // ec-canvas 异步初始化，chart 可能还没就绪，稍后重试
+    if (!chart) { setTimeout(() => this.renderMap(), 150); return; }
+    this.renderRegionMap();
+  },
+
   renderRegionMap() {
     if (!chart) return;
     const isEurope = this.data.region === 'europe';
