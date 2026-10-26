@@ -550,7 +550,9 @@ Page({
     const touch = e.touches && e.touches[0];
     this.ocrStartX = touch ? touch.clientX : 0;
     this.ocrStartY = touch ? touch.clientY : 0;
+    this.ocrStartT = Date.now();
     this.ocrAxis = null;
+    this.ocrLastIdx = null;
     const mode = this.data.ocrPicked[key] ? 'off' : 'on';
     this.setData({ ocrStrokeMode: mode });
     this.ocrSetChar(key, mode === 'on');
@@ -569,22 +571,37 @@ Page({
       const dy = Math.abs(touch.clientY - this.ocrStartY);
       if (dx < 10 && dy < 10) return;
       if (dy > dx * 2) {
-        this.setData({ ocrStrokeMode: null });
-        return;
+        // vertical gesture: fast = scroll intent (cancel), slow = deliberate selection
+        const elapsed = Math.max(1, Date.now() - this.ocrStartT);
+        const speed = Math.sqrt(dx * dx + dy * dy) / elapsed; // px per ms
+        if (speed > 1.2) {
+          this.setData({ ocrStrokeMode: null });
+          return;
+        }
       }
-      this.ocrAxis = 'x';
+      this.ocrAxis = 'on';
     }
     const rects = this.ocrRects;
+    const items = this.data.ocrItems;
+    let hitIdx = null;
     for (let i = 0; i < rects.length; i++) {
       const r = rects[i];
-      if (touch.clientX >= r.left && touch.clientX <= r.right && touch.clientY >= r.top && touch.clientY <= r.bottom) {
-        this.ocrSetChar(this.data.ocrItems[i].key, mode === 'on');
-        break;
-      }
+      if (touch.clientX >= r.left && touch.clientX <= r.right && touch.clientY >= r.top && touch.clientY <= r.bottom) { hitIdx = i; break; }
     }
+    if (hitIdx === null) return;
+    // line continuity: select everything between last hit and current hit
+    if (this.ocrLastIdx !== null) {
+      const lo = Math.min(this.ocrLastIdx, hitIdx);
+      const hi = Math.max(this.ocrLastIdx, hitIdx);
+      for (let i = lo; i <= hi; i++) this.ocrSetChar(items[i].key, mode === 'on');
+    } else {
+      this.ocrSetChar(items[hitIdx].key, mode === 'on');
+    }
+    this.ocrLastIdx = hitIdx;
   },
   ocrTouchEnd() {
     this.ocrAxis = null;
+    this.ocrLastIdx = null;
     this.setData({ ocrStrokeMode: null });
   },
   addToOcrField() {
