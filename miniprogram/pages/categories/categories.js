@@ -1,28 +1,5 @@
-const api = require('../../utils/api');
-
 Page({
-  data: {
-    stats: null,
-    days: null,
-    mapMarkers: [{
-      id: 'world',
-      latitude: 26.0745,
-      longitude: 119.2965,
-      iconPath: '/images/detail-active.png',
-      width: 28,
-      height: 28,
-      label: {
-        content: '世界地图',
-        color: '#66508f',
-        fontSize: 11,
-        anchorX: -18,
-        anchorY: -34,
-        bgColor: '#ffffff',
-        borderRadius: 6,
-        padding: 4,
-      },
-    }],
-  },
+  data: {},
 
   setTab() {
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
@@ -31,13 +8,4 @@ Page({
   },
 
   onShow() { this.setTab(); },
-
-  gotoMap() {
-    wx.navigateTo({ url: '/map-package/pages/map/map' });
-  },
-
-  onMapMarker(e) {
-    wx.navigateTo({ url: '/map-package/pages/map/map' });
-  },
-
 });

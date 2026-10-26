@@ -1,6 +1,6 @@
 <view class="page">
   <map class="city-map" id="fzMap" latitude="26.0745" longitude="119.2965" scale="10.5"
-    markers="{{mapMarkers}}" show-location enable-pois enable-rotate="{{false}}" enable-overlooking="{{false}}"
-    bindmarkertap="onMapMarker">
+    show-location enable-pois enable-rotate="{{false}}" enable-overlooking="{{false}}"
+   >
   </map>
 </view>
