@@ -233,21 +233,20 @@ Page({
   },
 
   async uploadReplace(id, path) {
-    const that = this;
     if (!path) return;
     wx.showLoading({ title: "\u4e0a\u4f20\u4e2d" });
     try {
-      const upload = await api.compressAndUpload(path, that.data.settings.image, Date.now());
+      const upload = await api.compressAndUpload(path, this.data.settings.image, Date.now());
       await api.updateFoodDetails(id, { image_path: upload.path, image_metadata: upload.metadata || {} });
       wx.hideLoading();
       wx.showToast({ title: "\u5df2\u66f4\u6362", icon: "success" });
-      const records = that.data.records.map(r => Number(r.id) === id ? Object.assign({}, r, { image_path: upload.path, image_metadata: upload.metadata || {} }) : r);
-      that.setData({ records });
-      try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (e) {}
+      const records = this.data.records.map(r => Number(r.id) === id ? Object.assign({}, r, { image_path: upload.path, image_metadata: upload.metadata || {} }) : r);
+      this.setData({ records });
+      api.removeTempFile(path);
     } catch (e) {
       wx.hideLoading();
       wx.showToast({ title: (e && e.message) || "\u66f4\u6362\u5931\u8d25", icon: "none" });
-      try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (err) {}
+      api.removeTempFile(path);
     }
   },
 
@@ -255,7 +254,7 @@ Page({
     const id = Number(e.currentTarget.dataset.id);
     const rec = this.data.records.find(r => Number(r.id) === id);
     if (!rec) return;
-    const that = this;
+    const page = this;
     wx.showActionSheet({
       itemList: ["\u4ece\u76f8\u518c\u9009\u62e9", "\u62cd\u7167"],
       success(res) {
@@ -266,26 +265,13 @@ Page({
           wx.navigateTo({ url: '/pages/camera/camera' });
           return;
         }
-        const sourceType = ["album"];
         wx.chooseImage({
           count: 1,
           sizeType: ["compressed"],
-          sourceType,
-          success: async function(cho) {
+          sourceType: ["album"],
+          success(cho) {
             const path = cho.tempFilePaths && cho.tempFilePaths[0];
-            if (!path) return;
-            wx.showLoading({ title: "\u4e0a\u4f20\u4e2d" });
-            try {
-              const upload = await api.compressAndUpload(path, that.data.settings.image, Date.now());
-              await api.updateFoodDetails(id, { image_path: upload.path, image_metadata: upload.metadata || {} });
-              wx.hideLoading();
-              wx.showToast({ title: "\u5df2\u66f4\u6362", icon: "success" });
-              const records = that.data.records.map(r => Number(r.id) === id ? Object.assign({}, r, { image_path: upload.path }) : r);
-              that.setData({ records });
-            } catch (err) {
-              wx.hideLoading();
-              wx.showToast({ title: "\u66f4\u6362\u5931\u8d25", icon: "none" });
-            }
+            if (path) page.uploadReplace(id, path);
           }
         });
       }
@@ -475,10 +461,6 @@ Page({
     });
   },
 
-  removeTempFile(path) {
-    if (!path) return;
-    try { wx.getFileSystemManager().unlink({ filePath: path, fail() {} }); } catch (e) {}
-  },
   runOcr(path) {
     const that = this;
     wx.showLoading({ title: '识别中' });
@@ -496,12 +478,12 @@ Page({
                 if (!text) return;
                 Array.from(text).forEach(ch => items.push({ ch, key: items.length }));
               });
-              if (!items.length) { that.removeTempFile(path); wx.showToast({ title: '未识别到文字', icon: 'none' }); return; }
-              that.removeTempFile(path);
+              if (!items.length) { api.removeTempFile(path); wx.showToast({ title: '未识别到文字', icon: 'none' }); return; }
+              api.removeTempFile(path);
               that.setData({ ocrOverlay: true, ocrItems: items, ocrTarget: 'name', ocrPicked: {}, ocrBuiltText: '' });
             }).catch(err => {
               wx.hideLoading();
-              that.removeTempFile(path);
+              api.removeTempFile(path);
               wx.showToast({ title: 'OCR调用失败: ' + ((err && err.errMsg) || ''), icon: 'none' });
           });
   },
@@ -554,11 +536,6 @@ Page({
     this.applyOcrBuilt(() => {
       this.setData({ ocrTarget: e.currentTarget.dataset.t, ocrPicked: {}, ocrBuiltText: '' });
     });
-  },
-  ocrBuiltText() {
-    const items = this.data.ocrItems;
-    const picked = this.data.ocrPicked;
-    return items.filter(it => picked[it.key]).map(it => it.ch).join('');
   },
   ocrSetChar(key, on) {
     const picked = Object.assign({}, this.data.ocrPicked);

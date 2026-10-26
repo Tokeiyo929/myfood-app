@@ -41,6 +41,11 @@ function uploadImage(filePath) {
   });
 }
 
+function removeTempFile(filePath) {
+  if (!filePath) return;
+  try { wx.getFileSystemManager().unlink({ filePath, fail() {} }); } catch (e) {}
+}
+
 function formatTakenAt(value) {
   var date = new Date(value);
   var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
@@ -49,13 +54,9 @@ function formatTakenAt(value) {
 
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
-    function cleanup(p) {
-      if (!p) return;
-      try { wx.getFileSystemManager().unlink({ filePath: p, fail() {} }); } catch (e) {}
-    }
     function finishUpload(resPath) {
       uploadImage(resPath).then(function (r) {
-        cleanup(resPath === filePath ? null : resPath);
+        removeTempFile(resPath === filePath ? null : resPath);
         var meta = r.metadata || {};
         if (takenAt && !meta.taken_at) meta.taken_at = formatTakenAt(takenAt);
         wx.getLocation({
@@ -71,7 +72,7 @@ function compressAndUpload(filePath, imageConfig, takenAt) {
             resolve(r);
           }
         });
-      }).catch(function (err) { cleanup(resPath === filePath ? null : resPath); reject(err); });
+      }).catch(function (err) { removeTempFile(resPath === filePath ? null : resPath); reject(err); });
     }
     wx.getImageInfo({ src: filePath, success: function (info) {
       var maxDimension = Number(imageConfig.max_dimension);
@@ -106,5 +107,6 @@ function getCategories() { return request("/api/categories"); }
 
 module.exports = {
   BASE_URL, getConfig, getStats, getFoods, getFoodById, deleteFood, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
+  removeTempFile,
   searchIngredients, addIngredient, getCategories, uploadImage, compressAndUpload,
 };

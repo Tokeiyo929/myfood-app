@@ -7,7 +7,6 @@ Page({
     this.setData({ flash: this.data.flash === 'off' ? 'torch' : 'off' });
   },
   takePhoto() {
-    const that = this;
     if (!this.cameraCtx) this.cameraCtx = wx.createCameraContext();
     this.cameraCtx.takePhoto({
       quality: 'high',
@@ -22,8 +21,5 @@ Page({
   },
   cancel() {
     wx.navigateBack();
-  },
-  error(e) {
-    console.error('[camera]', e.detail);
   }
 });
