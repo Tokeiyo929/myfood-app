@@ -7,7 +7,7 @@
       <view class="stat-label">食物记录</view>
     </view>
     <view class="stat-item">
-      <view class="stat-num">{{stats.photos || 0}}</view>
+      <view class="stat-num">{{stats.photos || 0}}<text wx:if="{{stats.orphan > 0}}" class="stat-orphan">+{{stats.orphan}}</text></view>
       <view class="stat-label">照片数</view>
     </view>
     <view class="stat-item">

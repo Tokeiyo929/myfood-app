@@ -9,3 +9,9 @@
 .info-row:last-child { border-bottom: none; }
 .info-label { font-size: 14px; color: #666; }
 .info-value { font-size: 14px; color: #333; }
+
+.stat-orphan {
+  font-size: 22rpx;
+  color: #e6a23c;
+  margin-left: 4rpx;
+}
