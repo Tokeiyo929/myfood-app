@@ -1,4 +1,9 @@
 <view class="page">
+  <map class="city-map" id="fzMap" latitude="26.0745" longitude="119.2965" scale="10.5"
+    markers="{{mapMarkers}}" show-location enable-pois enable-rotate="{{false}}" enable-overlooking="{{false}}"
+    bindmarkertap="onMapMarker" style="width: 100%; height: 46vh; border-radius: 12px;">
+  </map>
+
   <view class="my-header">MyFood</view>
   <view class="map-entry" bindtap="gotoMap">世界地图 <text class="me-arrow">›</text></view>
   <view class="stat-card">

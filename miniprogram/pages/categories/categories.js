@@ -4,6 +4,24 @@ Page({
   data: {
     stats: null,
     days: null,
+    mapMarkers: [{
+      id: 'world',
+      latitude: 26.0745,
+      longitude: 119.2965,
+      iconPath: '/images/category.png',
+      width: 28,
+      height: 28,
+      label: {
+        content: '世界地图',
+        color: '#66508f',
+        fontSize: 11,
+        anchorX: -18,
+        anchorY: -34,
+        bgColor: '#ffffff',
+        borderRadius: 6,
+        padding: 4,
+      },
+    }],
   },
 
   setTab() {
@@ -16,6 +34,13 @@ Page({
 
   gotoMap() {
     wx.navigateTo({ url: '/map-package/pages/map/map' });
+  },
+
+  onMapMarker(e) {
+    const id = e.detail && e.detail.markerId;
+    if (id === 'world') {
+      wx.navigateTo({ url: '/map-package/pages/map/map' });
+    }
   },
 
   async loadStats() {
