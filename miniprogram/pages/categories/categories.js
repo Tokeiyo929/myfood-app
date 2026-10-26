@@ -8,7 +8,7 @@ Page({
       id: 'world',
       latitude: 26.0745,
       longitude: 119.2965,
-      iconPath: '/images/category.png',
+      iconPath: '/images/detail-active.png',
       width: 28,
       height: 28,
       label: {
@@ -37,10 +37,7 @@ Page({
   },
 
   onMapMarker(e) {
-    const id = e.detail && e.detail.markerId;
-    if (id === 'world') {
-      wx.navigateTo({ url: '/map-package/pages/map/map' });
-    }
+    wx.navigateTo({ url: '/map-package/pages/map/map' });
   },
 
 });
