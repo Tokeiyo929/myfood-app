@@ -5,15 +5,4 @@
   </map>
 
   <view class="my-header">MyFood</view>
-  <view class="map-entry" bindtap="gotoMap">世界地图 <text class="me-arrow">›</text></view>
-  <view class="stat-card">
-    <view class="stat-item">
-      <view class="stat-num">{{stats.foods || 0}}</view>
-      <view class="stat-label">食物记录</view>
-    </view>
-    <view class="stat-item">
-      <view class="stat-num">{{days || '-'}}</view>
-      <view class="stat-label">服务天数</view>
-    </view>
-  </view>
 </view>

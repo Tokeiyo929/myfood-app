@@ -30,7 +30,7 @@ Page({
     }
   },
 
-  onShow() { this.setTab(); this.loadStats(); },
+  onShow() { this.setTab(); },
 
   gotoMap() {
     wx.navigateTo({ url: '/map-package/pages/map/map' });
@@ -43,17 +43,4 @@ Page({
     }
   },
 
-  async loadStats() {
-    try {
-      const s = await api.getStats();
-      let days = null;
-      if (s.start_date) {
-        const start = new Date(s.start_date).getTime();
-        days = Math.max(1, Math.floor((Date.now() - start) / 86400000));
-      }
-      this.setData({ stats: s, days });
-    } catch (e) {
-      this.setData({ stats: null, days: null });
-    }
-  },
 });
