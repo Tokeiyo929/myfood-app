@@ -26,12 +26,35 @@ Page({
       app.globalData.refreshList = false;
       this.loadRecords(true);
     }
+    // 兜底：若上传/保存仍在进行中，标记可能在本次 onShow 之后才置位（switchTab 到当前页不会再触发 onShow）。
+    // 短轮询消费标记，最多 120 秒，消费到即刷新并停表。
+    this.startRefreshWatch(app);
     // 详情页保存了某条：局部刷新该条（不重拉全列表，保留滑动位置）
     if (app.globalData.lastUpdatedRecordId != null && this.data.settings && this.data.records.length) {
       const id = app.globalData.lastUpdatedRecordId;
       app.globalData.lastUpdatedRecordId = null;
       this.refreshRecord(id);
     }
+  },
+
+  onHide() { this.stopRefreshWatch(); },
+
+  startRefreshWatch(app) {
+    if (this.refreshWatch) return;
+    const startedAt = Date.now();
+    this.refreshWatch = setInterval(() => {
+      if (app.globalData.refreshList) {
+        app.globalData.refreshList = false;
+        this.stopRefreshWatch();
+        this.loadRecords(true);
+        return;
+      }
+      if (Date.now() - startedAt > 120000) this.stopRefreshWatch();
+    }, 1500);
+  },
+
+  stopRefreshWatch() {
+    if (this.refreshWatch) { clearInterval(this.refreshWatch); this.refreshWatch = null; }
   },
 
   refreshRecord(id) {
