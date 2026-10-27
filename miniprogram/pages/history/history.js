@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const setCurrentTab = require('../../utils/tab');
 let recordsRequest = 0;
 
 Page({
@@ -18,7 +19,7 @@ Page({
   },
 
   onShow() {
-    this.setTab();
+    setCurrentTab(this);
     const app = getApp();
     // 新增了记录：整体刷新
     if (app.globalData.refreshList) {
@@ -30,12 +31,6 @@ Page({
       const id = app.globalData.lastUpdatedRecordId;
       app.globalData.lastUpdatedRecordId = null;
       this.refreshRecord(id);
-    }
-  },
-
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2 });
     }
   },
 

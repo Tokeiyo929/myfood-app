@@ -2,8 +2,10 @@ import * as echarts from '../../ec-canvas/echarts';
 import china from '../../mapdata/china';
 import europe from '../../mapdata/europe';
 const api = require('../../../utils/api');
+const setCurrentTab = require('../../../utils/tab');
 
 let chart = null;
+let activePage = null;
 
 const PROVINCE_MAP = {
   '北京': '北京市', '天津': '天津市', '上海': '上海市', '重庆': '重庆市',
@@ -37,13 +39,19 @@ Page({
   noop() {},
 
   onReady() {
+    activePage = this;
     this.loadData();
   },
 
-  onShow() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 });
+  onUnload() {
+    if (activePage === this) {
+      activePage = null;
+      chart = null;
     }
+  },
+
+  onShow() {
+    setCurrentTab(this);
     if (this.loaded) this.loadData();
   },
 
@@ -105,8 +113,7 @@ Page({
   },
 
   renderMap() {
-    // ec-canvas 异步初始化，chart 可能还没就绪，稍后重试
-    if (!chart) { setTimeout(() => this.renderMap(), 150); return; }
+    if (!chart || !this.byProvince || !this.visitedDishes) return;
     this.renderRegionMap();
   },
 
@@ -168,5 +175,6 @@ function initChart(canvas, width, height, dpr) {
   canvas.setChart(chart);
   echarts.registerMap('china', china);
   echarts.registerMap('europe', europe);
+  if (activePage) activePage.renderMap();
   return chart;
 }

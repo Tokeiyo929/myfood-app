@@ -1,6 +1,8 @@
 const api = require('../../utils/api');
 
 const WHEEL = { size: 180, center: 90, radius: 62, labelRadius: 84, handleRadius: 5 };
+const setCurrentTab = require('../../utils/tab');
+const OCR_GESTURE = { minMovement: 10, verticalRatio: 2, scrollSpeed: 1.2 };
 
 Page({
   data: {
@@ -85,13 +87,8 @@ Page({
   },
 
 
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 4 });
-    }
-  },
   onShow() {
-    this.setTab();
+    setCurrentTab(this);
     const app = getApp();
     if (app.globalData.cameraReturnPage === 'replace' && app.globalData.cameraImagePath) {
       const path = app.globalData.cameraImagePath;
@@ -569,12 +566,12 @@ Page({
     if (!this.ocrAxis) {
       const dx = Math.abs(touch.clientX - this.ocrStartX);
       const dy = Math.abs(touch.clientY - this.ocrStartY);
-      if (dx < 10 && dy < 10) return;
-      if (dy > dx * 2) {
+      if (dx < OCR_GESTURE.minMovement && dy < OCR_GESTURE.minMovement) return;
+      if (dy > dx * OCR_GESTURE.verticalRatio) {
         // vertical gesture: fast = scroll intent (cancel), slow = deliberate selection
         const elapsed = Math.max(1, Date.now() - this.ocrStartT);
         const speed = Math.sqrt(dx * dx + dy * dy) / elapsed; // px per ms
-        if (speed > 1.2) {
+        if (speed > OCR_GESTURE.scrollSpeed) {
           this.setData({ ocrStrokeMode: null });
           return;
         }

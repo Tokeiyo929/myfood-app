@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const setCurrentTab = require('../../utils/tab');
 let recorder = null;
 let plugin = null;
 
@@ -27,13 +28,8 @@ Page({
 
   noop() {},
 
-  setTab() {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 3 });
-    }
-  },
   onShow() {
-    this.setTab();
+    setCurrentTab(this);
     const app = getApp();
     if (app.globalData.cameraImagePath) {
       const path = app.globalData.cameraImagePath;
