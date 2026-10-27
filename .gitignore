@@ -12,3 +12,7 @@ miniprogram/miniprogram_npm/
 # any node_modules anywhere
 node_modules/
 miniprogram_npm/
+ci/profiles/*.key
+ci/output/
+ci/install-git-hook.marker
+ci/upload-on-commit.ps1
