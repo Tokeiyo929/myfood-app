@@ -314,8 +314,8 @@ Page({
       i === 0 ? canvas.moveTo(x, y) : canvas.lineTo(x, y);
     });
     canvas.closePath();
-    canvas.setFillStyle('rgba(102,80,143,0.25)');
-    canvas.setStrokeStyle('#66508f');
+    canvas.setFillStyle('rgba(47,107,79,0.25)');
+    canvas.setStrokeStyle('#2f6b4f');
     canvas.fill();
     canvas.stroke();
     canvas.setFontSize(12);
@@ -332,7 +332,7 @@ Page({
       const x = cx + Math.cos(p.a) * dist, y = cy + Math.sin(p.a) * dist;
       canvas.beginPath();
       canvas.arc(x, y, WHEEL.handleRadius, 0, Math.PI * 2);
-      canvas.setFillStyle('#66508f');
+      canvas.setFillStyle('#2f6b4f');
       canvas.fill();
     });
     canvas.draw();

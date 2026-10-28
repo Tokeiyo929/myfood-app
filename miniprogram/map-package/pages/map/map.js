@@ -23,7 +23,7 @@ function toRegionName(full) {
 }
 
 const VISITED_COLOR = '#b39ddb';
-const SELECT_COLOR = '#66508f';
+const SELECT_COLOR = '#2f6b4f';
 const ZOOM_STEP = 1.4;
 const MIN_ZOOM = 1; // 默认倍率即铺满视窗（echarts 自带留白），不允许更小
 const MAX_ZOOM = 10;

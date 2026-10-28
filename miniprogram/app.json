@@ -11,14 +11,14 @@
   ],
   "window": {
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#66508f",
+    "navigationBarBackgroundColor": "#2f6b4f",
     "navigationBarTitleText": "MyFood",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {
     "custom": true,
     "color": "#756e7d",
-    "selectedColor": "#66508f",
+    "selectedColor": "#2f6b4f",
     "list": [
       {
         "pagePath": "pages/categories/categories",
