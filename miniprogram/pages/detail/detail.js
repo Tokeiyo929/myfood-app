@@ -91,6 +91,12 @@ Page({
   onShow() {
     setCurrentTab(this);
     const app = getApp();
+    // 冷启动直接落到详情页（无选中记录）时弹回历史页
+    if (app.globalData.selectedRecordId == null && this.data.editId == null && !this._loadedOnce) {
+      wx.switchTab({ url: '/pages/history/history' });
+      return;
+    }
+    this._loadedOnce = true;
     if (app.globalData.cameraReturnPage === 'replace' && app.globalData.cameraImagePath) {
       const path = app.globalData.cameraImagePath;
       const rid = app.globalData.cameraReplaceId;

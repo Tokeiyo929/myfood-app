@@ -2,10 +2,10 @@
   "entryPagePath": "pages/history/history",
   "lazyCodeLoading": "requiredComponents",
   "pages": [
+    "pages/history/history",
     "pages/records/records",
     "pages/index/index",
     "pages/categories/categories",
-    "pages/history/history",
     "pages/detail/detail",
     "pages/camera/camera"
   ],
@@ -22,25 +22,25 @@
     "list": [
       {
         "pagePath": "pages/categories/categories",
-        "text": "\u4ea7\u54c1\u7c7b\u522b",
+        "text": "产品类别",
         "iconPath": "images/category.png",
         "selectedIconPath": "images/category-active.png"
       },
       {
         "pagePath": "pages/history/history",
-        "text": "\u5386\u53f2\u8bb0\u5f55",
+        "text": "历史记录",
         "iconPath": "images/history.png",
         "selectedIconPath": "images/history-active.png"
       },
       {
         "pagePath": "pages/records/records",
-        "text": "\u8bb0\u5f55",
+        "text": "记录",
         "iconPath": "images/record.png",
         "selectedIconPath": "images/record-active.png"
       },
       {
         "pagePath": "pages/detail/detail",
-        "text": "\u8be6\u60c5",
+        "text": "详情",
         "iconPath": "images/detail.png",
         "selectedIconPath": "images/detail-active.png"
       }
