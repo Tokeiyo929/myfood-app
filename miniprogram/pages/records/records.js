@@ -194,6 +194,7 @@ Page({
       wx.hideLoading();
       this.setData({ comments: newComments, commentInput: '' });
       wx.showToast({ title: '已评论', icon: 'success' });
+      DataBus.touch('records');   // 让详情页等其它页面知道评论变了
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
