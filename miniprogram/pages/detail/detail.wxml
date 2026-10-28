@@ -91,20 +91,20 @@
   <view class="detail-empty" wx:if="{{editId == null}}"><van-empty description="请在历史记录中选择一条记录" /></view>
 </view>
 <view class="ocr-overlay" wx:if="{{ocrOverlay}}" catchtouchmove="noop" catchtap="noop">
-  <view class="ocr-panel" catchtouchstart="noop">
+  <view class="ocr-panel">
     <view class="ocr-head">
       <text class="ocr-title">在图上点选文字</text>
-      <text class="ocr-close" catchtap="closeOcr">完成</text>
+      <text class="ocr-close" catchtouchend="closeOcr">完成</text>
     </view>
     <view class="ocr-targets">
-      <view class="ocr-target {{ocrTarget === 'name' ? 'active' : ''}}" bindtap="ocrPickName">产品名</view>
-      <view class="ocr-target {{ocrTarget === 'brand' ? 'active' : ''}}" bindtap="ocrPickBrand">品牌</view>
-      <view class="ocr-target {{ocrTarget === 'ingredient' ? 'active' : ''}}" bindtap="ocrPickIngredient">原料</view>
+      <view class="ocr-target {{ocrTarget === 'name' ? 'active' : ''}}" catchtouchend="ocrPickName">产品名</view>
+      <view class="ocr-target {{ocrTarget === 'brand' ? 'active' : ''}}" catchtouchend="ocrPickBrand">品牌</view>
+      <view class="ocr-target {{ocrTarget === 'ingredient' ? 'active' : ''}}" catchtouchend="ocrPickIngredient">原料</view>
     </view>
     <view class="ocr-hint">已选：{{ocrBuiltText || '（空）'}}</view>
     <view class="ocr-actions">
-      <view class="ocr-action add" catchtap="addToOcrField" wx:if="{{ocrBuiltText}}">＋添加</view>
-      <view class="ocr-action clear" catchtap="clearOcrBuilt" wx:if="{{ocrBuiltText}}">清空</view>
+      <view class="ocr-action add" catchtouchend="addToOcrField" wx:if="{{ocrBuiltText}}">＋添加</view>
+      <view class="ocr-action clear" catchtouchend="clearOcrBuilt" wx:if="{{ocrBuiltText}}">清空</view>
     </view>
     <scroll-view scroll-y class="ocr-img-wrap">
       <view class="ocr-chars">
