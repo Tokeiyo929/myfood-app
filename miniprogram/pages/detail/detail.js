@@ -607,11 +607,13 @@ Page({
   },
   addToOcrField() {
     this.applyOcrBuilt(() => {
-      this.setData({ ocrPicked: {}, ocrBuiltText: '' });
+      this.closeOcr();
+      wx.showToast({ title: '已填入', icon: 'success' });
     });
   },
   clearOcrBuilt() {
     this.setData({ ocrPicked: {}, ocrBuiltText: '' });
+    wx.showToast({ title: '已清空', icon: 'none' });
   },
   onWorthIt(e) { this.setData({ worthIt: e.currentTarget.dataset.v === this.data.worthIt ? '' : e.currentTarget.dataset.v }); },
   onDishName(e) { this.setData({ dishName: e.detail }); },
