@@ -509,6 +509,8 @@ Page({
       }
     });
   },
+  noop() {},
+
   closeOcr() {
     this.applyOcrBuilt(() => {
       this.setData({ ocrOverlay: false, ocrItems: [], ocrPicked: {}, ocrBuiltText: '', ocrStrokeMode: null }, () => {

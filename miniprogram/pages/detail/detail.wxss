@@ -10,7 +10,7 @@
 .section-label-row { display: flex; align-items: center; justify-content: space-between; }
 .ocr-btn { font-size: 12px; color: #2f6b4f; background: #f3eefb; border-radius: 12px; padding: 4px 10px; }
 .ocr-overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: flex-end; }
-.ocr-panel { width: 100%; background: #fff; border-radius: 16px 16px 0 0; padding: 16px; box-sizing: border-box; }
+.ocr-panel { width: 100%; background: #fff; border-radius: 16px 16px 0 0; padding: 16px; box-sizing: border-box; margin-bottom: env(safe-area-inset-bottom); }
 .ocr-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .ocr-title { font-size: 15px; font-weight: 600; color: #333; }
 .ocr-close { font-size: 22px; color: #999; padding: 0 6px; }
@@ -20,7 +20,7 @@
 .ocr-hint { font-size: 12px; color: #999; margin-bottom: 8px; }
 .ocr-add { color: #fff; background: #2f6b4f; border-radius: 10px; padding: 2px 10px; margin-left: 8px; }
 .ocr-clear { color: #2f6b4f; margin-left: 8px; }
-.ocr-img-wrap { max-height: 55vh; }
+.ocr-img-wrap { max-height: 50vh; padding-bottom: 12px; box-sizing: content-box; }
 .ocr-chars { display: flex; flex-wrap: wrap; }
 .ocr-char { font-size: 16px; line-height: 1; padding: 10px 8px; margin: 2px; border-radius: 6px; background: #f5f2fa; color: #333; border: 1px solid transparent; }
 .ocr-char.picked { background: #2f6b4f; color: #fff; border-color: #2f6b4f; }
