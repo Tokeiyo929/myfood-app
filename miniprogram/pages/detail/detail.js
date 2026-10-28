@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const DataBus = require('../../utils/databus');
 
 const WHEEL = { size: 180, center: 90, radius: 62, labelRadius: 84, handleRadius: 5 };
 const setCurrentTab = require('../../utils/tab');
@@ -110,17 +111,15 @@ Page({
       app.globalData.cameraReturnPage = null;
     }
     const gid = app.globalData.selectedRecordId;
-    let reload = app.globalData.refreshDetail;
     if (gid && gid !== this.data.selectedId) {
       // 选中项变了，重新加载记录并选中
       this.setData({ selectedId: gid });
-      reload = true;
+      this.loadRecords();
+    } else if (DataBus.stale('records', this) && this.data.settings) {
+      // 数据版本落后（自己保存成功/其他页变更）：重拉今日记录并刷新当前详情
+      this.loadRecords();
     } else {
       this.syncSelected();
-    }
-    if (reload) {
-      app.globalData.refreshDetail = false;
-      this.loadRecords();
     }
     if (this.data.flavors.length) this.drawWheel();
   },
@@ -155,6 +154,7 @@ Page({
       const limit = this.data.settings.pagination.max_page_size;
       const result = await api.getFoods(1, limit, '', true);
       this.setData({ records: result.items || [], selectedId: getApp().globalData.selectedRecordId || null });
+      DataBus.fresh('records', this);
       this.syncSelected();
     } catch (e) {
       wx.showToast({ title: '记录加载失败', icon: 'none' });
@@ -239,6 +239,8 @@ Page({
       wx.showToast({ title: "\u5df2\u66f4\u6362", icon: "success" });
       const records = this.data.records.map(r => Number(r.id) === id ? Object.assign({}, r, { image_path: upload.path, image_metadata: upload.metadata || {} }) : r);
       this.setData({ records });
+      DataBus.touch('records');
+      DataBus.fresh('records', this);
       api.removeTempFile(path);
     } catch (e) {
       wx.hideLoading();
@@ -695,7 +697,7 @@ Page({
       await api.deleteFood(id);
       wx.showToast({ title: '已删除', icon: 'success' });
       getApp().globalData.selectedRecordId = null;
-      getApp().globalData.refreshList = true;
+      DataBus.touch('records');
       this.setData({ editId: null, records: [] });
       this.loadRecords();
     } catch (e) {
@@ -745,8 +747,8 @@ Page({
       this.setData({ editingCommentIndex: null, commentInput: "" });
       wx.hideLoading();
       wx.showToast({ title: '保存成功', icon: 'success' });
-      getApp().globalData.refreshDetail = true;
-      getApp().globalData.lastUpdatedRecordId = this.data.editId;
+      DataBus.touch('records');
+      DataBus.fresh('records', this);
       this.loadRecords();
     } catch (e) {
       wx.hideLoading();

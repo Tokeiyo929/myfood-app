@@ -1,6 +1,6 @@
 const api = require('../../utils/api');
+const DataBus = require('../../utils/databus');
 const setCurrentTab = require('../../utils/tab');
-const REFRESH_POLL_MS = 1500;
 let recordsRequest = 0;
 
 Page({
@@ -21,44 +21,10 @@ Page({
 
   onShow() {
     setCurrentTab(this);
-    const app = getApp();
-    // 新增了记录：整体刷新
-    if (app.globalData.refreshList) {
-      app.globalData.refreshList = false;
+    // 统一规则：版本号落后或后台超时才重拉，否则用内存缓存
+    if (DataBus.stale('records', this) && this.data.settings) {
       this.loadRecords(true);
     }
-    // 上传完成后可能不会再次触发 onShow，轮询消费完成标记。
-    this.startRefreshWatch(app);
-    // 详情页保存了某条：局部刷新该条（不重拉全列表，保留滑动位置）
-    if (app.globalData.lastUpdatedRecordId != null && this.data.settings && this.data.records.length) {
-      const id = app.globalData.lastUpdatedRecordId;
-      app.globalData.lastUpdatedRecordId = null;
-      this.refreshRecord(id);
-    }
-  },
-
-  onHide() { this.stopRefreshWatch(); },
-
-  startRefreshWatch(app) {
-    if (this.refreshWatch) return;
-    this.refreshWatch = setInterval(() => {
-      if (app.globalData.refreshList) {
-        app.globalData.refreshList = false;
-        this.stopRefreshWatch();
-        this.loadRecords(true);
-      }
-    }, REFRESH_POLL_MS);
-  },
-
-  stopRefreshWatch() {
-    if (this.refreshWatch) { clearInterval(this.refreshWatch); this.refreshWatch = null; }
-  },
-
-  refreshRecord(id) {
-    api.getFoodById(id).then(r => {
-      const records = this.data.records.map(item => Number(item.id) === Number(id) ? this.decorate(r) : item);
-      this.setData({ records });
-    }).catch(() => wx.showToast({ title: '记录刷新失败', icon: 'none' }));
   },
 
   decorate(record) {
@@ -78,8 +44,7 @@ Page({
     try {
       const config = await api.getConfig();
       this.setData({ settings: config });
-      // 首次进入（records 为空）才加载
-      if (!this.data.records.length) this.loadRecords(true);
+      this.loadRecords(true);
     } catch (e) {
       wx.showToast({ title: '配置加载失败', icon: 'none' });
     }
@@ -88,6 +53,7 @@ Page({
   async loadRecords(reset) {
     if (!reset && this.data.loading) return;
     const requestId = ++recordsRequest;
+    this._reqId = requestId;
     this.setData({ loading: true });
     const page = reset ? 1 : this.data.page + 1;
     try {
@@ -98,6 +64,7 @@ Page({
       let records = reset ? result.items : this.data.records.concat(result.items);
       records = records.map(record => this.decorate(record));
       this.setData({ records, page, hasMore: records.length < result.total, selectedId: this.data.selectedId });
+      if (reset) DataBus.fresh('records', this);
     } catch (e) {
       if (requestId === recordsRequest) wx.showToast({ title: e.message || '记录加载失败', icon: 'none' });
     } finally {
@@ -118,7 +85,6 @@ Page({
   selectRecord(e) {
     const id = Number(e.currentTarget.dataset.id);
     getApp().globalData.selectedRecordId = id;
-    getApp().globalData.refreshDetail = true;
     wx.switchTab({ url: '/pages/detail/detail' });
   },
 

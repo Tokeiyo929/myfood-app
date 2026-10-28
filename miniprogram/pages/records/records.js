@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const DataBus = require('../../utils/databus');
 const setCurrentTab = require('../../utils/tab');
 let recorder = null;
 let plugin = null;
@@ -37,7 +38,7 @@ Page({
       this.setData({ fileList: [{ url: path }] });
       this.saveQuick(path, Date.now());
     }
-    if (app.globalData.refreshList) { app.globalData.refreshList = false; this.loadToday(); } else if (!this.data.todayLoaded) { this.loadToday(); }
+    if (DataBus.stale('records', this) && this.data.settings) { this.loadToday(); }
   },
   onUnload() {
     if (recorder) { try { recorder.stop(); } catch (e) {} }
@@ -111,6 +112,7 @@ Page({
         comments: r.comment || [],
       }));
       this.setData({ todayRecords: records, todayLoaded: true });
+      DataBus.fresh('records', this);
     } catch (e) {
       wx.showToast({ title: '今日记录加载失败', icon: 'none' });
     }
@@ -153,7 +155,7 @@ Page({
       wx.showToast({ title: '已保存', icon: 'success' });
       api.removeTempFile(path);
       this.setData({ fileList: [], uploading: false });
-      getApp().globalData.refreshList = true;
+      DataBus.touch('records');
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
