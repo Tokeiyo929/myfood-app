@@ -101,7 +101,11 @@
       <view class="ocr-target {{ocrTarget === 'brand' ? 'active' : ''}}" data-t="brand" catchtap="setOcrTarget">品牌名</view>
       <view class="ocr-target {{ocrTarget === 'ingredient' ? 'active' : ''}}" data-t="ingredient" catchtap="setOcrTarget">原料</view>
     </view>
-    <view class="ocr-hint">已选：{{ocrBuiltText || '（空）'}} <text class="ocr-add" catchtap="addToOcrField" wx:if="{{ocrBuiltText}}">＋添加</text><text class="ocr-clear" catchtap="clearOcrBuilt" wx:if="{{ocrBuiltText}}">清空</text></view>
+    <view class="ocr-hint">已选：{{ocrBuiltText || '（空）'}}</view>
+    <view class="ocr-actions">
+      <view class="ocr-action add" catchtap="addToOcrField" wx:if="{{ocrBuiltText}}">＋添加</view>
+      <view class="ocr-action clear" catchtap="clearOcrBuilt" wx:if="{{ocrBuiltText}}">清空</view>
+    </view>
     <scroll-view scroll-y class="ocr-img-wrap">
       <view class="ocr-chars">
         <view wx:for="{{ocrItems}}" wx:key="key"

@@ -18,7 +18,10 @@
 .ocr-target { flex: 1; text-align: center; font-size: 13px; padding: 8px 0; border-radius: 8px; background: #f0f0f0; color: #666; }
 .ocr-target.active { background: #2f6b4f; color: #fff; }
 .ocr-hint { font-size: 12px; color: #999; margin-bottom: 8px; }
-.ocr-add { color: #fff; background: #2f6b4f; border-radius: 10px; padding: 2px 10px; margin-left: 8px; }
+.ocr-actions { display: flex; gap: 10px; margin-bottom: 10px; }
+.ocr-action { text-align: center; font-size: 14px; padding: 12px 0; border-radius: 8px; flex: 1; }
+.ocr-action.add { background: #2f6b4f; color: #fff; }
+.ocr-action.clear { background: #f0f0f0; color: #333; }
 .ocr-clear { color: #2f6b4f; margin-left: 8px; }
 .ocr-img-wrap { max-height: 50vh; padding-bottom: 12px; box-sizing: content-box; }
 .ocr-chars { display: flex; flex-wrap: wrap; }
