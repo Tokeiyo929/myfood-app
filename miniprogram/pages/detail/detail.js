@@ -533,10 +533,20 @@ Page({
     if (Object.keys(patch).length) this.setData(patch);
     if (done) done();
   },
-  setOcrTarget(e) {
-    this.applyOcrBuilt(() => {
-      this.setData({ ocrTarget: e.currentTarget.dataset.t, ocrPicked: {}, ocrBuiltText: '' });
-    });
+  ocrPickName() { this.switchOcrTarget('name'); },
+  ocrPickBrand() { this.switchOcrTarget('brand'); },
+  ocrPickIngredient() { this.switchOcrTarget('ingredient'); },
+  switchOcrTarget(t) {
+    if (this.data.ocrTarget === t) return;
+    // 换目标前，把当前已选字填进当前字段（沿用原设计）
+    const text = (this.data.ocrBuiltText || '').trim();
+    if (text) {
+      const cur = this.data.ocrTarget;
+      if (cur === 'name') this.setData({ dishName: text });
+      else if (cur === 'brand') this.setData({ brandName: text });
+      else if (cur === 'ingredient') this.confirmIngredient(text);
+    }
+    this.setData({ ocrTarget: t, ocrPicked: {}, ocrBuiltText: '' });
   },
   ocrSetChar(key, on) {
     const picked = Object.assign({}, this.data.ocrPicked);
@@ -606,10 +616,14 @@ Page({
     this.setData({ ocrStrokeMode: null });
   },
   addToOcrField() {
-    this.applyOcrBuilt(() => {
-      this.closeOcr();
-      wx.showToast({ title: '已填入', icon: 'success' });
-    });
+    const text = (this.data.ocrBuiltText || '').trim();
+    const target = this.data.ocrTarget;
+    if (!text) return;
+    if (target === 'name') this.setData({ dishName: text });
+    else if (target === 'brand') this.setData({ brandName: text });
+    else if (target === 'ingredient') this.confirmIngredient(text);
+    this.setData({ ocrPicked: {}, ocrBuiltText: '' });
+    wx.showToast({ title: '已填入', icon: 'success' });
   },
   clearOcrBuilt() {
     this.setData({ ocrPicked: {}, ocrBuiltText: '' });

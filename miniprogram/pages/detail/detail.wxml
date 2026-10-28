@@ -97,9 +97,9 @@
       <text class="ocr-close" catchtap="closeOcr">完成</text>
     </view>
     <view class="ocr-targets">
-      <view class="ocr-target {{ocrTarget === 'name' ? 'active' : ''}}" data-t="name" catchtap="setOcrTarget">产品名称</view>
-      <view class="ocr-target {{ocrTarget === 'brand' ? 'active' : ''}}" data-t="brand" catchtap="setOcrTarget">品牌名</view>
-      <view class="ocr-target {{ocrTarget === 'ingredient' ? 'active' : ''}}" data-t="ingredient" catchtap="setOcrTarget">原料</view>
+      <view class="ocr-target {{ocrTarget === 'name' ? 'active' : ''}}" bindtap="ocrPickName">产品名</view>
+      <view class="ocr-target {{ocrTarget === 'brand' ? 'active' : ''}}" bindtap="ocrPickBrand">品牌</view>
+      <view class="ocr-target {{ocrTarget === 'ingredient' ? 'active' : ''}}" bindtap="ocrPickIngredient">原料</view>
     </view>
     <view class="ocr-hint">已选：{{ocrBuiltText || '（空）'}}</view>
     <view class="ocr-actions">
