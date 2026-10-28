@@ -577,21 +577,7 @@ Page({
     if (!mode) return;
     const touch = e.touches && e.touches[0];
     if (!touch || !this.ocrRects) return;
-    if (!this.ocrAxis) {
-      const dx = Math.abs(touch.clientX - this.ocrStartX);
-      const dy = Math.abs(touch.clientY - this.ocrStartY);
-      if (dx < OCR_GESTURE.minMovement && dy < OCR_GESTURE.minMovement) return;
-      if (dy > dx * OCR_GESTURE.verticalRatio) {
-        // vertical gesture: fast = scroll intent (cancel), slow = deliberate selection
-        const elapsed = Math.max(1, Date.now() - this.ocrStartT);
-        const speed = Math.sqrt(dx * dx + dy * dy) / elapsed; // px per ms
-        if (speed > OCR_GESTURE.scrollSpeed) {
-          this.setData({ ocrStrokeMode: null });
-          return;
-        }
-      }
-      this.ocrAxis = 'on';
-    }
+    // 划选逻辑：起点已定（touchStart 时按下并点亮），滑到哪个字就选到哪个字（终点跟随手指）
     const rects = this.ocrRects;
     const items = this.data.ocrItems;
     let hitIdx = null;
