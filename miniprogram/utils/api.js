@@ -1,6 +1,4 @@
 const BASE_URL = "https://myfood-worker.keiyokaze.workers.dev";
-const UPLOAD_TIMEOUT = 90000;
-
 function request(path, method = "GET", data = null) {
   return new Promise((resolve, reject) => {
     wx.request({
@@ -18,13 +16,13 @@ function request(path, method = "GET", data = null) {
   });
 }
 
-function uploadImage(filePath) {
+function uploadImage(filePath, timeout) {
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: BASE_URL + "/api/upload",
       filePath,
       name: "image",
-      timeout: UPLOAD_TIMEOUT,
+      timeout,
       success: (res) => {
         try {
           const data = JSON.parse(res.data);
@@ -55,7 +53,7 @@ function formatTakenAt(value) {
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
     function finishUpload(resPath) {
-      uploadImage(resPath).then(function (r) {
+      uploadImage(resPath, Number(imageConfig.upload_timeout) + 10000).then(function (r) {
         removeTempFile(resPath === filePath ? null : resPath);
         var meta = r.metadata || {};
         if (takenAt && !meta.taken_at) meta.taken_at = formatTakenAt(takenAt);
