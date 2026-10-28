@@ -90,7 +90,7 @@
 
   <view class="detail-empty" wx:if="{{editId == null}}"><van-empty description="请在历史记录中选择一条记录" /></view>
 </view>
-<view class="ocr-overlay" wx:if="{{ocrOverlay}}" catchtouchmove="noop">
+<view class="ocr-overlay" wx:if="{{ocrOverlay}}" catchtouchmove="noop" bindtap="closeOcr">
   <view class="ocr-panel" catchtouchstart="noop">
     <view class="ocr-head">
       <text class="ocr-title">在图上点选文字</text>
