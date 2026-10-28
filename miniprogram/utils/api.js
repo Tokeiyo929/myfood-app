@@ -53,7 +53,7 @@ function formatTakenAt(value) {
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
     function finishUpload(resPath) {
-      uploadImage(resPath, Number(imageConfig.upload_timeout) + 10000).then(function (r) {
+      uploadImage(resPath, Number(imageConfig.client_upload_timeout || imageConfig.upload_timeout)).then(function (r) {
         removeTempFile(resPath === filePath ? null : resPath);
         var meta = r.metadata || {};
         if (takenAt && !meta.taken_at) meta.taken_at = formatTakenAt(takenAt);
@@ -106,5 +106,5 @@ function getCategories() { return request("/api/categories"); }
 module.exports = {
   BASE_URL, getConfig, getStats, getFoods, getFoodById, deleteFood, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
   removeTempFile,
-  searchIngredients, addIngredient, getCategories, uploadImage, compressAndUpload,
+  searchIngredients, addIngredient, getCategories, compressAndUpload,
 };

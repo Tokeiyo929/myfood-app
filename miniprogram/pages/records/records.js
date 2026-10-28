@@ -132,8 +132,6 @@ Page({
     if (this.data.uploading) { wx.showToast({ title: '上传中', icon: 'none' }); return; }
     if (!this.data.settings) { wx.showToast({ title: '配置加载中', icon: 'none' }); return; }
     this.setData({ uploading: true });
-    // 提前标记：上传可能耗时很长，用户中途切到历史页时其 onShow 仍能拿到刷新标记
-    getApp().globalData.refreshList = true;
     wx.showLoading({ title: '上传中' });
     try {
       const upload = await api.compressAndUpload(path, this.data.settings.image, takenAt);

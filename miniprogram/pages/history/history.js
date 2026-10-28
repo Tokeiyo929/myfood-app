@@ -1,5 +1,6 @@
 const api = require('../../utils/api');
 const setCurrentTab = require('../../utils/tab');
+const REFRESH_POLL_MS = 1500;
 let recordsRequest = 0;
 
 Page({
@@ -26,8 +27,7 @@ Page({
       app.globalData.refreshList = false;
       this.loadRecords(true);
     }
-    // 兜底：若上传/保存仍在进行中，标记可能在本次 onShow 之后才置位（switchTab 到当前页不会再触发 onShow）。
-    // 短轮询消费标记，最多 120 秒，消费到即刷新并停表。
+    // 上传完成后可能不会再次触发 onShow，轮询消费完成标记。
     this.startRefreshWatch(app);
     // 详情页保存了某条：局部刷新该条（不重拉全列表，保留滑动位置）
     if (app.globalData.lastUpdatedRecordId != null && this.data.settings && this.data.records.length) {
@@ -41,16 +41,13 @@ Page({
 
   startRefreshWatch(app) {
     if (this.refreshWatch) return;
-    const startedAt = Date.now();
     this.refreshWatch = setInterval(() => {
       if (app.globalData.refreshList) {
         app.globalData.refreshList = false;
         this.stopRefreshWatch();
         this.loadRecords(true);
-        return;
       }
-      if (Date.now() - startedAt > 120000) this.stopRefreshWatch();
-    }, 1500);
+    }, REFRESH_POLL_MS);
   },
 
   stopRefreshWatch() {
