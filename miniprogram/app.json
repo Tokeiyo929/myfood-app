@@ -1,5 +1,5 @@
 {
-  "entryPagePath": "pages/records/records",
+  "entryPagePath": "pages/history/history",
   "lazyCodeLoading": "requiredComponents",
   "pages": [
     "pages/records/records",
