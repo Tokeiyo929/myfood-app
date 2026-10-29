@@ -48,13 +48,12 @@ Page({
   },
 
   onLoad() {
+    this.loadConfig();
+    this.initVoice();
     // 冷启动直接落在详情页（没有选中任何记录）时，弹回历史页
     if (getApp().globalData.selectedRecordId == null) {
       wx.switchTab({ url: '/pages/history/history' });
-      return;
     }
-    this.loadConfig();
-    this.initVoice();
   },
 
   initVoice() {
