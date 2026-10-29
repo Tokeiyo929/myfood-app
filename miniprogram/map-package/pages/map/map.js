@@ -137,7 +137,7 @@ Page({
         itemStyle: { areaColor: '#f0f0f0', borderColor: '#ccc' },
         // 禁用 hover 高亮：拖动经过区域时不再触发整画布重绘（拖动卡顿主因）
         emphasis: { disabled: true },
-        // 选中态着色：选中区域染深紫
+        // 选中态着色
         select: {
           itemStyle: { areaColor: SELECT_COLOR },
           label: { show: false },

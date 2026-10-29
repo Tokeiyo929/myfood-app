@@ -11,7 +11,6 @@ Page({
     page: 1,
     hasMore: true,
     loading: false,
-    selectedId: null,
     showBackTop: false,
   },
 
@@ -21,10 +20,17 @@ Page({
 
   onShow() {
     setCurrentTab(this);
+    DataBus.subscribe('records', this, () => {
+      if (this.data.settings) this.loadRecords(true);
+    });
     // 统一规则：版本号落后或后台超时才重拉，否则用内存缓存
     if (DataBus.stale('records', this) && this.data.settings) {
       this.loadRecords(true);
     }
+  },
+
+  onHide() {
+    DataBus.unsubscribe('records', this);
   },
 
   decorate(record) {
@@ -51,19 +57,18 @@ Page({
   },
 
   async loadRecords(reset) {
+    if (!this.data.settings) return;
     if (!reset && this.data.loading) return;
     const requestId = ++recordsRequest;
-    this._reqId = requestId;
     this.setData({ loading: true });
     const page = reset ? 1 : this.data.page + 1;
     try {
-      if (!this.data.settings) return;
       const limit = this.data.settings.pagination.page_size;
       const result = await api.getFoods(page, limit, this.data.recordSearch);
       if (requestId !== recordsRequest) return;
       let records = reset ? result.items : this.data.records.concat(result.items);
       records = records.map(record => this.decorate(record));
-      this.setData({ records, page, hasMore: records.length < result.total, selectedId: this.data.selectedId });
+      this.setData({ records, page, hasMore: records.length < result.total });
       if (reset) DataBus.fresh('records', this);
     } catch (e) {
       if (requestId === recordsRequest) wx.showToast({ title: e.message || '记录加载失败', icon: 'none' });

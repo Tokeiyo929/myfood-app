@@ -3,7 +3,6 @@ const DataBus = require('../../utils/databus');
 
 const WHEEL = { size: 180, center: 90, radius: 62, labelRadius: 84, handleRadius: 5 };
 const setCurrentTab = require('../../utils/tab');
-const OCR_GESTURE = { minMovement: 10, verticalRatio: 2, scrollSpeed: 1.2 };
 
 Page({
   data: {
@@ -563,10 +562,6 @@ Page({
     const key = e.currentTarget.dataset.key;
     if (key == null) return;
     const touch = e.touches && e.touches[0];
-    this.ocrStartX = touch ? touch.clientX : 0;
-    this.ocrStartY = touch ? touch.clientY : 0;
-    this.ocrStartT = Date.now();
-    this.ocrAxis = null;
     this.ocrLastIdx = null;
     const mode = this.data.ocrPicked[key] ? 'off' : 'on';
     this.setData({ ocrStrokeMode: mode });
@@ -601,7 +596,6 @@ Page({
     this.ocrLastIdx = hitIdx;
   },
   ocrTouchEnd() {
-    this.ocrAxis = null;
     this.ocrLastIdx = null;
     this.setData({ ocrStrokeMode: null });
   },

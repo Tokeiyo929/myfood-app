@@ -12,7 +12,7 @@ Page({
   data: {
     settings: null,
     fileList: [],
-    uploading: false, todayLoaded: false,
+    uploading: false,
     todayRecords: [],
     commentingId: null,
     commentInput: '',
@@ -111,7 +111,7 @@ Page({
         ...r,
         comments: r.comment || [],
       }));
-      this.setData({ todayRecords: records, todayLoaded: true });
+      this.setData({ todayRecords: records });
       DataBus.fresh('records', this);
     } catch (e) {
       wx.showToast({ title: '今日记录加载失败', icon: 'none' });

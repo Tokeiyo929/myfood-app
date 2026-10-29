@@ -8,13 +8,29 @@
 //   - stale 为 true 时页面重拉数据，拉完记录新版本号
 //   - 前台切后台超过 TTL 时视为陈旧（兜底外部数据变化）
 const REVS = {};
-const LAST_ACTIVE = { key: Date.now() };
+const LAST_ACTIVE = {};
+const SUBSCRIBERS = {};
 const TTL_MS = 5 * 60 * 1000; // 5 分钟：后台超时后回前台强制刷新一次
 
 const DataBus = {
   // 写侧：数据变更，使所有订阅该 key 的页面失效
   touch(...keys) {
-    keys.forEach(k => { REVS[k] = (REVS[k] || 0) + 1; });
+    keys.forEach(k => {
+      REVS[k] = (REVS[k] || 0) + 1;
+      const subscribers = SUBSCRIBERS[k];
+      if (subscribers) subscribers.forEach(reload => reload());
+    });
+  },
+
+  subscribe(key, page, reload) {
+    (SUBSCRIBERS[key] || (SUBSCRIBERS[key] = new Map())).set(page, reload);
+  },
+
+  unsubscribe(key, page) {
+    const subscribers = SUBSCRIBERS[key];
+    if (!subscribers) return;
+    subscribers.delete(page);
+    if (!subscribers.size) delete SUBSCRIBERS[key];
   },
 
   // 读侧：页面判断自己缓存的数据是否陈旧
@@ -35,8 +51,6 @@ const DataBus = {
     LAST_ACTIVE[key] = Date.now();
   },
 
-  // 供 app.js 启动时初始化（版本从 0 开始，页面 _rev=null 必然首载）
-  version(key) { return REVS[key] || 0; },
 };
 
 module.exports = DataBus;

@@ -22,7 +22,6 @@
 .ocr-action { text-align: center; font-size: 14px; padding: 12px 0; border-radius: 8px; flex: 1; }
 .ocr-action.add { background: #2f6b4f; color: #fff; }
 .ocr-action.clear { background: #f0f0f0; color: #333; }
-.ocr-clear { color: #2f6b4f; margin-left: 8px; }
 .ocr-img-wrap { max-height: 50vh; padding-bottom: 12px; box-sizing: content-box; }
 .ocr-chars { display: flex; flex-wrap: wrap; }
 .ocr-char { font-size: 16px; line-height: 1; padding: 10px 8px; margin: 2px; border-radius: 6px; background: #f5f2fa; color: #333; border: 1px solid transparent; }
@@ -36,9 +35,6 @@
 .worth-opt { padding: 4px 16px; border-radius: 14px; font-size: 13px; background: #f0f0f0; color: #666; }
 .worth-opt.active { background: #2f6b4f; color: #fff; }
 .repurchase-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
-.step-row { display: flex; align-items: center; gap: 10px; }
-.step-btn { width: 30px; height: 30px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #2f6b4f; }
-.step-val { font-size: 15px; min-width: 24px; text-align: center; }
 .section-inline-label { font-size: 14px; color: #666; }
 .flavor-pref-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .flavor-box { flex: 0 0 180px; display: flex; justify-content: center; }
