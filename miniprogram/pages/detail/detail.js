@@ -115,9 +115,15 @@ Page({
     }
     const gid = app.globalData.selectedRecordId;
     if (gid && gid !== this.data.selectedId) {
-      // 选中项变了，重新加载记录并选中
+      // 选中项变了：直接按 id 拉完整记录填充（列表数据可能不含完整字段）
       this.setData({ selectedId: gid });
-      this.loadRecords();
+      const that = this;
+      api.getFoodById(gid).then(r => {
+        const loaded = (that.data.records || []).filter(x => Number(x.id) !== Number(gid)).concat([r]);
+        that.setData({ records: loaded });
+        that.fillDetail(r);
+        DataBus.fresh('records', that);
+      }).catch(() => { this.loadRecords(); });
     } else if (DataBus.stale('records', this) && this.data.settings) {
       // 数据版本落后（自己保存成功/其他页变更）：重拉今日记录并刷新当前详情
       this.loadRecords();
