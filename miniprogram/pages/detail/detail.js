@@ -569,9 +569,9 @@ Page({
     if (key == null) return;
     const touch = e.touches && e.touches[0];
     this.ocrLastIdx = null;
-    const mode = this.data.ocrPicked[key] ? 'off' : 'on';
-    this.setData({ ocrStrokeMode: mode });
-    this.ocrSetChar(key, mode === 'on');
+    // 划选 = 选中范围：起点字总是点亮，整段滑动全选；不按起点旧状态决定增/减
+    this.setData({ ocrStrokeMode: 'on' });
+    this.ocrSetChar(key, true);
     const that = this;
     wx.createSelectorQuery().selectAll('.ocr-char').boundingClientRect(function(rects) {
       that.ocrRects = rects || [];
