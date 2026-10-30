@@ -1,5 +1,6 @@
 const api = require('../../utils/api');
 const DataBus = require('../../utils/databus');
+const voice = require('../../utils/voice');
 
 const WHEEL = { size: 180, center: 90, radius: 62, labelRadius: 84, handleRadius: 5 };
 const setCurrentTab = require('../../utils/tab');
@@ -44,55 +45,72 @@ Page({
     ocrPicked: {},
     ocrStrokeMode: null,
     ocrBuiltText: '',
+    recording: false,
   },
 
   onLoad() {
     this.loadConfig();
-    this.initVoice();
+    this.attachVoice();
+    voice.ensurePermission(); // 提前申请录音权限，避免按下才弹权限
     // 冷启动直接落在详情页（没有选中任何记录）时，弹回历史页
     if (getApp().globalData.selectedRecordId == null) {
       wx.switchTab({ url: '/pages/history/history' });
     }
   },
 
-  initVoice() {
-    try {
-      const plugin = requirePlugin("WechatSI");
-      const manager = plugin.getRecordRecognitionManager();
+  // 页面成为"当前语音接收者"：回调只在这一处注册，切页时自动切走
+  attachVoice() {
+    if (!this._voiceHandlers) {
       const that = this;
-
-      manager.onStop = function (res) {
-        const text = (res && res.result) || "";
-        if (text) that.setData({ commentInput: text });
-        else wx.showToast({ title: "未识别到内容", icon: "none" });
+      this._voiceHandlers = {
+        onStart() {
+          that.setData({ recording: true });
+        },
+        onStop(res) {
+          that.setData({ recording: false });
+          const text = (res && res.result || '').trim();
+          if (text) {
+            // 追加到评论输入框，而不是整体覆盖已输入的内容
+            const cur = that.data.commentInput || '';
+            that.setData({ commentInput: cur ? cur + text : text });
+          } else {
+            wx.showToast({ title: "未识别到内容", icon: "none" });
+          }
+        },
+        onError(res) {
+          that.setData({ recording: false });
+          wx.showToast({ title: (res && res.msg) || "语音识别失败", icon: "none" });
+        },
       };
-      manager.onError = function (res) {
-        wx.showToast({ title: (res && res.msg) || "语音识别失败", icon: "none" });
-      };
-      this.recorder = manager;
-    } catch (e) {
-      wx.showToast({ title: "语音组件不可用", icon: "none" });
     }
+    voice.attach(this._voiceHandlers);
+  },
+
+  // 离开页面：切走接收者并强制停止录音
+  detachVoice() {
+    if (this._voiceHandlers) voice.detach(this._voiceHandlers);
+    voice.stop();
+    this.setData({ recording: false });
   },
 
   onVoiceStart() {
-    if (!this.recorder) { this.initVoice(); }
-    if (!this.recorder) return;
-    try {
-      this.recorder.start({ duration: 30000, lang: "zh_CN" });
-    } catch (e) {
+    if (!voice.isAvailable()) { wx.showToast({ title: "语音功能不可用", icon: "none" }); return; }
+    this.setData({ recording: true }); // 按下立即反馈
+    if (!voice.start()) {
+      this.setData({ recording: false });
       wx.showToast({ title: "语音识别失败", icon: "none" });
     }
   },
 
   onVoiceEnd() {
-    if (!this.recorder) return;
-    try { this.recorder.stop(); } catch {}
+    voice.stop();
+    this.setData({ recording: false });
   },
 
 
   onShow() {
     setCurrentTab(this);
+    this.attachVoice();
     const app = getApp();
     if (app.globalData.cameraReturnPage === 'replace' && app.globalData.cameraImagePath) {
       const path = app.globalData.cameraImagePath;
@@ -135,6 +153,14 @@ Page({
 
   onReady() {
     if (this.data.flavors.length) this.drawWheel();
+  },
+
+  onHide() {
+    this.detachVoice();
+  },
+
+  onUnload() {
+    this.detachVoice();
   },
 
   async loadConfig() {

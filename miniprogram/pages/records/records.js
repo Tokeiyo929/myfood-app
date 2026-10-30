@@ -1,12 +1,7 @@
 const api = require('../../utils/api');
 const DataBus = require('../../utils/databus');
 const setCurrentTab = require('../../utils/tab');
-let recorder = null;
-let plugin = null;
-
-try {
-  plugin = requirePlugin('WechatSI');
-} catch {}
+const voice = require('../../utils/voice');
 
 Page({
   data: {
@@ -23,6 +18,7 @@ Page({
 
   onLoad() {
     this.loadConfig();
+    voice.ensurePermission(); // 提前申请录音权限，避免按下才弹权限等 5-6 秒
   },
 
 
@@ -31,6 +27,7 @@ Page({
 
   onShow() {
     setCurrentTab(this);
+    this.attachVoice();
     const app = getApp();
     if (app.globalData.cameraImagePath) {
       const path = app.globalData.cameraImagePath;
@@ -40,56 +37,61 @@ Page({
     }
     if (DataBus.stale('records', this) && this.data.settings) { this.loadToday(); }
   },
+  onHide() {
+    this.detachVoice();
+  },
   onUnload() {
-    if (recorder) { try { recorder.stop(); } catch (e) {} }
+    this.detachVoice();
   },
 
-  initRecorder() {
-    if (!plugin) return;
-    try {
-      recorder = plugin.getRecordRecognitionManager();
+  // 页面成为"当前语音接收者"：回调只在这一处注册，切页时自动切走
+  attachVoice() {
+    if (!this._voiceHandlers) {
       const that = this;
-      recorder.onStart = function() {
-        that.setData({ recording: true, voiceText: '' });
+      this._voiceHandlers = {
+        onStart() {
+          that.setData({ recording: true, voiceText: '' });
+        },
+        onRecognize(res) {
+          if (that.data.commentingId != null && res && res.result) that.setData({ voiceText: res.result });
+        },
+        onStop(res) {
+          const text = (res && res.result) || that.data.voiceText || '';
+          that.setData({ recording: false });
+          if (that.data.commentingId == null) return; // 面板已关，忽略结果
+          if (text) {
+            const cur = that.data.commentInput;
+            that.setData({ commentInput: cur ? cur + text : text });
+          }
+        },
+        onError(res) {
+          that.setData({ recording: false });
+          wx.showToast({ title: (res && res.msg) || '语音识别失败', icon: 'none' });
+        },
       };
-      recorder.onRecognize = function(res) {
-        if (that.data.commentingId != null && res && res.result) that.setData({ voiceText: res.result });
-      };
-      recorder.onStop = function(res) {
-        if (that.data.commentingId == null) return;
-        const text = (res && res.result) || that.data.voiceText || '';
-        that.setData({ recording: false });
-        if (text) {
-          const cur = that.data.commentInput;
-          that.setData({ commentInput: cur ? cur + text : text });
-        }
-      };
-      recorder.onError = function(res) {
-        that.setData({ recording: false });
-        wx.showToast({ title: res.msg || '语音识别失败', icon: 'none' });
-      };
-      recorder.onEnd = function() {
-        that.setData({ recording: false });
-      };
-    } catch {}
+    }
+    voice.attach(this._voiceHandlers);
+  },
+
+  // 离开页面：切走接收者，并强制停止录音，杜绝"切页后录音没停、按钮一直红"
+  detachVoice() {
+    if (this._voiceHandlers) voice.detach(this._voiceHandlers);
+    voice.stop();
+    this.setData({ recording: false });
   },
 
   startRecord() {
-    this.initRecorder();
-    if (!recorder) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
-    // recording 状态由 onStart 回调驱动，避免松手时按钮态不同步
-    this.setData({ voiceText: '' });
-    try {
-      recorder.start({ duration: 30000, lang: 'zh_CN' });
-    } catch (e) {
+    if (!voice.isAvailable()) { wx.showToast({ title: '语音功能不可用', icon: 'none' }); return; }
+    this.setData({ recording: true, voiceText: '' }); // 按下立即反馈，不等 onStart
+    if (!voice.start()) {
       this.setData({ recording: false });
+      wx.showToast({ title: '语音识别失败', icon: 'none' });
     }
   },
 
   stopRecord() {
-    if (!this.data.recording) return;
-    try { if (recorder) recorder.stop(); } catch (e) {}
-    // 无论插件回调是否及时到达，先复位按钮态
+    // 无条件停止：即使 onStart 还没回调（初始化慢），也要停掉录音
+    voice.stop();
     this.setData({ recording: false });
   },
 
