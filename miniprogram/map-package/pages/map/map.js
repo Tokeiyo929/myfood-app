@@ -34,6 +34,7 @@ Page({
     selectedProvince: '',
     dishList: [], // {name, visited}
     region: 'china', // 'china' | 'europe'
+    modal: null, // {name, foods, dragIndex, overIndex}
   },
 
   noop() {},
@@ -90,9 +91,11 @@ Page({
       const requests = [first];
       for (let page = 2; page <= pages; page += 1) requests.push(api.getFoods(page, limit, ''));
       const all = await Promise.all(requests);
-      // 吃过的菜名集合
+      // 全量食物（类别弹窗用）+ 吃过的菜名集合
+      this.allFoods = [];
       const visitedDishes = new Set();
       all.forEach(r => (r.items || []).forEach(food => {
+        this.allFoods.push(food);
         (food.categories || []).forEach(cat => { if (cat) visitedDishes.add(cat); });
       }));
       this.visitedDishes = visitedDishes;
@@ -164,6 +167,88 @@ Page({
       // visited 置顶
       dishes.sort((a, b) => (b.visited ? 1 : 0) - (a.visited ? 1 : 0));
       this.setData({ selectedProvince: province, dishList: dishes });
+    });
+  },
+
+  // ===== 类别排行榜弹窗 =====
+
+  // 精准匹配：foods.categories 数组包含该类别名；有排名按名次升序，无排名按时间倒序跟在后面
+  sortByRank(foods, cat) {
+    const ranked = foods.filter(f => f.category_rank && f.category_rank[cat] != null)
+      .sort((a, b) => a.category_rank[cat] - b.category_rank[cat]);
+    const rest = foods.filter(f => !f.category_rank || f.category_rank[cat] == null)
+      .sort((a, b) => b.id - a.id);
+    return ranked.concat(rest);
+  },
+
+  openCatModal(e) {
+    const name = e.currentTarget.dataset.name;
+    if (!this.visitedDishes || !this.visitedDishes.has(name)) return; // 未解锁不可点
+    const foods = this.sortByRank((this.allFoods || []).filter(f => (f.categories || []).includes(name)), name);
+    this.setData({ modal: { name, foods, dragIndex: -1, overIndex: -1 } }, () => this.cacheRankRects());
+  },
+
+  closeRankModal() {
+    if (this.data.modal && this.data.modal.dragIndex >= 0) return; // 拖动中不关
+    this.setData({ modal: null });
+  },
+
+  cacheRankRects() {
+    const that = this;
+    wx.createSelectorQuery().selectAll('.rank-item').boundingClientRect(rects => {
+      that.rankRects = rects || [];
+    }).exec();
+  },
+
+  onRankLongPress(e) {
+    const idx = e.currentTarget.dataset.idx;
+    wx.vibrateShort({ type: 'medium' });
+    this.setData({ 'modal.dragIndex': idx, 'modal.overIndex': idx }, () => this.cacheRankRects());
+  },
+
+  onRankTouchMove(e) {
+    const m = this.data.modal;
+    if (!m || m.dragIndex < 0) return;
+    const t = e.touches && e.touches[0];
+    if (!t || !this.rankRects) return;
+    let hit = -1;
+    this.rankRects.forEach((r, i) => {
+      if (t.clientX >= r.left && t.clientX <= r.right && t.clientY >= r.top && t.clientY <= r.bottom) hit = i;
+    });
+    if (hit !== m.overIndex) this.setData({ 'modal.overIndex': hit });
+  },
+
+  onRankTouchEnd() {
+    const m = this.data.modal;
+    if (!m || m.dragIndex < 0) return;
+    const from = m.dragIndex;
+    const to = m.overIndex;
+    this.setData({ 'modal.dragIndex': -1, 'modal.overIndex': -1 });
+    if (to < 0 || to === from) return; // 没拖到有效条目上：取消
+    const list = m.foods.slice();
+    const tmp = list[from];
+    list[from] = list[to];
+    list[to] = tmp;
+    this.applyRankOrder(list);
+  },
+
+  // 交换后按显示顺序写入名次（1 开始），只 PATCH 名次有变化的记录
+  applyRankOrder(list) {
+    const cat = this.data.modal.name;
+    const changed = [];
+    list.forEach((f, i) => {
+      if (!f.category_rank || f.category_rank[cat] !== i + 1) {
+        changed.push({ f, rank: Object.assign({}, f.category_rank, { [cat]: i + 1 }) });
+      }
+    });
+    const foods = list.map((f, i) => Object.assign({}, f, { category_rank: Object.assign({}, f.category_rank, { [cat]: i + 1 }) }));
+    this.setData({ 'modal.foods': foods }, () => this.cacheRankRects());
+    changed.forEach(({ f, rank }) => {
+      const af = (this.allFoods || []).find(x => x.id === f.id);
+      if (af) af.category_rank = rank;
+      api.updateFoodDetails(f.id, { category_rank: rank }).catch(() => {
+        wx.showToast({ title: '排名保存失败', icon: 'none' });
+      });
     });
   },
 });
