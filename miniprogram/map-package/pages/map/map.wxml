@@ -26,14 +26,14 @@
 <view wx:if="{{modal}}" class="rank-panel" catchtouchmove="noop">
   <view class="rank-title">{{modal.name}} · 排行榜<text class="rank-close" bindtap="closeRankModal">×</text></view>
   <view class="rank-hint">长按条目拖到另一条上，交换排名</view>
-  <scroll-view scroll-y class="rank-scroll" disable-scroll="{{modal.dragIndex >= 0}}">
+  <scroll-view scroll-y class="rank-scroll" scroll-top="{{rankScrollTop}}" bindscroll="onRankScroll" disable-scroll="{{modal.dragIndex >= 0}}">
     <view
       wx:for="{{modal.foods}}"
       wx:key="id"
       class="rank-item {{modal.dragIndex === index ? 'dragging' : ''}} {{modal.dragIndex >= 0 && modal.overIndex === index && modal.dragIndex !== index ? 'drop-target' : ''}}"
       data-idx="{{index}}"
       bindlongpress="onRankLongPress"
-      bindtouchmove="onRankTouchMove"
+      catch:touchmove="{{modal.dragIndex >= 0 ? 'onRankTouchMove' : ''}}"
       bindtouchend="onRankTouchEnd"
       bindtouchcancel="onRankTouchEnd"
     >

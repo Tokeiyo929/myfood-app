@@ -45,6 +45,7 @@ Page({
   },
 
   onUnload() {
+    this.stopAutoScroll();
     if (activePage === this) {
       activePage = null;
       chart = null;
@@ -185,19 +186,29 @@ Page({
     const name = e.currentTarget.dataset.name;
     if (!this.visitedDishes || !this.visitedDishes.has(name)) return; // 未解锁不可点
     const foods = this.sortByRank((this.allFoods || []).filter(f => (f.categories || []).includes(name)), name);
-    this.setData({ modal: { name, foods, dragIndex: -1, overIndex: -1 } }, () => this.cacheRankRects());
+    this.stopAutoScroll();
+    this.lastTouch = null;
+    this.setData({ modal: { name, foods, dragIndex: -1, overIndex: -1 }, rankScrollTop: 0 }, () => this.cacheRankRects());
   },
 
   closeRankModal() {
     if (this.data.modal && this.data.modal.dragIndex >= 0) return; // 拖动中不关
+    this.stopAutoScroll();
     this.setData({ modal: null });
   },
 
-  cacheRankRects() {
-    const that = this;
-    wx.createSelectorQuery().selectAll('.rank-item').boundingClientRect(rects => {
-      that.rankRects = rects || [];
-    }).exec();
+  cacheRankRects(cb) {
+    wx.createSelectorQuery().selectAll('.rank-item').boundingClientRect()
+      .select('.rank-scroll').boundingClientRect()
+      .exec(res => {
+        this.rankRects = res[0] || [];
+        this.rankScrollRect = res[1];
+        if (cb) cb();
+      });
+  },
+
+  onRankScroll(e) {
+    this.rankScrollTop = e.detail.scrollTop; // 仅记录，不 setData，避免与 scroll-top 绑定互相触发
   },
 
   onRankLongPress(e) {
@@ -206,30 +217,70 @@ Page({
     this.setData({ 'modal.dragIndex': idx, 'modal.overIndex': idx }, () => this.cacheRankRects());
   },
 
+  // 拖动中列表完全由这里接管：中间区域只换高亮，靠近上下边缘才自动滚动
   onRankTouchMove(e) {
+    const t = e.touches && e.touches[0];
+    if (!t) return;
+    this.lastTouch = { x: t.clientX, y: t.clientY };
     const m = this.data.modal;
     if (!m || m.dragIndex < 0) return;
-    const t = e.touches && e.touches[0];
-    if (!t || !this.rankRects) return;
+    const sr = this.rankScrollRect;
+    if (sr) {
+      if (t.clientY < sr.top + 48) this.startAutoScroll(-1);
+      else if (t.clientY > sr.bottom - 48) this.startAutoScroll(1);
+      else this.stopAutoScroll();
+    }
+    this.updateOverFromTouch();
+  },
+
+  updateOverFromTouch() {
+    const m = this.data.modal;
+    if (!m || m.dragIndex < 0 || !this.rankRects || !this.lastTouch) return;
     let hit = -1;
     this.rankRects.forEach((r, i) => {
-      if (t.clientX >= r.left && t.clientX <= r.right && t.clientY >= r.top && t.clientY <= r.bottom) hit = i;
+      if (this.lastTouch.x >= r.left && this.lastTouch.x <= r.right && this.lastTouch.y >= r.top && this.lastTouch.y <= r.bottom) hit = i;
     });
     if (hit !== m.overIndex) this.setData({ 'modal.overIndex': hit });
+  },
+
+  startAutoScroll(dir) {
+    if (this.autoDir === dir) return;
+    this.stopAutoScroll();
+    this.autoDir = dir;
+    this.autoTimer = setInterval(() => {
+      this.rankScrollTop = Math.max(0, (this.rankScrollTop || 0) + dir * 12);
+      this.setData({ rankScrollTop: this.rankScrollTop }, () => {
+        this.cacheRankRects(() => this.updateOverFromTouch());
+      });
+    }, 50);
+  },
+
+  stopAutoScroll() {
+    if (this.autoTimer) { clearInterval(this.autoTimer); this.autoTimer = null; }
+    this.autoDir = 0;
   },
 
   onRankTouchEnd() {
     const m = this.data.modal;
     if (!m || m.dragIndex < 0) return;
+    this.stopAutoScroll();
     const from = m.dragIndex;
-    const to = m.overIndex;
     this.setData({ 'modal.dragIndex': -1, 'modal.overIndex': -1 });
-    if (to < 0 || to === from) return; // 没拖到有效条目上：取消
-    const list = m.foods.slice();
-    const tmp = list[from];
-    list[from] = list[to];
-    list[to] = tmp;
-    this.applyRankOrder(list);
+    // 松手位置用最新坐标结算（自动滚动后 rect 已变），保证落在正确的条目上
+    wx.createSelectorQuery().selectAll('.rank-item').boundingClientRect(rects => {
+      let to = -1;
+      if (rects && this.lastTouch) {
+        rects.forEach((r, i) => {
+          if (this.lastTouch.x >= r.left && this.lastTouch.x <= r.right && this.lastTouch.y >= r.top && this.lastTouch.y <= r.bottom) to = i;
+        });
+      }
+      if (to < 0 || to === from) return; // 没拖到有效条目上：取消
+      const list = m.foods.slice();
+      const tmp = list[from];
+      list[from] = list[to];
+      list[to] = tmp;
+      this.applyRankOrder(list);
+    }).exec();
   },
 
   // 交换后按显示顺序写入名次（1 开始），只 PATCH 名次有变化的记录
