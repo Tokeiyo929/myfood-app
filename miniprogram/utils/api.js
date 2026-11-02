@@ -1,4 +1,4 @@
-const BASE_URL = "https://myfood-worker.keiyokaze.workers.dev";
+const BASE_URL = "https://myfood.tuqingyu.xyz";
 function request(path, method = "GET", data = null) {
   return new Promise((resolve, reject) => {
     wx.request({
