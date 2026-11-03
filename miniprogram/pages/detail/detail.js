@@ -301,7 +301,7 @@ Page({
         }
         wx.chooseImage({
           count: 1,
-          sizeType: ["compressed"],
+          sizeType: ["original"],
           sourceType: ["album"],
           success(cho) {
             const path = cho.tempFilePaths && cho.tempFilePaths[0];

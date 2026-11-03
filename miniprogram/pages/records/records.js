@@ -129,7 +129,7 @@ Page({
 
   pickImage(sourceType) {
     const that = this;
-    wx.chooseImage({ count: 1, sizeType: ["compressed"], sourceType, success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path, Date.now()); } });
+    wx.chooseImage({ count: 1, sizeType: ["original"], sourceType, success: function(res){ var path = res.tempFilePaths && res.tempFilePaths[0]; if (!path) return; that.setData({ fileList: [{ url: path }] }); that.saveQuick(path, Date.now()); } });
   },
 
   async saveQuick(path, takenAt) {
