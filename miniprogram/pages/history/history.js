@@ -1,5 +1,6 @@
 const api = require('../../utils/api');
 const DataBus = require('../../utils/databus');
+const offline = require('../../utils/offline');
 const setCurrentTab = require('../../utils/tab');
 let recordsRequest = 0;
 
@@ -49,10 +50,19 @@ Page({
   async loadConfig() {
     try {
       const config = await api.getConfig();
+      offline.saveConfig(config);
       this.setData({ settings: config });
       this.loadRecords(true);
     } catch (e) {
-      wx.showToast({ title: '配置加载失败', icon: 'none' });
+      // 断网兜底：配置缓存继续可用
+      const cached = offline.getCachedConfig();
+      if (cached) {
+        this.setData({ settings: cached });
+        this.loadRecords(true);
+        wx.showToast({ title: '离线数据（可能不是最新）', icon: 'none' });
+      } else {
+        wx.showToast({ title: '配置加载失败', icon: 'none' });
+      }
     }
   },
 
@@ -66,12 +76,26 @@ Page({
       const limit = this.data.settings.pagination.page_size;
       const result = await api.getFoods(page, limit, this.data.recordSearch);
       if (requestId !== recordsRequest) return;
+      offline.mergeFoods(result.items || []);
+      offline.warmImages((result.items || []).map(r => r.image_path));
       let records = reset ? result.items : this.data.records.concat(result.items);
-      records = records.map(record => this.decorate(record));
+      records = records.map(record => this.decorate(offline.withLocalImages(record)));
       this.setData({ records, page, hasMore: records.length < result.total });
       if (reset) DataBus.fresh('records', this);
     } catch (e) {
-      if (requestId === recordsRequest) wx.showToast({ title: e.message || '记录加载失败', icon: 'none' });
+      if (requestId !== recordsRequest) return;
+      // 断网兜底：本地缓存过滤 + 本地分页
+      const all = offline.searchFoods(this.data.recordSearch);
+      const limit = this.data.settings.pagination.page_size || 10;
+      const slice = all.slice((page - 1) * limit, page * limit);
+      if (all.length) {
+        let records = reset ? slice : this.data.records.concat(slice);
+        records = records.map(record => this.decorate(offline.withLocalImages(record)));
+        this.setData({ records, page, hasMore: records.length < all.length });
+        wx.showToast({ title: '离线数据（可能不是最新）', icon: 'none' });
+      } else {
+        wx.showToast({ title: e.message || '记录加载失败', icon: 'none' });
+      }
     } finally {
       if (requestId === recordsRequest) this.setData({ loading: false });
     }

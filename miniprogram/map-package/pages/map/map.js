@@ -2,6 +2,7 @@ import * as echarts from '../../ec-canvas/echarts';
 import china from '../../mapdata/china';
 import europe from '../../mapdata/europe';
 const api = require('../../../utils/api');
+const offline = require('../../../utils/offline');
 const setCurrentTab = require('../../../utils/tab');
 
 let chart = null;
@@ -84,36 +85,53 @@ Page({
   },
 
   async loadData() {
+    let foods = null;
+    let catItems = null;
+    let offlineMode = false;
     try {
       const config = await api.getConfig();
+      offline.saveConfig(config);
       const limit = config.pagination.max_page_size;
       const first = await api.getFoods(1, limit, '');
       const pages = Math.ceil(first.total / limit);
       const requests = [first];
       for (let page = 2; page <= pages; page += 1) requests.push(api.getFoods(page, limit, ''));
       const all = await Promise.all(requests);
-      // 全量食物（类别弹窗用）+ 吃过的菜名集合
-      this.allFoods = [];
-      const visitedDishes = new Set();
-      all.forEach(r => (r.items || []).forEach(food => {
-        this.allFoods.push(food);
-        (food.categories || []).forEach(cat => { if (cat) visitedDishes.add(cat); });
-      }));
-      this.visitedDishes = visitedDishes;
-
+      foods = [];
+      all.forEach(r => (r.items || []).forEach(food => foods.push(food)));
+      offline.mergeFoods(foods);
+      offline.warmImages(foods.map(f => f.image_path));
       const catResult = await api.getCategories();
-      const byProvince = {};
-      (catResult.items || []).forEach(item => {
-        const province = (item.parentcategories || '').trim();
-        if (province) { (byProvince[province] = byProvince[province] || []).push(item.name); }
-      });
-      this.byProvince = byProvince;
-
-      this.renderMap();
-      this.loaded = true;
+      catItems = catResult.items || [];
+      offline.saveCategories(catItems);
     } catch (e) {
-      wx.showToast({ title: '地图数据加载失败', icon: 'none' });
+      // 断网兜底：本地缓存继续可用
+      const cachedFoods = offline.cachedFoods();
+      const cachedCats = offline.getCachedCategories();
+      if (!cachedFoods.length && !cachedCats.length) {
+        wx.showToast({ title: '地图数据加载失败', icon: 'none' });
+        return;
+      }
+      foods = cachedFoods;
+      catItems = cachedCats;
+      offlineMode = true;
     }
+    // 全量食物（类别弹窗用）+ 吃过的菜名集合
+    this.allFoods = foods;
+    const visitedDishes = new Set();
+    foods.forEach(food => (food.categories || []).forEach(cat => { if (cat) visitedDishes.add(cat); }));
+    this.visitedDishes = visitedDishes;
+
+    const byProvince = {};
+    catItems.forEach(item => {
+      const province = (item.parentcategories || '').trim();
+      if (province) { (byProvince[province] = byProvince[province] || []).push(item.name); }
+    });
+    this.byProvince = byProvince;
+
+    this.renderMap();
+    this.loaded = true;
+    if (offlineMode) wx.showToast({ title: '离线数据（可能不是最新）', icon: 'none' });
   },
 
   renderMap() {
@@ -185,7 +203,7 @@ Page({
   openCatModal(e) {
     const name = e.currentTarget.dataset.name;
     if (!this.visitedDishes || !this.visitedDishes.has(name)) return; // 未解锁不可点
-    const foods = this.sortByRank((this.allFoods || []).filter(f => (f.categories || []).includes(name)), name);
+    const foods = this.sortByRank((this.allFoods || []).filter(f => (f.categories || []).includes(name)).map(f => offline.withLocalImages(f)), name);
     this.stopAutoScroll();
     this.lastTouch = null;
     this.setData({ modal: { name, foods, dragIndex: -1, overIndex: -1 }, rankScrollTop: 0 }, () => this.cacheRankRects());
@@ -284,6 +302,7 @@ Page({
   },
 
   // 交换后按显示顺序写入名次（1 开始），只 PATCH 名次有变化的记录
+  // 断网时入队 + 本地更新，恢复联网由 offline.sync 自动补传，UI 视为保存成功
   applyRankOrder(list) {
     const cat = this.data.modal.name;
     const changed = [];
@@ -297,8 +316,9 @@ Page({
     changed.forEach(({ f, rank }) => {
       const af = (this.allFoods || []).find(x => x.id === f.id);
       if (af) af.category_rank = rank;
+      offline.applyLocalPatch(f.id, { category_rank: rank }, true);
       api.updateFoodDetails(f.id, { category_rank: rank }).catch(() => {
-        wx.showToast({ title: '排名保存失败', icon: 'none' });
+        offline.enqueue({ kind: 'patch', serverId: f.id, fields: { category_rank: rank }, rankOnly: true });
       });
     });
   },

@@ -50,6 +50,21 @@ function formatTakenAt(value) {
   return date.getFullYear() + ":" + pad(date.getMonth() + 1) + ":" + pad(date.getDate()) + " " + pad(date.getHours()) + ":" + pad(date.getMinutes()) + ":" + pad(date.getSeconds());
 }
 
+function compressImage(filePath, imageConfig) {
+  return new Promise(function (resolve) {
+    wx.getImageInfo({ src: filePath, success: function (info) {
+      var maxDimension = Number(imageConfig.max_dimension);
+      var quality = imageConfig.quality <= 1 ? imageConfig.quality * 100 : imageConfig.quality;
+      var w = info.width, h = info.height;
+      if (w > maxDimension || h > maxDimension) {
+        var ratio = maxDimension / Math.max(w, h);
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+      }
+      wx.compressImage({ src: filePath, quality: quality, compressedWidth: w, compressedHeight: h, success: function (res) { resolve(res.tempFilePath || filePath); }, fail: function () { resolve(filePath); } });
+    }, fail: function () { resolve(filePath); } });
+  });
+}
+
 function compressAndUpload(filePath, imageConfig, takenAt) {
   return new Promise(function (resolve, reject) {
     function finishUpload(resPath) {
@@ -105,6 +120,6 @@ function getCategories() { return request("/api/categories"); }
 
 module.exports = {
   BASE_URL, getConfig, getStats, getFoods, getFoodById, deleteFood, getFoodsByCategory, submitFood, updateFoodDetails, addComment,
-  removeTempFile,
+  removeTempFile, formatTakenAt, compressImage,
   searchIngredients, addIngredient, getCategories, compressAndUpload,
 };

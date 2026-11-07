@@ -1,5 +1,6 @@
 const api = require('../../utils/api');
 const DataBus = require('../../utils/databus');
+const offline = require('../../utils/offline');
 const setCurrentTab = require('../../utils/tab');
 const voice = require('../../utils/voice');
 
@@ -98,10 +99,19 @@ Page({
   async loadConfig() {
     try {
       const config = await api.getConfig();
+      offline.saveConfig(config);
       this.setData({ settings: config });
       this.loadToday();
     } catch (e) {
-      wx.showToast({ title: '配置加载失败', icon: 'none' });
+      // 断网兜底：配置缓存继续可用
+      const cached = offline.getCachedConfig();
+      if (cached) {
+        this.setData({ settings: cached });
+        this.loadToday();
+        wx.showToast({ title: '离线数据（可能不是最新）', icon: 'none' });
+      } else {
+        wx.showToast({ title: '配置加载失败', icon: 'none' });
+      }
     }
   },
 
@@ -109,14 +119,27 @@ Page({
     try {
       if (!this.data.settings) return;
       const result = await api.getFoods(1, this.data.settings.pagination.max_page_size, '', true);
+      offline.mergeFoods(result.items || []);
+      offline.warmImages((result.items || []).map(r => r.image_path));
       const records = (result.items || []).map(r => ({
-        ...r,
+        ...offline.withLocalImages(r),
         comments: r.comment || [],
       }));
       this.setData({ todayRecords: records });
       DataBus.fresh('records', this);
     } catch (e) {
-      wx.showToast({ title: '今日记录加载失败', icon: 'none' });
+      // 断网兜底：今天缓存 + 本地未同步新档
+      const today = offline.todayString();
+      const items = offline.cachedFoods()
+        .filter(r => r.modify_at && r.modify_at[r.modify_at.length - 1] === today)
+        .map(r => ({ ...offline.withLocalImages(r), comments: r.comment || [] }));
+      if (items.length) {
+        this.setData({ todayRecords: items });
+        DataBus.fresh('records', this);
+        wx.showToast({ title: '离线数据（可能不是最新）', icon: 'none' });
+      } else {
+        wx.showToast({ title: '今日记录加载失败', icon: 'none' });
+      }
     }
   },
 
@@ -161,9 +184,59 @@ Page({
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
-      api.removeTempFile(path);
-      this.setData({ uploading: false });
-      wx.showToast({ title: e.message || '保存失败', icon: 'none' });
+      if (!offline.isNetworkError(e)) {
+        api.removeTempFile(path);
+        this.setData({ uploading: false });
+        wx.showToast({ title: e.message || '保存失败', icon: 'none' });
+        return;
+      }
+      // 断网建档：压缩图落盘持久化 + 本地负数 id 记录 + 入队，恢复联网自动上传
+      try {
+        const compressed = await api.compressImage(path, this.data.settings.image || {});
+        const localPath = offline.persistLocalImage(compressed);
+        const meta = { taken_at: api.formatTakenAt(takenAt || Date.now()) };
+        const loc = await new Promise(resolve => wx.getLocation({
+          type: 'gcj02',
+          success: l => resolve(l),
+          fail: () => resolve(null),
+        }));
+        if (loc && loc.latitude) {
+          meta.latitude = loc.latitude;
+          meta.longitude = loc.longitude;
+        }
+        const clientKey = offline.makeClientKey();
+        const localId = offline.allocateLocalId();
+        const localRecord = {
+          id: localId,
+          name: '',
+          brand_name: '',
+          price: null,
+          categories: [],
+          ingredients: [],
+          flavors: [],
+          preference: this.data.settings.preferences.good.value,
+          comment: [],
+          worth_it: '',
+          image_path: localPath,
+          image_metadata: meta,
+          category_rank: {},
+          modify_at: [offline.todayString()],
+          repurchase: 0,
+          client_key: clientKey,
+        };
+        const payload = Object.assign({}, localRecord);
+        delete payload.id;
+        offline.enqueue({ kind: 'create', record: payload, clientKey, localId, localImage: localPath });
+        offline.upsertFood(localRecord);
+        api.removeTempFile(path); // 临时文件已持久化，不再需要
+        this.setData({ fileList: [], uploading: false });
+        DataBus.touch('records');
+        wx.showToast({ title: '已离线保存，联网后自动同步', icon: 'none' });
+        this.loadToday();
+      } catch (e2) {
+        this.setData({ uploading: false });
+        wx.showToast({ title: (e2 && e2.message) || '离线保存失败', icon: 'none' });
+      }
     }
   },
 
@@ -200,7 +273,17 @@ Page({
       this.loadToday();
     } catch (e) {
       wx.hideLoading();
-      wx.showToast({ title: e.message || '保存失败', icon: 'none' });
+      if (!offline.isNetworkError(e)) {
+        wx.showToast({ title: e.message || '保存失败', icon: 'none' });
+        return;
+      }
+      // 断网评论：入队 + 本地乐观更新
+      offline.enqueue({ kind: 'patch', serverId: this.data.commentingId, fields: { comment: newComments } });
+      offline.applyLocalPatch(this.data.commentingId, { comment: newComments });
+      this.setData({ comments: newComments, commentInput: '' });
+      wx.showToast({ title: '已离线保存，联网后自动同步', icon: 'none' });
+      DataBus.touch('records');
+      this.loadToday();
     }
   },
 });
